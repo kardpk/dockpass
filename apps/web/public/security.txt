@@ -1,0 +1,5 @@
+Contact: security@dockpass.io
+Expires: 2027-04-01T00:00:00.000Z
+Preferred-Languages: en
+Policy: https://dockpass.io/security-policy
+Acknowledgments: https://dockpass.io/security-acknowledgments

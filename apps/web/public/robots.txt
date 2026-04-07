@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /snapshot/
+
+Sitemap: https://dockpass.io/sitemap.xml

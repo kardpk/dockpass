@@ -1,5 +1,5 @@
 /* ============================================
-   DockPass — Shared TypeScript Types
+   DockPass — TypeScript Types (ARCH 2 from AUDIT.md)
    ============================================ */
 
 // ── API Response wrapper ──
@@ -8,31 +8,65 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
+// ── Enums ──
+export type TripStatus = "upcoming" | "active" | "completed" | "cancelled";
+export type SubscriptionTier = "solo" | "captain" | "fleet" | "marina";
+export type CharterType = "captained" | "bareboat" | "both";
+export type ApprovalStatus =
+  | "pending"
+  | "approved"
+  | "declined"
+  | "auto_approved";
+export type BoatType =
+  | "yacht"
+  | "catamaran"
+  | "motorboat"
+  | "sailboat"
+  | "pontoon"
+  | "fishing"
+  | "speedboat"
+  | "other";
+
 // ── Operator ──
 export interface Operator {
   id: string;
   email: string;
   fullName: string;
   phone: string;
-  subscriptionTier: "solo" | "captain" | "fleet" | "marina";
+  subscriptionTier: SubscriptionTier;
+  subscriptionStatus: string;
+  isActive: boolean;
+  maxBoats: number;
   stripeCustomerId: string | null;
   stripeConnectAccountId: string | null;
   createdAt: string;
 }
 
-// ── Boat ──
-export interface Boat {
+// ── Boat Profile ──
+export interface BoatProfile {
   id: string;
   operatorId: string;
-  name: string;
-  type: string;
-  capacity: number;
-  marina: string;
-  slip: string;
+  boatName: string;
+  boatType: BoatType;
+  charterType: CharterType;
+  maxCapacity: number;
+  marinaName: string;
+  marinaAddress: string;
+  slipNumber: string | null;
+  parkingInstructions: string | null;
+  lat: number | null;
+  lng: number | null;
+  captainName: string | null;
+  captainPhotoUrl: string | null;
+  captainBio: string | null;
+  captainLicense: string | null;
+  captainLanguages: string[];
+  whatToBring: string | null;
+  houseRules: string | null;
+  waiverText: string;
+  cancellationPolicy: string | null;
+  addons: AddonItem[];
   photoUrl: string | null;
-  description: string | null;
-  amenities: string[];
-  rules: string[];
   createdAt: string;
 }
 
@@ -44,20 +78,20 @@ export interface Trip {
   operatorId: string;
   tripCode: string;
   tripDate: string;
-  startTime: string;
-  durationMinutes: number;
+  departureTime: string;
+  durationHours: number;
   maxGuests: number;
-  pricePerGuest: number;
-  status: "draft" | "active" | "completed" | "cancelled";
+  status: TripStatus;
+  charterType: CharterType;
   createdAt: string;
 }
 
 export interface TripWithBoat extends Trip {
-  boat: Boat;
+  boat: BoatProfile;
 }
 
 // ── Guest ──
-export interface Guest {
+export interface GuestRecord {
   id: string;
   tripId: string;
   fullName: string;
@@ -65,9 +99,12 @@ export interface Guest {
   emergencyContactPhone: string;
   dietaryRequirements: string | null;
   languagePreference: string;
+  approvalStatus: ApprovalStatus;
   waiverSigned: boolean;
   waiverSignedAt: string | null;
-  qrToken: string | null;
+  waiverSignatureText: string | null;
+  qrToken: string;
+  addonOrders: AddonOrder[];
   createdAt: string;
 }
 
@@ -79,19 +116,21 @@ export interface WeatherData {
   description: string;
 }
 
-// ── Add-on ──
-export interface AddOn {
+// ── Add-on Item (operator defines) ──
+export interface AddonItem {
   id: string;
   boatId: string;
   name: string;
-  description: string;
-  price: number;
-  available: boolean;
+  description: string | null;
+  emoji: string;
+  priceCents: number;
+  maxQuantity: number;
 }
 
-// ── Add-on Order ──
-export interface AddOnOrder {
+// ── Add-on Order (guest orders) ──
+export interface AddonOrder {
   addonId: string;
   quantity: number;
-  price: number;
+  unitPriceCents: number;
+  totalCents: number;
 }
