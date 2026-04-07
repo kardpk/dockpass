@@ -1,0 +1,83 @@
+{
+  "trip": {
+    "joinButton": "Join this trip →",
+    "joinSubtext": "Check in · Sign waiver · Order add-ons",
+    "weather": {
+      "perfect": "Perfect conditions",
+      "good": "Good conditions",
+      "advisory": "Weather advisory",
+      "storm": "Storm warning"
+    },
+    "dock": {
+      "title": "Find Your Dock",
+      "openMaps": "Open in Maps →"
+    },
+    "captain": {
+      "title": "Meet Your Captain",
+      "licensed": "USCG Licensed"
+    },
+    "bring": {
+      "title": "What to Bring",
+      "notBring": "⚠️ What NOT to bring (tap to expand)"
+    },
+    "rules": { "title": "Boat Rules" },
+    "safety": { "title": "Safety on Board" },
+    "route": { "title": "Today's Route" },
+    "cost": { "title": "Full Cost Breakdown" },
+    "cancel": { "title": "Cancellation Policy" },
+    "addons": { "title": "Add-Ons Available" }
+  },
+  "join": {
+    "step1": {
+      "title": "Enter your trip code",
+      "subtitle": "Your organiser included this in their message",
+      "hint": "4-letter code from your organiser",
+      "example": "e.g. SUN4"
+    },
+    "step2": {
+      "title": "Your information",
+      "name": "Full name",
+      "emergencyName": "Emergency contact name",
+      "emergencyPhone": "Emergency contact phone",
+      "dietary": "Dietary requirements / allergies",
+      "dietaryPlaceholder": "None",
+      "language": "Language preference"
+    },
+    "step3": {
+      "title": "Liability waiver",
+      "agree": "I have read and agree to the terms above",
+      "signPrompt": "Type your full name to sign"
+    },
+    "step4": {
+      "title": "Enhance your experience",
+      "subtitle": "Optional — you can skip this",
+      "completeBtn": "Complete Check-in",
+      "skip": "Skip"
+    },
+    "confirm": {
+      "title": "You're checked in!",
+      "subtitle": "See you at the dock, {{name}}",
+      "addHome": "Add DockPass to your home screen",
+      "addHomeSub": "Get weather updates and dock alerts"
+    }
+  },
+  "post": {
+    "title": "Hope you had an amazing time! 🌊",
+    "rate": "How was your experience?",
+    "rebook": "Ready for another adventure?",
+    "rebookBtn": "Book {{boatName}} again →",
+    "share": "Share with a friend",
+    "shareSub": "You both get 10% off your next charter",
+    "shareBtn": "Share referral link",
+    "postcard": "Download your trip postcard",
+    "reviewGoogle": "Review on Google →",
+    "reviewBoatsetter": "Review on Boatsetter →"
+  },
+  "loading": "Loading...",
+  "error": {
+    "generic": "Something went wrong. Please try again.",
+    "invalidCode": "Incorrect trip code. Please check and try again.",
+    "tripNotFound": "Trip not found or no longer available.",
+    "tripFull": "This trip is now full."
+  }
+}
