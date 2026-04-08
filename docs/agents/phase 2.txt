@@ -1,0 +1,893 @@
+﻿Clean execution. 17 files, zero errors, all 4 tests passing. The signup design looks exactly right — navy, clean, professional.
+Phase 2 — Boat Wizard Steps 1–3:
+@docs/agents/00-MASTER.md
+@docs/agents/04-SECURITY.md
+@docs/agents/05-FRONTEND.md
+@docs/agents/06-DESIGN.md
+@docs/agents/07-BACKEND.md
+@docs/agents/16-UX_SCREENS.md
+@docs/agents/17-AUDIT.md
+@docs/agents/18-DEPENDENCIES.md
+
+
+TASK: Build the boat setup wizard Steps 1–3
+for DockPass. Phase 2 of Session 3.
+This is the first screen new operators see
+after signup. It must feel effortless.
+
+
+Use types from apps/web/types/database.ts
+Use cn() utility already created in Phase 1
+Import 'server-only' in all server files
+All Mapbox components are 'use client'
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WIZARD ARCHITECTURE FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Before building any step, create the
+wizard container and shared components.
+Everything else plugs into these.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. WIZARD STATE (shared across all steps)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/dashboard/boats/new/
+  types.ts
+
+
+export type BoatType =
+  | 'yacht' | 'catamaran' | 'motorboat'
+  | 'sailboat' | 'pontoon' | 'fishing'
+  | 'speedboat' | 'other'
+
+
+export type CharterType =
+  | 'captained' | 'bareboat' | 'both'
+
+
+export interface WizardAddon {
+  id: string        // temp client-side ID
+  name: string
+  description: string
+  emoji: string
+  priceCents: number
+  maxQuantity: number
+}
+
+
+export interface WizardData {
+  // Step 1 — Boat basics
+  importUrl: string
+  importSuccess: boolean
+  boatName: string
+  boatType: BoatType | ''
+  charterType: CharterType | ''
+  yearBuilt: string
+  maxCapacity: string
+  photoUrls: string[]
+
+
+  // Step 2 — Marina
+  marinaName: string
+  marinaAddress: string
+  slipNumber: string
+  parkingInstructions: string
+  lat: number | null
+  lng: number | null
+
+
+  // Step 3 — Captain
+  captainName: string
+  captainPhotoFile: File | null
+  captainPhotoPreview: string
+  captainBio: string
+  captainLicense: string
+  captainLanguages: string[]
+  captainYearsExp: string
+
+
+  // Step 4 — Defaults
+  whatToBring: string
+  houseRules: string
+  prohibitedItems: string
+  cancellationPolicy: string
+
+
+  // Step 5 — Waiver
+  waiverText: string
+
+
+  // Step 6 — Addons
+  addons: WizardAddon[]
+}
+
+
+export const INITIAL_WIZARD_DATA: WizardData = {
+  importUrl: '',
+  importSuccess: false,
+  boatName: '',
+  boatType: '',
+  charterType: '',
+  yearBuilt: '',
+  maxCapacity: '',
+  photoUrls: [],
+  marinaName: '',
+  marinaAddress: '',
+  slipNumber: '',
+  parkingInstructions: '',
+  lat: null,
+  lng: null,
+  captainName: '',
+  captainPhotoFile: null,
+  captainPhotoPreview: '',
+  captainBio: '',
+  captainLicense: '',
+  captainLanguages: ['en'],
+  captainYearsExp: '',
+  whatToBring: '',
+  houseRules: '',
+  prohibitedItems: '',
+  cancellationPolicy: '',
+  waiverText: '',
+  addons: [],
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. WIZARD PAGE (route)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/dashboard/boats/new/
+  page.tsx
+
+
+Server Component.
+Calls requireOperator() — protected.
+
+
+Check boat limit:
+  Count operator's existing boats.
+  If count >= operator.max_boats:
+    Show upgrade prompt instead of wizard:
+    
+    White card, centred:
+    "You've reached your boat limit"
+    "Your [tier] plan includes [max] boat(s)."
+    "Upgrade to add more boats."
+    [Upgrade plan →] → /dashboard/billing
+    [← Back to dashboard] ghost link
+
+
+If under limit: render <BoatWizard />
+
+
+Page metadata:
+  title: "Add your boat — DockPass"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. WIZARD CONTAINER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/dashboard/boats/new/
+  BoatWizard.tsx
+'use client'
+
+
+Manages all wizard state.
+Renders progress bar + current step.
+Handles forward/back navigation.
+Applies step transitions via Framer Motion.
+
+
+PROGRESS BAR:
+  Full-width bar at top (not inside card)
+  Background: #D0E2F3 (light blue)
+  Fill: #0C447C (navy)
+  Height: 4px
+  Transition: width 300ms ease-in-out
+  
+  Percentage: (currentStep - 1) / 6 * 100
+  Step 1 = 0%, Step 2 = 16.6%, ... Step 6 = 83.3%
+  On complete = 100%
+
+
+STEP HEADER:
+  Below progress bar, padding 20px 16px 0
+  Small label: "Step [n] of 6" (11px, grey)
+  Step title (18px, 600, navy):
+    Step 1: "Your boat"
+    Step 2: "Marina & dock"
+    Step 3: "Captain profile"
+    Step 4: "Trip defaults"
+    Step 5: "Liability waiver"
+    Step 6: "Add-on menu"
+
+
+BACK BUTTON:
+  Top-left, visible from step 2 onward
+  ← (ChevronLeft icon) + "Back"
+  Ghost style, 13px
+  Triggers: setDirection(-1), setStep(step - 1)
+
+
+STEP CONTENT AREA:
+  Padding: 24px 16px
+  Max-width: 520px, centred on desktop
+  Mobile: full width
+
+
+STEP TRANSITIONS (Framer Motion):
+  import { AnimatePresence, motion } from
+    'framer-motion'
+  
+  Wrap each step in motion.div
+  Key: currentStep (triggers re-animation)
+  
+  Variants:
+    enter: x = direction > 0 ? '100%' : '-100%'
+    center: x = 0
+    exit: x = direction < 0 ? '100%' : '-100%'
+  
+  Transition: duration 0.25s, ease 'easeInOut'
+  AnimatePresence mode="wait"
+
+
+STATE MANAGEMENT:
+  const [step, setStep] = useState(1)
+  const [direction, setDirection] = useState(1)
+  const [data, setData] = useState(INITIAL_WIZARD_DATA)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+
+  function goNext(newData: Partial<WizardData>) {
+    setData(prev => ({ ...prev, ...newData }))
+    setDirection(1)
+    setStep(prev => prev + 1)
+    // Scroll to top on step change
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+
+  function goBack() {
+    setDirection(-1)
+    setStep(prev => prev - 1)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+
+Each step component receives:
+  - data: WizardData (current state)
+  - onNext: (partial: Partial<WizardData>) => void
+  - isSubmitting: boolean (step 6 only)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. STEP 1 — YOUR BOAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/dashboard/boats/new/
+  steps/Step1Boat.tsx
+'use client'
+
+
+TWO-PATH LAYOUT:
+  Two cards side by side on desktop,
+  stacked on mobile.
+  Gap: 12px
+
+
+IMPORT CARD:
+  Border: 2px solid #0C447C (navy — recommended)
+  Background: #E8F2FB (light blue)
+  Border-radius: 16px
+  Padding: 20px
+  
+  Top-right badge: "Recommended"
+    Background: #0C447C, white text
+    Font: 10px, 600
+    Padding: 2px 8px, radius 10px
+  
+  Icon: 🔗 (24px)
+  Title: "Import from Boatsetter"
+    16px, 600, navy
+  Body: "Paste your listing URL and we'll
+    fill in everything automatically."
+    13px, grey, margin-top 4px
+  
+  URL INPUT (shown by default):
+    Placeholder: "https://www.boatsetter.com/boats/..."
+    Full width, height 44px
+    Border: 1px #D0E2F3
+    Radius: 10px
+    Padding: 0 12px
+    
+  [Import my listing →] navy button
+    Full width, 52px, below input
+    Loading state: AnchorLoader + "Scanning..."
+    
+  SUCCESS STATE (shown after import):
+    Replace URL input with success card:
+    
+    Background: #E8F9F4 (light green)
+    Border: 1px #1D9E75
+    Radius: 10px
+    Padding: 12px
+    
+    "✓ We found your boat!" (teal, 14px, 600)
+    List of what was imported:
+      ✓ [boat name] (13px, dark)
+      ✓ [marina name]
+      ✓ [rules count] house rules
+      ✓ [photo count] photos
+    
+    [Use this data →] teal button full width
+
+
+MANUAL CARD:
+  Border: 1px solid #D0E2F3
+  Background: white
+  Border-radius: 16px
+  Padding: 20px
+  
+  Icon: ✏️ (24px)
+  Title: "Enter manually"
+    16px, 600, #0D1B2A
+  Body: "Takes about 10 minutes. 
+    Fill in your boat details step by step."
+    13px, grey
+  
+  [Enter manually →] secondary button
+    Full width, 52px, white with navy border
+
+
+AFTER CHOOSING MANUAL (or after import):
+  Form slides down with Framer Motion
+  (animate height from 0 to auto)
+  
+  The form appears below both cards:
+  
+  BOAT NAME *
+    Label: "Boat name"
+    Placeholder: "e.g. Conrad's Yacht Miami"
+    
+  BOAT TYPE *
+    Label: "Type of boat"
+    shadcn/ui Select component:
+    Options with emojis:
+      ⛵ Sailing yacht
+      🛥️ Motor yacht  
+      🚤 Motorboat
+      ⛵ Catamaran
+      🛶 Pontoon boat
+      🎣 Fishing charter
+      💨 Speedboat
+      🚢 Other
+    
+  CHARTER TYPE *
+    Label: "How is the boat operated?"
+    Three radio cards (not a dropdown):
+    
+    Card 1 — Captained:
+      Icon: 👨‍✈️
+      Title: "Captained"
+      Body: "You or a captain drives"
+      Selected: navy border + blue bg
+    
+    Card 2 — Bareboat:
+      Icon: 🎯
+      Title: "Bareboat"
+      Body: "Guests operate the boat"
+      Shows info tooltip on hover:
+        "Florida law requires guests born
+         after 1988 to complete a boating
+         safety course for bareboat charters."
+    
+    Card 3 — Both:
+      Icon: 🔄
+      Title: "Both options"
+      Body: "Offer either type"
+    
+  MAX PASSENGERS *
+    Label: "Maximum passengers"
+    Type: number, min 1, max 500
+    Placeholder: "8"
+    Helper text: "Including yourself if applicable"
+    
+  YEAR BUILT (optional)
+    Label: "Year built"
+    Type: number, min 1950, max 2026
+    Placeholder: "e.g. 2019"
+
+
+VALIDATION (on Next click):
+  const step1Schema = z.object({
+    boatName: z.string()
+      .min(2, "Please enter your boat name"),
+    boatType: z.enum([
+      'yacht','catamaran','motorboat',
+      'sailboat','pontoon','fishing',
+      'speedboat','other'
+    ], { message: "Please select a boat type" }),
+    charterType: z.enum(
+      ['captained','bareboat','both'],
+      { message: "Please select charter type" }
+    ),
+    maxCapacity: z.number()
+      .min(1, "Must have at least 1 passenger")
+      .max(500),
+  })
+
+
+NEXT BUTTON:
+  "Continue →" — navy, full width, 52px
+  Positioned at bottom of form
+  Disabled until required fields filled
+  Shows AnchorLoader during import call
+
+
+IMPORT API CALL:
+  POST /api/dashboard/boats/import
+  Body: { url: importUrl }
+  
+  On success: populate all WizardData fields
+    with imported data where available
+  On error: show error, keep import card visible
+    "Couldn't read that listing. Try entering
+     your details manually below."
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. IMPORT API ROUTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/api/dashboard/boats/
+  import/route.ts
+import 'server-only'
+
+
+Apply in strict order:
+  1. requireOperator() — auth check
+  2. rateLimit() — max 5/hr per operator
+     key: `scrape:${operator.id}`
+  3. Parse body + validate URL with Zod:
+     z.object({ url: z.string().url() })
+  4. validateScrapingURL() — SSRF protection
+  5. Check APIFY_API_TOKEN env var:
+     If empty → return mock data
+     If present → call Apify
+
+
+MOCK DATA (when Apify not configured):
+  Detect if URL contains 'boatsetter':
+  return {
+    boatName: "Your Boat Name",
+    boatType: "yacht",
+    maxCapacity: 8,
+    marinaName: "Miami Beach Marina",
+    marinaAddress: "300 Alton Rd, Miami Beach, FL 33139",
+    captainName: "Captain Name",
+    houseRules: "No red wine on deck.\nRemove shoes before boarding.\nNo smoking below deck.",
+    whatToBring: "Sunscreen, towel, valid ID, non-marking shoes",
+    cancellationPolicy: "Free cancellation 48 hours before. 50% refund 24-48 hours before.",
+    photoUrls: [],
+    _isMock: true,
+  }
+
+
+REAL APIFY CALL (when token exists):
+  POST to Apify web-scraper actor
+  Timeout: 15 seconds
+  Return parsed boat data
+
+
+RESPONSE shape:
+  200: { data: BoatImportResult }
+  400: { error: 'Invalid URL' }
+  429: { error: 'Too many imports. Try again in an hour.' }
+  500: { error: 'Could not read listing' }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. STEP 2 — MARINA & DOCK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/dashboard/boats/new/
+  steps/Step2Marina.tsx
+'use client'
+
+
+FIELDS:
+
+
+MARINA NAME *
+  Label: "Marina name"
+  Placeholder: "Miami Beach Marina"
+
+
+FULL ADDRESS *
+  Label: "Marina address"
+  Placeholder: "300 Alton Rd, Miami Beach, FL 33139"
+  Helper: "This is what guests see and navigate to"
+
+
+SLIP OR DOCK NUMBER
+  Label: "Slip or dock number"
+  Placeholder: "14A"
+  Helper: "Helps guests find the exact location"
+
+
+PARKING INSTRUCTIONS
+  Label: "Parking"
+  Textarea, 3 rows
+  Placeholder: "Free parking in Lot B off Alton Rd.
+    Enter from 3rd St. Look for green P signs."
+
+
+MAPBOX LOCATION PICKER:
+  Create: apps/web/components/shared/
+    LocationPicker.tsx
+  'use client'
+  
+  Imports mapbox-gl
+  Shows map at 400px height
+  Default centre: Miami (25.7617, -80.1918)
+  Default zoom: 12
+  
+  Map style: mapbox://styles/mapbox/streets-v12
+  
+  MARKER:
+    Navy custom marker (#0C447C)
+    Shows when lat/lng are set
+    Draggable: true
+    On drag end: update lat/lng
+  
+  MAP CLICK:
+    On click: place/move marker to clicked point
+    Update lat/lng in parent state
+  
+  ADDRESS GEOCODE:
+    When marinaAddress field loses focus
+    AND address is not empty:
+    Call Mapbox Geocoding API:
+      GET https://api.mapbox.com/geocoding/v5/
+        mapbox.places/[encoded address].json
+        ?access_token=[token]
+        &types=poi,address
+        &country=US
+    
+    If result found:
+      Fly map to result coordinates
+      Place marker automatically
+      Show helper: "📍 Location set from address"
+    If not found:
+      Show helper: "Tap the map to set location"
+  
+  STATUS TEXT below map:
+    If no location: "Tap map to set your exact 
+      dock location" (grey)
+    If location set: "📍 Location set — 
+      guests will navigate here" (teal)
+    Show coordinates in tiny text: 
+      "25.7786° N, 80.1392° W" (grey caption)
+
+
+VALIDATION:
+  const step2Schema = z.object({
+    marinaName: z.string()
+      .min(2, "Please enter the marina name"),
+    marinaAddress: z.string()
+      .min(5, "Please enter the marina address"),
+    slipNumber: z.string().max(20).optional(),
+    parkingInstructions: z.string().max(500).optional(),
+    lat: z.number().optional().nullable(),
+    lng: z.number().optional().nullable(),
+  })
+  
+  Location (lat/lng) is recommended but 
+  not required (operator can skip).
+  If not set: show amber warning (not error):
+    "⚠️ No location set — guests may have
+     trouble finding your dock."
+  Still allow proceeding with Continue.
+
+
+CONTINUE BUTTON: "Continue →" navy full width
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. STEP 3 — CAPTAIN PROFILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create: apps/web/app/dashboard/boats/new/
+  steps/Step3Captain.tsx
+'use client'
+
+
+PHOTO UPLOAD:
+  Create: apps/web/components/shared/
+    CircularPhotoUpload.tsx
+  'use client'
+  
+  Visual:
+    80px circle
+    Default state:
+      Navy border 2px dashed #D0E2F3
+      Anchor icon (lucide, 24px, grey) centred
+      Tiny text below: "Photo" (11px, grey)
+    
+    Preview state (after file selected):
+      Shows actual image in circle
+      Cropped to circle (object-fit: cover)
+      Teal border 2px solid
+      On hover: slight dark overlay +
+        "Change" text overlay
+    
+    Loading state:
+      AnchorLoader sm inside circle
+  
+  On click: triggers hidden file input
+  
+  File validation on select:
+    validateUpload() from lib/security/uploads.ts
+    If invalid: show error below circle
+      "Only JPEG, PNG, or WebP under 5MB"
+    If valid:
+      FileReader → create preview URL
+      setData({ captainPhotoFile: file,
+                captainPhotoPreview: previewUrl })
+  
+  Note: actual upload to Supabase happens
+  at wizard completion (Step 6 submit), not here.
+
+
+FIELDS:
+
+
+CAPTAIN NAME *
+  Label: "Captain name"
+  Placeholder: "Captain Conrad Rivera"
+
+
+USCG LICENSE NUMBER
+  Label: "USCG license number"
+  Placeholder: "e.g. USCG-12345-FL"
+  Helper text with info icon (lucide Info, 14px):
+    "Required for captained commercial charters"
+  Not required in form validation
+  But show "Recommended" badge next to label
+
+
+YEARS OF EXPERIENCE
+  Label: "Years of experience"
+  shadcn Select:
+    Options: 1, 2, 3, 4, 5, 6-10, 10-15, 15-20, 20+
+  Not required
+
+
+LANGUAGES SPOKEN *
+  Label: "Languages spoken"
+  Helper: "Guests see this on the trip page"
+  
+  6 language pills in a flex-wrap row:
+    🇬🇧 English   🇪🇸 Spanish
+    🇵🇹 Portuguese 🇫🇷 French
+    🇩🇪 German    🇮🇹 Italian
+  
+  Each pill:
+    Padding: 6px 12px
+    Radius: 20px
+    Font: 13px, 500
+    
+    Unselected:
+      Border: 1px #D0E2F3
+      Background: white
+      Text: #6B7C93
+    
+    Selected:
+      Border: 1px #0C447C
+      Background: #0C447C
+      Text: white
+  
+  English pre-selected by default
+  Multi-select: can select multiple
+  At least one must be selected (validation)
+
+
+BIO
+  Label: "About the captain"
+  Textarea, 4 rows
+  Placeholder: "USCG licensed captain with 7 years
+    experience on Biscayne Bay. 124 trips, 
+    4.9 star rating. Specialises in sunset
+    cruises and snorkelling tours."
+  Max: 300 characters
+  Live counter: "247 / 300" right-aligned below
+    Turns coral (#E8593C) when < 20 chars remaining
+
+
+VALIDATION:
+  const step3Schema = z.object({
+    captainName: z.string()
+      .min(2, "Please enter the captain's name"),
+    captainLanguages: z.array(z.string())
+      .min(1, "Please select at least one language"),
+    captainBio: z.string().max(300).optional(),
+    captainLicense: z.string().max(50).optional(),
+  })
+
+
+CONTINUE BUTTON: "Continue →"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. SHARED WIZARD COMPONENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Create these shared components used
+across multiple steps:
+
+
+apps/web/components/ui/WizardField.tsx
+  Wraps label + input + error message
+  Props: label, required, helper, error, children
+  Consistent spacing and style
+
+
+apps/web/components/ui/WizardSection.tsx
+  Groups related fields with optional title
+  Props: title?, children
+  Light separator between sections
+
+
+apps/web/components/ui/ContinueButton.tsx
+  The "Continue →" button pattern
+  Props: loading, disabled, onClick, children
+  Always full width, 52px, navy, radius 12px
+  Loading = AnchorLoader replacing text
+  Disabled = opacity 40%
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. MOBILE OPTIMISATION (all 3 steps)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+These rules apply to ALL steps:
+
+
+Touch targets: minimum 44px height on 
+  every tappable element
+
+
+Keyboard behaviour:
+  On mobile, keyboard pushes content up
+  Ensure Continue button stays visible
+  Use: padding-bottom on form container
+    that accounts for keyboard height
+
+
+Input types:
+  Email: type="email" (mobile keyboard)
+  Number: type="number" inputMode="numeric"
+  URL: type="url" (mobile keyboard)
+  Tel: type="tel" (phone keyboard)
+
+
+Textarea on mobile:
+  Minimum height: 100px
+  resize: none (no resize handle on mobile)
+
+
+Select on mobile:
+  shadcn Select uses native behaviour
+  Works perfectly on iOS/Android
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERIFICATION TESTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+TEST 1 — Wizard renders:
+  Visit /dashboard/boats/new
+  Progress bar shows at 0%
+  Step header shows "Step 1 of 6 — Your boat"
+  Both import and manual cards visible
+
+
+TEST 2 — Import mock works:
+  Paste any Boatsetter-style URL
+  Click "Import my listing →"
+  Mock data returns (no Apify token in dev)
+  Success card shows with imported fields
+  Wizard data pre-populated
+
+
+TEST 3 — Manual entry + step transition:
+  Click "Enter manually →"
+  Form animates into view
+  Fill all required fields
+  Click Continue →
+  Step slides left to Step 2
+  Progress bar fills to ~16%
+  Back button appears on Step 2
+
+
+TEST 4 — Marina + Mapbox:
+  Enter marina address in Step 2
+  Tab out of address field
+  Map should auto-geocode + place marker
+  Marker should be draggable
+  Continue → advances to Step 3
+
+
+TEST 5 — Captain profile:
+  Photo upload: select a JPEG
+  Preview shows in circular frame
+  Language pills: toggle multiple languages
+  Bio counter counts down from 300
+  Continue → advances to Step 4
+
+
+TEST 6 — Validation:
+  Step 1: try Continue with no boat name → error
+  Step 2: try Continue with no marina → error
+  Step 3: try deselecting all languages → error
+  Step 3: paste a .txt file → upload error shown
+
+
+TEST 7 — Back navigation:
+  From Step 3 → click Back
+  Slides right back to Step 2
+  Step 2 data preserved (not cleared)
+  Back again → Step 1 data preserved
+
+
+TEST 8 — Build:
+  npm run typecheck → zero errors
+  npm run build → zero errors
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REPORT BACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+When all 8 tests pass, report:
+  1. Every file created with full path
+  2. Test results (pass/fail each)
+  3. Any deviations from spec + why
+  4. Any Mapbox or Framer Motion issues
+  5. Current wizard step count working
+
+
+________________
+
+
+What Phase 2 gives you when done:
+✅ Wizard container with progress bar
+✅ Smooth step transitions (Framer Motion)
+✅ Step 1: Import (with dev mock) or manual
+✅ Step 2: Marina details + Mapbox pin
+✅ Step 3: Captain profile + photo upload
+✅ Shared wizard components reused in 4–6
+✅ Import API route with SSRF protection
+✅ All data preserved when going back
+✅ Mobile optimised throughout
+
+
+Phase 3 follows immediately after — Steps 4–6 and the final save to Supabase. That is where the boat actually gets created. 🌙
