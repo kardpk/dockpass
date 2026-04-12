@@ -1,4 +1,4 @@
-# DockPass Agent Documents
+# BoatCheckin Agent Documents
 # Updated: April 2026 — v2 CTO Blueprint
 
 ## Read Order (always start with MASTER)

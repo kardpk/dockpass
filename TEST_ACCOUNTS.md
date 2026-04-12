@@ -1,6 +1,6 @@
-# DockPass Testing & Visual Verification Guide
+# BoatCheckin Testing & Visual Verification Guide
 
-To perform visual verifications across the platform, you need to understand how each of the three primary actors accesses the system. Unlike typical applications where everyone uses the same login page, DockPass heavily leverages **stateless links** for Guests and Captains to eliminate friction.
+To perform visual verifications across the platform, you need to understand how each of the three primary actors accesses the system. Unlike typical applications where everyone uses the same login page, BoatCheckin heavily leverages **stateless links** for Guests and Captains to eliminate friction.
 
 ---
 

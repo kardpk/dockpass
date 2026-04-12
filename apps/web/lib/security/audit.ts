@@ -9,6 +9,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 
 type AuditAction =
   | "guest_registered"
+  | "guest_removed"
   | "waiver_signed"
   | "trip_created"
   | "trip_cancelled"
@@ -20,6 +21,8 @@ type AuditAction =
   | "addon_ordered"
   | "approval_granted"
   | "approval_denied"
+  | "manifest_downloaded"
+  | "review_submitted"
   | "boat_created";
 
 

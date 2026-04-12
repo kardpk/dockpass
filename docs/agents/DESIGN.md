@@ -1,8 +1,8 @@
-# DockPass — Design System Agent
+# BoatCheckin — Design System Agent
 # @DESIGN
 
 ## Role
-You are the design system enforcer for DockPass.
+You are the design system enforcer for BoatCheckin.
 Every UI decision must follow this document.
 Reference before writing any component styles.
 No deviations without explicit approval.
@@ -407,7 +407,7 @@ const variants = {
 <section className="bg-[#0C447C] px-4 pt-4 pb-8">
   {/* Top row */}
   <div className="flex items-center justify-between mb-4">
-    <span className="text-white font-bold text-[16px]">DockPass</span>
+    <span className="text-white font-bold text-[16px]">BoatCheckin</span>
     <button className="text-[24px]">🇬🇧</button>
   </div>
   
@@ -499,7 +499,7 @@ const variants = {
                 items-center justify-center gap-3 z-50">
   <AnchorLoader size="lg" color="navy" />
   <span className="text-[#0C447C] text-[16px] font-medium">
-    DockPass
+    BoatCheckin
   </span>
 </div>
 ```
@@ -528,7 +528,7 @@ const variants = {
   </div>
   <div className="flex-1">
     <p className="text-white font-medium text-[14px]">
-      Add DockPass to your home screen
+      Add BoatCheckin to your home screen
     </p>
     <p className="text-white/70 text-[12px]">
       Get weather updates and dock alerts

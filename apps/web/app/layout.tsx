@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "DockPass — Your charter trip, all in one link",
+  title: "BoatCheckin — Your charter trip, all in one link",
   description:
     "Check in, sign your waiver, and get your boarding pass — all from one link. No app download required.",
   icons: { icon: "/favicon.ico" },

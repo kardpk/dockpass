@@ -73,7 +73,7 @@ export function PostcardSection({
       const url = canvas.toDataURL('image/png')
       const a = document.createElement('a')
       a.href = url
-      a.download = `dockpass_${tripSlug}.png`
+      a.download = `boatcheckin_${tripSlug}.png`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -113,7 +113,7 @@ export function PostcardSection({
           const file = new File([blob], 'my-charter.png', { type: 'image/png' })
           await navigator.share({
             title: `My charter on ${postcardData.boatName}`,
-            text: `Amazing day on the water ⚓ via @dockpass.io`,
+            text: `Amazing day on the water ⚓ via @boatcheckin.com`,
             files: [file],
           })
 
@@ -238,7 +238,7 @@ function PostcardCanvas({ data, theme, size }: { data: PostcardData; theme: any,
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <span style={{ fontSize: 36 }}>⚓</span>
           <span style={{ color: theme.headerText, fontSize: 24, fontWeight: 700, letterSpacing: '0.1em', opacity: 0.9 }}>
-            DOCKPASS
+            BOATCHECKIN
           </span>
         </div>
         <h1 style={{ color: theme.headerText, fontSize: 72, fontWeight: 800, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
@@ -290,7 +290,7 @@ function PostcardCanvas({ data, theme, size }: { data: PostcardData; theme: any,
 
       <div style={{ position: 'absolute', bottom: 48, left: 80, right: 80, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <p style={{ color: theme.text, opacity: 0.5, fontSize: 18, margin: 0, fontWeight: 500 }}>
-          dockpass.io
+          boatcheckin.com
         </p>
         <p style={{ color: theme.text, opacity: 0.4, fontSize: 16, margin: 0 }}>
           ⚓ Charter Experience

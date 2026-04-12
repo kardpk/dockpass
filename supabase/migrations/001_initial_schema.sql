@@ -1,5 +1,5 @@
 -- ==========================================
--- DockPass — Initial Schema Migration
+-- BoatCheckin — Initial Schema Migration
 -- 001_initial_schema.sql
 -- 
 -- 11 tables in dependency order

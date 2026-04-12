@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BoatWizard } from "./BoatWizard";
 
 export const metadata: Metadata = {
-  title: "Add your boat — DockPass",
+  title: "Add your boat — BoatCheckin",
 };
 
 export default async function NewBoatPage() {

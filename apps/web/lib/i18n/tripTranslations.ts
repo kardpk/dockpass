@@ -334,6 +334,7 @@ export const TRIP_TRANSLATIONS: Record<SupportedLang, TripT> = {
   pt: PT_TRIP,
   de: DE_TRIP,
   it: IT_TRIP,
+  ar: EN_TRIP, // TODO: Add Arabic translations
 }
 
 export function t(lang: SupportedLang): TripT {

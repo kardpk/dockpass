@@ -62,7 +62,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} noValidate>
       <h1 className="text-h1 text-dark-text">Welcome back</h1>
       <p className="text-body text-grey-text mt-tight">
-        Sign in to your DockPass account
+        Sign in to your BoatCheckin account
       </p>
 
       <div className="mt-section flex flex-col gap-page">
@@ -138,7 +138,7 @@ export function LoginForm() {
 
       {/* Footer link */}
       <p className="text-label text-grey-text text-center mt-page">
-        New to DockPass?{" "}
+        New to BoatCheckin?{" "}
         <Link href="/signup" className="text-navy hover:underline">
           Start free trial →
         </Link>

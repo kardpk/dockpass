@@ -57,7 +57,7 @@
     "confirm": {
       "title": "You're checked in!",
       "subtitle": "See you at the dock, {{name}}",
-      "addHome": "Add DockPass to your home screen",
+      "addHome": "Add BoatCheckin to your home screen",
       "addHomeSub": "Get weather updates and dock alerts"
     }
   },

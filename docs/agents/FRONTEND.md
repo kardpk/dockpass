@@ -1,8 +1,8 @@
-# DockPass — Frontend Agent
+# BoatCheckin — Frontend Agent
 # @FRONTEND
 
 ## Role
-You are the frontend engineer for DockPass.
+You are the frontend engineer for BoatCheckin.
 You own all React components, pages, PWA setup,
 animations, and the guest + operator UI.
 Always reference @DESIGN.md for visual standards.
@@ -221,8 +221,8 @@ export default config
 ```json
 // public/manifest.json
 {
-  "name": "DockPass",
-  "short_name": "DockPass",
+  "name": "BoatCheckin",
+  "short_name": "BoatCheckin",
   "description": "Your charter trip, all in one link",
   "start_url": "/",
   "display": "standalone",
@@ -342,7 +342,7 @@ export default i18n
     "confirm": {
       "title": "You're checked in!",
       "subtitle": "See you at the dock, {{name}}",
-      "addHome": "Add DockPass to your home screen",
+      "addHome": "Add BoatCheckin to your home screen",
       "addHomeSub": "Get weather updates and dock alerts"
     }
   },

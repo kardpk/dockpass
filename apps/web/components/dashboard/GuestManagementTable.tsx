@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Check, X, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
-import { LANGUAGE_FLAGS } from '@/lib/i18n/detect'
+import { LANGUAGE_FLAGS } from '@/lib/i18n/constants'
 import { useTripGuests } from '@/hooks/useTripGuests'
 import { RealtimeIndicator } from './RealtimeIndicator'
 import type { DashboardGuest } from '@/types'
@@ -183,14 +183,27 @@ export function GuestManagementTable({
                     </div>
 
                     <div className="flex items-center gap-2 mt-0.5">
-                      {/* Waiver status */}
+                      {/* Waiver status — Firma vs Legacy */}
+                      {guest.waiverTextHash === 'firma_template' ? (
+                        <span className="text-[11px] font-medium text-[#0C447C]">
+                          📝 Firma
+                        </span>
+                      ) : guest.waiverSigned ? (
+                        <span className="text-[11px] font-medium text-[#1D9E75]">
+                          ✓ Signed
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-medium text-[#E5910A]">
+                          ⏳ Pending
+                        </span>
+                      )}
+
+                      {/* Safety card counter */}
                       <span className={cn(
                         'text-[11px] font-medium',
-                        guest.waiverSigned
-                          ? 'text-[#1D9E75]'
-                          : 'text-[#E5910A]'
+                        (guest.safetyAcknowledgments?.length ?? 0) > 0 ? 'text-[#1D9E75]' : 'text-[#6B7C93]'
                       )}>
-                        {guest.waiverSigned ? '✓ Signed' : '⏳ Pending'}
+                        🛡 {guest.safetyAcknowledgments?.length ?? 0} cards
                       </span>
 
                       {/* Addon emojis */}

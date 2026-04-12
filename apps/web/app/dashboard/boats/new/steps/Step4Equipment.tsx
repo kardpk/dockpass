@@ -165,8 +165,8 @@ export function Step4Equipment({ data, onNext, template }: Step4Props) {
                 <WizardField
                   key={field.key}
                   label={field.label}
-                  required={field.required}
-                  helper={field.helpText}
+                  required={field.required ?? false}
+                  helper={field.helpText ?? ""}
                   htmlFor={field.key}
                 >
                   {field.type === "text" && (

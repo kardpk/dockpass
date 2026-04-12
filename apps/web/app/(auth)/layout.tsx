@@ -13,7 +13,7 @@ export default async function AuthLayout({
         <div className="flex items-center justify-center gap-2 mb-large">
           <span className="text-[24px] text-navy">⚓</span>
           <span className="text-[16px] font-semibold text-navy">
-            DockPass
+            BoatCheckin
           </span>
         </div>
 
@@ -24,7 +24,7 @@ export default async function AuthLayout({
 
         {/* Footer */}
         <p className="text-caption text-grey-text text-center mt-section">
-          dockpass.io
+          boatcheckin.com
         </p>
       </div>
     </main>

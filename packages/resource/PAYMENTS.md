@@ -1,4 +1,4 @@
-# DockPass — Payments Agent
+# BoatCheckin — Payments Agent
 # @PAYMENTS
 
 ## Role
@@ -289,9 +289,9 @@ async function updateOperatorSubscription(
 
 ```typescript
 // Add-on orders are stored in guest_addon_orders table
-// DockPass takes 8% commission on all add-on sales
+// BoatCheckin takes 8% commission on all add-on sales
 // This is tracked but payment collection is phase 2
-// (Phase 1: operator collects cash, DockPass invoices monthly)
+// (Phase 1: operator collects cash, BoatCheckin invoices monthly)
 
 // lib/stripe/commission.ts
 export const ADDON_COMMISSION_RATE = 0.08 // 8%
@@ -311,7 +311,7 @@ export async function createCommissionInvoice(
   const invoice = await stripe.invoices.create({
     customer: await getStripeCustomerId(operatorId),
     auto_advance: true,
-    description: `DockPass add-on commission — ${period}`,
+    description: `BoatCheckin add-on commission — ${period}`,
     metadata: { operatorId, period, type: 'commission' },
   })
 

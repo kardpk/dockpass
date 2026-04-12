@@ -51,7 +51,7 @@ export async function PUT(
     entityType: 'guest',
     entityId: id,
     changes: { guestName: data.full_name },
-  }).catch(() => null)
+  })
 
   return NextResponse.json({ data: { id, status: parsed.data.action } })
 }

@@ -4,10 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { rateLimit } from '@/lib/security/rate-limit'
 
-// Mock getWeatherData to ensure this API does not rely on a potentially missing function
-async function getWeatherData(lat: number, lng: number, date: string) {
-  return null;
-}
+import { getWeatherData } from '@/lib/trip/getWeatherData'
 
 export async function GET(
   req: NextRequest,

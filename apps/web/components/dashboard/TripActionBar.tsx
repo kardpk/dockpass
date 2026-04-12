@@ -9,15 +9,16 @@ interface TripActionBarProps {
   tripSlug: string
   status: TripStatus
   whatsappMessage: string
+  initialSnapshotUrl?: string | null
 }
 
 export function TripActionBar({
-  tripId, tripSlug, status, whatsappMessage,
+  tripId, tripSlug, status, whatsappMessage, initialSnapshotUrl
 }: TripActionBarProps) {
   const [copiedMsg, setCopiedMsg] = useState(false)
   const [downloadingPdf, setDownloadingPdf] = useState(false)
   const [generatingSnapshot, setGeneratingSnapshot] = useState(false)
-  const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null)
+  const [snapshotUrl, setSnapshotUrl] = useState<string | null>(initialSnapshotUrl || null)
   const [copiedSnapshot, setCopiedSnapshot] = useState(false)
 
   async function downloadPdf() {
@@ -48,15 +49,17 @@ export function TripActionBar({
   }
 
   async function generateSnapshot() {
+    if (!window.confirm(snapshotUrl ? 'Are you sure you want to revoke the current link and generate a new one?' : 'Generate a new captain link for this trip?')) return;
+    
     setGeneratingSnapshot(true)
     try {
       const res = await fetch(
-        `/api/dashboard/trips/${tripId}/snapshot`,
+        `/api/dashboard/trips/${tripId}/regenerate-captain-token`,
         { method: 'POST' }
       )
       if (!res.ok) throw new Error()
       const json = await res.json()
-      setSnapshotUrl(json.data.snapshotUrl)
+      setSnapshotUrl(`${window.location.origin}/snapshot/${json.token}`)
     } catch {
       alert('Failed to generate captain link.')
     } finally {
@@ -140,20 +143,20 @@ export function TripActionBar({
           </button>
 
           <button
-            onClick={snapshotUrl ? copySnapshot : generateSnapshot}
+            onClick={generateSnapshot}
             disabled={generatingSnapshot}
-            className="
+            className={`
               flex flex-col items-center justify-center gap-1
               h-[60px] rounded-[12px]
-              bg-[#0C447C] text-white
-              hover:bg-[#093a6b] transition-colors
+              text-white transition-colors
               disabled:opacity-40 text-[11px] font-medium
-            "
+              ${snapshotUrl ? 'bg-[#D63B3B] hover:bg-[#b02a2a]' : 'bg-[#0C447C] hover:bg-[#093a6b]'}
+            `}
           >
             {generatingSnapshot ? (
               <span>Generating...</span>
             ) : snapshotUrl ? (
-              <><Share2 size={18} /><span>Copy captain link</span></>
+              <><Share2 size={18} /><span>Renew captain link</span></>
             ) : (
               <><Share2 size={18} /><span>Share to captain</span></>
             )}

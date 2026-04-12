@@ -37,7 +37,7 @@ export function Sidebar({ operatorName, operatorEmail }: SidebarProps) {
       <div className="px-page py-section">
         <div className="flex items-center gap-2">
           <span className="text-[20px] text-navy">⚓</span>
-          <span className="text-[16px] font-bold text-navy">DockPass</span>
+          <span className="text-[16px] font-bold text-navy">BoatCheckin</span>
         </div>
         <p className="text-caption text-grey-text mt-micro truncate">
           {operatorName}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnchorLoader } from '@/components/ui/AnchorLoader'
 import { cn } from '@/lib/utils/cn'
 import type { JoinFlowState } from '@/types'
@@ -35,11 +35,13 @@ export function StepAddons({
   const [isOrdering, setIsOrdering] = useState(false)
   const [orderError, setOrderError] = useState('')
 
-  // Skip automatically when no addons available
-  if (addons.length === 0) {
-    onComplete()
-    return null
-  }
+  // Skip automatically when no addons available (in useEffect to avoid render-phase state updates)
+  useEffect(() => {
+    if (addons.length === 0) onComplete()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (addons.length === 0) return null
 
   const totalCents = Object.entries(state.addonQuantities).reduce((sum, [addonId, qty]) => {
     const addon = addons.find(a => a.id === addonId)
@@ -65,7 +67,7 @@ export function StepAddons({
       const res = await fetch(`/api/trips/${tripSlug}/addons`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guestId, tripId: '', orders }),
+        body: JSON.stringify({ guestId, orders }),
       })
       if (!res.ok) {
         const json = await res.json()

@@ -4,23 +4,26 @@ import { useEffect } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
+import { GuestSafetyCard } from '@/components/trip/GuestSafetyCard'
 import type { JoinFlowState, SafetyAck } from '@/types'
+import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
 
 interface StepSafetyProps {
-  safetyPoints: { id: string; text: string; icon?: string }[]
+  /** Merged safety cards (Captain photos + dictionary text/audio) */
+  safetyCards: GuestSafetyCardData[]
   state: JoinFlowState
   onUpdate: (p: Partial<JoinFlowState>) => void
   onNext: () => void
   onBack: () => void
 }
 
-export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: StepSafetyProps) {
+export function StepSafety({ safetyCards, state, onUpdate, onNext, onBack }: StepSafetyProps) {
   const current = state.currentSafetyCard
-  const total = safetyPoints.length
-  const point = safetyPoints[current]
+  const total = safetyCards.length
+  const card = safetyCards[current]
   const allAcknowledged = state.safetyAcks.length >= total
 
-  // If no safety points configured — skip step after mount (safe: not during render)
+  // If no safety cards configured — skip step after mount
   useEffect(() => {
     if (total === 0) onNext()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -29,10 +32,9 @@ export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: St
   if (total === 0) return null
 
   function acknowledge() {
-    if (!point) return
+    if (!card) return
     const ack: SafetyAck = {
-      id: point.id,
-      text: point.text,
+      topic_key: card.topic_key,
       acknowledgedAt: new Date().toISOString(),
     }
     const newAcks = [...state.safetyAcks, ack]
@@ -55,7 +57,7 @@ export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: St
           <h2 className="text-[20px] font-bold text-[#0D1B2A]">Safety briefing</h2>
           <p className="text-[13px] text-[#6B7C93] mt-0.5">
             {allAcknowledged
-              ? 'All safety points reviewed ✓'
+              ? 'All safety cards reviewed ✓'
               : `${state.safetyAcks.length} of ${total} reviewed`}
           </p>
         </div>
@@ -66,7 +68,7 @@ export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: St
 
       {/* Progress dots */}
       <div className="flex items-center gap-1.5 mb-6">
-        {safetyPoints.map((_, i) => (
+        {safetyCards.map((_, i) => (
           <div
             key={i}
             className={cn(
@@ -82,7 +84,7 @@ export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: St
       </div>
 
       {/* Safety card or completion state */}
-      {!allAcknowledged && point ? (
+      {!allAcknowledged && card ? (
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -90,25 +92,18 @@ export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: St
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.2 }}
-            className="bg-[#E8F2FB] rounded-[20px] p-6 border border-[#D0E2F3] min-h-[200px] flex flex-col justify-between"
           >
-            <div>
-              {point.icon && (
-                <div className="w-12 h-12 rounded-[12px] bg-[#0C447C] flex items-center justify-center text-[24px] mb-4">
-                  {point.icon}
-                </div>
-              )}
-              <p className="text-[17px] font-medium text-[#0D1B2A] leading-relaxed">
-                {point.text}
-              </p>
-            </div>
-
-            <button
-              onClick={acknowledge}
-              className="mt-6 w-full h-[52px] rounded-[12px] bg-[#0C447C] text-white font-semibold text-[15px] hover:bg-[#093a6b] transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
-            >
-              ✓ Understood
-            </button>
+            <GuestSafetyCard
+              imageUrl={card.image_url}
+              title={card.title}
+              instructions={card.instructions}
+              audioUrl={card.audio_url}
+              emoji={card.emoji}
+              captainNote={card.captainInstructions || null}
+              cardIndex={current + 1}
+              totalCards={total}
+              onAcknowledge={acknowledge}
+            />
           </motion.div>
         </AnimatePresence>
       ) : (
@@ -120,7 +115,7 @@ export function StepSafety({ safetyPoints, state, onUpdate, onNext, onBack }: St
           <div className="text-[48px] mb-3">✅</div>
           <h3 className="text-[18px] font-bold text-[#1D9E75] mb-2">Safety briefing complete</h3>
           <p className="text-[14px] text-[#6B7C93]">
-            You&apos;ve acknowledged all {total} safety points.
+            You&apos;ve acknowledged all {total} safety cards.
           </p>
         </motion.div>
       )}

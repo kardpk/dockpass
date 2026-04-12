@@ -1,4 +1,4 @@
-# DockPass — Phase 3C Agent Instructions
+# BoatCheckin — Phase 3C Agent Instructions
 # Guest Join Flow: Check-in, Safety, Waiver, QR
 # @3C_GUEST_JOIN_FLOW
 
@@ -9,7 +9,7 @@
 Phase 3B built what guests SEE.
 Phase 3C builds what guests DO.
 
-This is the core DockPass transaction:
+This is the core BoatCheckin transaction:
 a guest proves they belong on the boat,
 acknowledges safety information,
 signs a legal waiver, and receives
@@ -380,7 +380,7 @@ Create: apps/web/app/api/trips/[slug]/
   register/route.ts
 import 'server-only'
 
-This is the most important API route in DockPass.
+This is the most important API route in BoatCheckin.
 Every guest registration passes through here.
 Security layers applied in strict sequence.
 
@@ -1729,7 +1729,7 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
                   className="w-5 h-5 mt-0.5 rounded accent-[#0C447C] flex-shrink-0"
                 />
                 <span className="text-[13px] text-[#0D1B2A] leading-relaxed">
-                  I consent to DockPass processing my personal data
+                  I consent to BoatCheckin processing my personal data
                   for this charter trip as described in the{' '}
                   <a href="/privacy" className="text-[#0C447C] underline"
                     target="_blank">Privacy Policy</a>.
@@ -2592,7 +2592,7 @@ export function StepAddons({
 Create: apps/web/components/join/StepBoarding.tsx
 'use client'
 
-The payoff. The moment that makes DockPass real.
+The payoff. The moment that makes BoatCheckin real.
 Apple Wallet boarding pass aesthetic from DESIGN.md.
 QR code. Guest name. Slip. Marina.
 PWA install prompt.
@@ -2804,7 +2804,7 @@ export function StepBoarding({
             </div>
             <div className="flex-1">
               <p className="text-white font-medium text-[14px]">
-                Add DockPass to your home screen
+                Add BoatCheckin to your home screen
               </p>
               <p className="text-white/70 text-[12px]">
                 Get weather updates and dock alerts

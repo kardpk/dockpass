@@ -42,20 +42,64 @@ export function CaptainSnapshotView({
       approvalStatus: 'auto_approved',
       checkedInAt: null,
       createdAt: '',
+      customerId: null,
+      safetyAcknowledgments: [],
+      waiverTextHash: g.waiverTextHash ?? null,
       addonOrders: []
     })), [snapshot.guests])
 
   const { guests: realtimeUpdates } = useTripGuests(snapshot.tripId, initialDashboardGuests)
 
   const mergedGuests = useMemo(() => {
-    return liveSnapshot.guests.map(guest => {
+    // Merge realtime updates into snapshot guests
+    const updated = liveSnapshot.guests.map(guest => {
       const update = realtimeUpdates.find(r => r.id === guest.id)
       if (update) {
-        return { ...guest, waiverSigned: update.waiverSigned }
+        return {
+          ...guest,
+          waiverSigned: update.waiverSigned,
+          waiverTextHash: update.waiverTextHash ?? guest.waiverTextHash,
+          safetyAckCount: update.safetyAcknowledgments?.length ?? guest.safetyAckCount,
+        }
       }
       return guest
     })
+    // Add any NEW guests from realtime that weren't in the initial snapshot
+    for (const rt of realtimeUpdates) {
+      if (!updated.some(u => u.id === rt.id)) {
+        updated.push({
+          id: rt.id,
+          fullName: rt.fullName,
+          waiverSigned: rt.waiverSigned,
+          waiverTextHash: rt.waiverTextHash ?? null,
+          safetyAckCount: rt.safetyAcknowledgments?.length ?? 0,
+          languageFlag: '🌐',
+          addonEmojis: [],
+        })
+      }
+    }
+    return updated
   }, [liveSnapshot.guests, realtimeUpdates])
+
+  // ── USCG PRE-DEPARTURE COMPLIANCE COMPUTATION ────────────
+  const requiredCards = liveSnapshot.requiredSafetyCards ?? 0
+
+  const isReadyToDepart = useMemo(() => {
+    if (mergedGuests.length === 0) return false
+    return mergedGuests.every(g => {
+      const hasWaiver = g.waiverSigned || g.waiverTextHash === 'firma_template'
+      const hasSafety = (g.safetyAckCount ?? 0) >= requiredCards
+      return hasWaiver && hasSafety
+    })
+  }, [mergedGuests, requiredCards])
+
+  const nonCompliantCount = useMemo(() =>
+    mergedGuests.filter(g => {
+      const hasWaiver = g.waiverSigned || g.waiverTextHash === 'firma_template'
+      const hasSafety = (g.safetyAckCount ?? 0) >= requiredCards
+      return !(hasWaiver && hasSafety)
+    }).length
+  , [mergedGuests, requiredCards])
 
   // Polling fallback — reduced to 5 minutes since realtime is primary
   useEffect(() => {
@@ -67,7 +111,7 @@ export function CaptainSnapshotView({
           setLiveSnapshot(json.data)
         }
       } catch {}
-    }, 300000) // 5 minutes
+    }, 30000) // 30 seconds — fast fallback for flaky marina WiFi
     return () => clearInterval(interval)
   }, [token])
 
@@ -119,7 +163,7 @@ export function CaptainSnapshotView({
       <div className="bg-[#0C447C] px-5 pt-5 pb-6 text-white">
         <div className="flex items-center justify-between mb-1">
           <span className="text-[13px] font-bold tracking-wider opacity-70">
-            CAPTAIN VIEW · DOCKPASS
+            CAPTAIN VIEW · BOATCHECKIN
           </span>
           <span className={
             status === 'active'
@@ -181,13 +225,46 @@ export function CaptainSnapshotView({
           </div>
         )}
 
+        {/* ── USCG PRE-DEPARTURE COMPLIANCE BANNER ──────────────── */}
+        {status === 'upcoming' && (
+          isReadyToDepart ? (
+            <div className="p-4 rounded-[16px] bg-[#E8F9F4] border-2 border-[#1D9E75]">
+              <div className="flex items-center gap-3">
+                <span className="text-[28px]">✅</span>
+                <div>
+                  <p className="text-[16px] font-bold text-[#1D9E75]">
+                    ALL CLEAR — Ready for departure
+                  </p>
+                  <p className="text-[12px] text-[#6B7C93] mt-0.5">
+                    {mergedGuests.length} guest{mergedGuests.length !== 1 ? 's' : ''} · All waivers signed · Safety briefing complete
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded-[16px] bg-[#FEF3DC] border-2 border-[#E5910A]">
+              <div className="flex items-center gap-3">
+                <span className="text-[28px]">⚠️</span>
+                <div>
+                  <p className="text-[16px] font-bold text-[#E5910A]">
+                    WAITING ON GUESTS
+                  </p>
+                  <p className="text-[12px] text-[#6B7C93] mt-0.5">
+                    {nonCompliantCount} guest{nonCompliantCount !== 1 ? 's' : ''} still need to sign the waiver or complete the safety briefing
+                  </p>
+                </div>
+              </div>
+            </div>
+          )
+        )}
+
         {/* Passenger alerts */}
         <SnapshotAlerts alerts={liveSnapshot.alerts} />
 
         {/* Guest list */}
         <SnapshotGuestList
           guests={mergedGuests}
-          maxGuests={snapshot.guests.length}
+          maxGuests={snapshot.maxGuests ?? mergedGuests.length}
         />
 
         {/* Add-on summary */}
@@ -213,15 +290,18 @@ export function CaptainSnapshotView({
           {status === 'upcoming' && (
             <button
               onClick={() => setShowStartFlow(true)}
+              disabled={!isReadyToDepart}
               className="
                 w-full h-[64px] rounded-[16px]
                 bg-[#1D9E75] text-white
                 font-bold text-[18px]
                 hover:bg-[#178a64] transition-colors
                 active:scale-[0.98]
+                disabled:opacity-40 disabled:cursor-not-allowed
+                disabled:hover:bg-[#1D9E75]
               "
             >
-              ⚓ Slide to Start Trip →
+              {isReadyToDepart ? '⚓ Start Trip →' : '🔒 Waiting on compliance...'}
             </button>
           )}
 

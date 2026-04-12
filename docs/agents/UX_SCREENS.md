@@ -1,4 +1,4 @@
-# DockPass — UX Screens Agent
+# BoatCheckin — UX Screens Agent
 # @UX_SCREENS
 # See @MASTER for full implementation sequence
 
@@ -36,7 +36,7 @@ are a marketplace. Do NOT build these in MVP.
 They compete with Boatsetter and require supply+demand
 simultaneously — a classic marketplace chicken-and-egg problem.
 
-**Instead:** The DockPass landing page is an OPERATOR acquisition
+**Instead:** The BoatCheckin landing page is an OPERATOR acquisition
 page (B2B SaaS), not a passenger search page.
 
 ---
@@ -56,7 +56,7 @@ page (B2B SaaS), not a passenger search page.
    Legally stronger than a checkbox.
    Much better than what we had.
 
-3. Passenger countdown timer + "View My DockPass"
+3. Passenger countdown timer + "View My BoatCheckin"
    Trip anticipation is emotionally important.
    "2 days 14 hours until your charter" drives
    re-engagement and pre-trip preparation.
@@ -108,7 +108,7 @@ St. Pete charter hubs to research later:
 ### SECTION A — Public / Marketing
 
 ```
-SCREEN A1 — dockpass.io (Operator Landing Page)
+SCREEN A1 — boatcheckin.com (Operator Landing Page)
 Type: Static, SSG, SEO-optimised
 Goal: Convert visiting charter operators to sign up
 NOT: A passenger search page
@@ -122,20 +122,20 @@ Above the fold:
        "See a live demo →" [ghost]
 
 Demo strip (most important section):
-  Show a live DockPass link opening on a phone
+  Show a live BoatCheckin link opening on a phone
   The boarding pass. The weather. The waiver.
   Not a video — an actual embedded live demo
 
 Social proof:
   Operator ratings from Boatsetter
-  ("Operators like Jiri, 992 ratings, use DockPass")
+  ("Operators like Jiri, 992 ratings, use BoatCheckin")
 
 Pricing table:
   Solo $49 / Captain $89 / Fleet $179 / Marina $349
   Annual toggle (20% off)
 
 Footer: Privacy / Terms / Contact
-        hello@dockpass.io / +1 (786) XXX-XXXX
+        hello@boatcheckin.com / +1 (786) XXX-XXXX
 
 Tech: Next.js 15 SSG (fastest possible, SEO-perfect)
       No auth required, no Supabase query
@@ -263,7 +263,7 @@ Form:
 On success:
   Big navy card:
   "Your trip link is ready ⚓"
-  dockpass.io/trip/[slug]
+  boatcheckin.com/trip/[slug]
   [Copy link]
   
   Pre-written WhatsApp message:
@@ -359,7 +359,7 @@ Premium — $49/month add-on:
   ✓ Everything in Basic
   ✓ Platform liability protection (Tint.ai)
   ✓ Priority placement in search
-  ✓ DockPass Guarantee badge on guest page
+  ✓ BoatCheckin Guarantee badge on guest page
   ✓ Dedicated support
   [Upgrade to Premium →] ← Stripe billing
 
@@ -410,7 +410,7 @@ Tech: Render worker for calculations
 
 ---
 
-### SECTION C — Guest Journey (The Actual DockPass)
+### SECTION C — Guest Journey (The Actual BoatCheckin)
 
 ```
 SCREEN C1 — Guest Trip Page
@@ -430,7 +430,7 @@ Sections in order:
   C1.10 Cost Breakdown: itemised
   C1.11 Cancellation Policy: colour timeline
   C1.12 Add-Ons: browse (disabled steppers)
-  C1.13 DockPass Guarantee: if operator enabled
+  C1.13 BoatCheckin Guarantee: if operator enabled
 
 Sticky bottom: "Join this trip →"
 
@@ -485,7 +485,7 @@ Step 4.5 — Insurance + Course (conditional)
   If guest DOB after 1988 + bareboat:
     → Florida course requirement
   Insurance affiliate card (always show)
-  DockPass Guarantee option (if operator enabled)
+  BoatCheckin Guarantee option (if operator enabled)
 
 Step 5 — Add-ons
   Full add-on cards with quantity steppers
@@ -595,7 +595,7 @@ Sections:
     🥂 Champagne ×2 (Sofia, Carlos)
     🤿 Snorkel kit ×1 (Maria)
   
-  DockPass Guarantee status (if applicable)
+  BoatCheckin Guarantee status (if applicable)
 
 Tech: HMAC token, Redis TTL, read-only Supabase query
 ```
@@ -607,7 +607,7 @@ SCREEN D2 — "Slide to Start Trip" Toggle ★ KEY SCREEN
 Type: Captain view (from shared link or snapshot)
 Goal: Legal trigger for insurance + trip activation
 
-This is the most legally important screen in DockPass.
+This is the most legally important screen in BoatCheckin.
 Every charter operator needs to see this.
 
 Visual design:
@@ -693,7 +693,7 @@ Goal: Reviews + viral sharing
 
 Teal hero:
   "Hope you had an amazing time! 🌊"
-  "— Conrad & the DockPass team"
+  "— Conrad & the BoatCheckin team"
 
 Review gate:
   "How was your experience?"
@@ -713,7 +713,7 @@ Postcard section (unlocks after rating):
   Preview: 1080×1080 with 3 styles
     [Classic Nautical] [Modern Minimal] [Sunset Miami]
   Guest name, boat name, captain, date, weather
-  ⚓ dockpass.io watermark
+  ⚓ boatcheckin.com watermark
   [Download] [Share to Instagram]
 
 Rebook section:
@@ -866,7 +866,7 @@ const motorboatSafetyCards: SafetyCard[] = [
 ## Slide to Start Trip — Full Implementation Notes
 
 ```typescript
-// This is the most important legal moment in DockPass
+// This is the most important legal moment in BoatCheckin
 // Three things happen simultaneously on swipe:
 
 // 1. Trip status update

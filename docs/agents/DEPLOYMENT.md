@@ -1,4 +1,4 @@
-# DockPass — Deployment Agent
+# BoatCheckin — Deployment Agent
 # @DEPLOYMENT
 
 ## Role
@@ -15,7 +15,7 @@ Secrets never in code.
 GitHub (source)
     ↓ push to main
     ├── Vercel (auto-deploy web app)
-    │     URL: dockpass.io
+    │     URL: boatcheckin.com
     │     Preview: every PR gets preview URL
     │
     └── Render (auto-deploy worker + cron)
@@ -164,7 +164,7 @@ TWILIO_AUTH_TOKEN
 TWILIO_FROM_NUMBER
 QR_HMAC_SECRET
 TRIP_LINK_SECRET
-NEXT_PUBLIC_APP_URL=https://dockpass.io
+NEXT_PUBLIC_APP_URL=https://boatcheckin.com
 NEXT_PUBLIC_VAPID_PUBLIC_KEY
 APIFY_API_TOKEN
 ```
@@ -223,7 +223,7 @@ databases:
 ## Domain + Cloudflare Setup
 
 ```
-1. Register dockpass.io (Namecheap or Porkbun)
+1. Register boatcheckin.com (Namecheap or Porkbun)
 2. Add to Cloudflare (free plan)
 3. Update nameservers to Cloudflare
 4. In Cloudflare:
@@ -236,8 +236,8 @@ databases:
    - Set security level: Medium
 
 5. In Vercel:
-   - Add custom domain: dockpass.io
-   - Add custom domain: www.dockpass.io
+   - Add custom domain: boatcheckin.com
+   - Add custom domain: www.boatcheckin.com
    - Verify via Cloudflare DNS
 ```
 
@@ -280,7 +280,7 @@ databases:
 
 ```
 Infrastructure:
-□ dockpass.io domain registered
+□ boatcheckin.com domain registered
 □ Cloudflare configured with DDoS protection
 □ Vercel project created + domain connected
 □ Render worker + cron deployed
@@ -291,11 +291,11 @@ Infrastructure:
 Stripe:
 □ Stripe account created (Oakmont Logic LLC)
 □ Products + prices created for all 4 tiers
-□ Webhook endpoint registered (dockpass.io/api/webhooks/stripe)
+□ Webhook endpoint registered (boatcheckin.com/api/webhooks/stripe)
 □ Test mode verified end-to-end
 
 Email/SMS:
-□ Resend domain verified (dockpass.io)
+□ Resend domain verified (boatcheckin.com)
 □ Twilio number purchased
 □ Email templates tested
 
@@ -309,8 +309,8 @@ Security:
 □ QR signing tested
 
 Legal:
-□ Privacy Policy live at dockpass.io/privacy
-□ Terms of Service live at dockpass.io/terms
+□ Privacy Policy live at boatcheckin.com/privacy
+□ Terms of Service live at boatcheckin.com/terms
 □ Cookie banner for EU users
 □ GDPR deletion endpoint working
 

@@ -37,13 +37,13 @@ export function useTripStatus(
           table: 'trips',
           filter: `id=eq.${tripId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const updated = payload.new as Record<string, unknown>
           if (updated.status) setStatus(updated.status as TripStatus)
           if (updated.started_at) setStartedAt(updated.started_at as string)
         }
       )
-      .subscribe((state) => {
+      .subscribe((state: string) => {
         if (state === 'SUBSCRIBED') setConnectionStatus('connected')
         else if (state === 'CLOSED') setConnectionStatus('disconnected')
         else if (state === 'CHANNEL_ERROR') setConnectionStatus('error')

@@ -887,7 +887,7 @@ export async function DELETE(
 Create `apps/web/public/sw.js`:
 
 ```javascript
-// DockPass Service Worker
+// BoatCheckin Service Worker
 // Handles: push notifications, offline cache, background sync
 // Version: 1.0.0 — bump this string to force sw update on all clients
 
@@ -977,7 +977,7 @@ self.addEventListener('push', (event) => {
   // Guard: if push arrives with no data, show a generic notification
   if (!event.data) {
     event.waitUntil(
-      self.registration.showNotification('DockPass', {
+      self.registration.showNotification('BoatCheckin', {
         body: 'You have a new notification',
         icon: '/icons/icon-192.png',
         badge: '/icons/badge-72.png',
@@ -993,7 +993,7 @@ self.addEventListener('push', (event) => {
     // Malformed payload — log and show generic
     console.warn('[sw] push payload parse error')
     event.waitUntil(
-      self.registration.showNotification('DockPass', {
+      self.registration.showNotification('BoatCheckin', {
         body: 'You have a new notification',
         icon: '/icons/icon-192.png',
         badge: '/icons/badge-72.png',
@@ -1005,7 +1005,7 @@ self.addEventListener('push', (event) => {
   // payload shape matches lib/notifications/push.ts sendPushToGuest:
   // { title, body, icon, badge, url, data: { url } }
   const {
-    title = 'DockPass',
+    title = 'BoatCheckin',
     body = '',
     icon = '/icons/icon-192.png',
     badge = '/icons/badge-72.png',
@@ -1101,7 +1101,7 @@ self.addEventListener('push', (event: PushEvent) => {
   try { payload = event.data.json() }
   catch { return }
 
-  const { title = 'DockPass', body = '', icon = '/icons/icon-192.png',
+  const { title = 'BoatCheckin', body = '', icon = '/icons/icon-192.png',
           badge = '/icons/badge-72.png', data = { url: '/' } } = payload
 
   event.waitUntil(
@@ -1217,7 +1217,7 @@ export async function POST(req: NextRequest) {
 
 The service worker references `/icons/icon-192.png`, `/icons/icon-512.png`, and `/icons/badge-72.png`. Check if these already exist in `apps/web/public/icons/`. If they do not:
 
-1. Create placeholder icons using the DockPass design system: navy (`#0C447C`) background, white anchor emoji `⚓` centered.
+1. Create placeholder icons using the BoatCheckin design system: navy (`#0C447C`) background, white anchor emoji `⚓` centered.
 2. The badge icon (`badge-72.png`) should be monochrome (white on transparent) — browsers use this as the status bar indicator.
 3. Do not use external icon generation services. If you cannot generate the images programmatically within the project, create a comment file at `apps/web/public/icons/MISSING_ICONS.md` listing exactly what is needed so the designer can generate them.
 

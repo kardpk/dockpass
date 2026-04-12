@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { z } from 'zod'
 import { cn } from '@/lib/utils/cn'
+import { SUPPORTED_LANGUAGES, LANGUAGE_FLAGS, LANGUAGE_NAMES } from '@/lib/i18n/constants'
 import type { JoinFlowState } from '@/types'
 
 const detailsSchema = z.object({
@@ -12,14 +13,11 @@ const detailsSchema = z.object({
   emergencyContactPhone: z.string().min(7, 'Invalid phone').max(20),
 })
 
-const LANGUAGE_OPTIONS = [
-  { code: 'en', flag: '🇬🇧', name: 'English' },
-  { code: 'es', flag: '🇪🇸', name: 'Español' },
-  { code: 'pt', flag: '🇧🇷', name: 'Português' },
-  { code: 'fr', flag: '🇫🇷', name: 'Français' },
-  { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
-  { code: 'it', flag: '🇮🇹', name: 'Italiano' },
-]
+const LANGUAGE_OPTIONS = SUPPORTED_LANGUAGES.map((code) => ({
+  code,
+  flag: LANGUAGE_FLAGS[code],
+  name: LANGUAGE_NAMES[code],
+}))
 
 interface StepDetailsProps {
   state: JoinFlowState
@@ -191,7 +189,7 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
                   className="w-5 h-5 mt-0.5 rounded accent-[#0C447C] flex-shrink-0"
                 />
                 <span className="text-[13px] text-[#0D1B2A] leading-relaxed">
-                  I consent to DockPass processing my personal data for this charter trip as
+                  I consent to BoatCheckin processing my personal data for this charter trip as
                   described in the{' '}
                   <a href="/privacy" className="text-[#0C447C] underline" target="_blank">
                     Privacy Policy

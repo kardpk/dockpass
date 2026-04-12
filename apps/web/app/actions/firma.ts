@@ -1,21 +1,34 @@
 "use server";
 
+/**
+ * Create a Firma signing request for a specific boat's waiver template.
+ *
+ * @param tripSlug  - Trip identifier for audit trail
+ * @param guestName - Guest display name (for signing request title)
+ * @param templateId - Per-boat Firma template ID (from boats.firma_template_id)
+ * @param passengerDetails - Signer info for Firma recipient
+ */
 export async function createSignatureRequest(
-  bookingId: string,
-  passengerId: string,
+  tripSlug: string,
+  guestName: string,
+  templateId: string,
   passengerDetails: { firstName: string; lastName: string; email: string }
 ) {
   try {
     const apiKey = process.env.FIRMA_API_KEY;
-    const templateId = process.env.FIRMA_WAIVER_TEMPLATE_ID;
 
-    if (!apiKey || !templateId) {
-      console.error("[Firma Action Error] Missing FIRMA_API_KEY or FIRMA_WAIVER_TEMPLATE_ID");
+    if (!apiKey) {
+      console.error("[Firma Action Error] Missing FIRMA_API_KEY");
       return { success: false, error: "System configuration error. Please contact support." };
     }
 
+    if (!templateId) {
+      console.error("[Firma Action Error] No template ID provided for this boat");
+      return { success: false, error: "Waiver template not configured. Please contact Captain." };
+    }
+
     const payload = {
-      name: `Safety Waiver - ${passengerDetails.firstName} ${passengerDetails.lastName}`,
+      name: `Safety Waiver - ${guestName}`,
       template_id: templateId,
       recipients: [
         {
@@ -27,8 +40,8 @@ export async function createSignatureRequest(
         },
       ],
       metadata: {
-        booking_id: bookingId,
-        passenger_id: passengerId,
+        trip_slug: tripSlug,
+        guest_name: guestName,
       },
     };
 

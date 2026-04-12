@@ -1,4 +1,4 @@
-# DockPass — Notifications Agent
+# BoatCheckin — Notifications Agent
 # @NOTIFICATIONS
 
 ## Role
@@ -48,7 +48,7 @@ In-app (Supabase realtime):
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY!)
-const FROM = 'DockPass <hello@dockpass.io>'
+const FROM = 'BoatCheckin <hello@boatcheckin.com>'
 
 // Base send function
 async function sendEmail({
@@ -92,11 +92,11 @@ export async function sendWelcomeEmail(operator: {
 }) {
   return sendEmail({
     to: operator.email,
-    subject: 'Welcome to DockPass — let\'s set up your first boat',
+    subject: 'Welcome to BoatCheckin — let\'s set up your first boat',
     html: `
       <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #0C447C; padding: 32px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">⚓ DockPass</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">⚓ BoatCheckin</h1>
         </div>
         <div style="padding: 32px;">
           <h2>Welcome, ${operator.fullName}!</h2>
@@ -112,7 +112,7 @@ export async function sendWelcomeEmail(operator: {
           </a>
         </div>
         <div style="padding: 16px 32px; color: #6B7C93; font-size: 12px;">
-          DockPass — Oakmont Logic LLC
+          BoatCheckin — Oakmont Logic LLC
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe"
              style="color: #6B7C93;">Unsubscribe</a>
         </div>
@@ -218,7 +218,7 @@ export async function sendWeatherCancellation(params: {
             ${params.weatherDescription} on ${params.tripDate}
           </p>
         </div>
-        <p>Your DockPass dashboard has a one-tap notification ready to send to all
+        <p>Your BoatCheckin dashboard has a one-tap notification ready to send to all
            ${params.guestEmails.length} guests simultaneously.</p>
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
            style="display: inline-block; background: #0C447C; color: white;
@@ -227,7 +227,7 @@ export async function sendWeatherCancellation(params: {
         </a>
       </div>
     `,
-    text: `Weather advisory for ${params.tripDate}. Open DockPass to notify guests.`,
+    text: `Weather advisory for ${params.tripDate}. Open BoatCheckin to notify guests.`,
   })
 }
 ```
@@ -280,7 +280,7 @@ export async function sendTripReminder(guest: {
     `Hi ${firstName}! Your charter on ${guest.boatName} ` +
     `departs at ${guest.departureTime} from ${guest.marinaName} ` +
     `Slip ${guest.slipNumber}. ` +
-    `Trip guide: dockpass.io/trip/${guest.tripSlug}`
+    `Trip guide: boatcheckin.com/trip/${guest.tripSlug}`
   )
 }
 
@@ -294,7 +294,7 @@ export async function sendWaiverReminder(guest: {
   await sendSMS(
     guest.phone,
     `Hi ${firstName} — please sign your charter waiver before tomorrow: ` +
-    `dockpass.io/trip/${guest.tripSlug}`
+    `boatcheckin.com/trip/${guest.tripSlug}`
   )
 }
 ```
@@ -308,7 +308,7 @@ export async function sendWaiverReminder(guest: {
 import webpush from 'web-push'
 
 webpush.setVapidDetails(
-  `mailto:hello@dockpass.io`,
+  `mailto:hello@boatcheckin.com`,
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
   process.env.VAPID_PRIVATE_KEY!
 )

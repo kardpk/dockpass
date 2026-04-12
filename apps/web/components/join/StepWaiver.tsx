@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { createSignatureRequest } from '@/app/actions/firma'
 import { ChevronLeft } from 'lucide-react'
 import { AnchorLoader } from '@/components/ui/AnchorLoader'
@@ -27,6 +27,16 @@ export function StepWaiver({
   const [firmaUrl, setFirmaUrl] = useState<string | null>(null)
   const [firmaLoading, setFirmaLoading] = useState(false)
 
+  // ── STALE CLOSURE FIX ──────────────────────────────────────────────────────
+  // Mirror state to a ref so the Firma postMessage listener always reads fresh values.
+  // Without this, the iframe completion event captures a stale closure and sends
+  // outdated guest data (old name, missing Turnstile token, etc.) to the registration API.
+  const stateRef = useRef(state)
+  useEffect(() => {
+    stateRef.current = state
+  }, [state])
+
+  // ── Scroll handling (legacy mode only) ─────────────────────────────────────
   function handleScroll(e: React.UIEvent<HTMLDivElement>) {
     const el = e.currentTarget
     const progress = el.scrollTop / Math.max(el.scrollHeight - el.clientHeight, 1)
@@ -36,12 +46,11 @@ export function StepWaiver({
     }
   }
 
-  const handleSign = async () => {
-    // Note: If triggering via Firma auto-sign, we temporarily bypass the strict checks.
-    // The handleMessage handler sets these states before calling handleSign, but React state updates batch.
-    // So we just rely on passing it cleanly or enforcing waiverScrolled if we need to.
-    
-    // For manual clicks, canSign covers this. For auto-submit, we bypass here:
+  // ── Registration request ───────────────────────────────────────────────────
+  // Accepts an explicit state snapshot for Firma auto-sign (ref-based).
+  // Falls back to the component state for manual sign.
+  const handleSign = useCallback(async (stateSnapshot?: JoinFlowState) => {
+    const s = stateSnapshot ?? state
     onUpdate({ isSubmitting: true, submitError: '' })
 
     try {
@@ -50,23 +59,23 @@ export function StepWaiver({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tripSlug,
-          tripCode: state.tripCode,
-          fullName: state.fullName,
-          emergencyContactName: state.emergencyContactName,
-          emergencyContactPhone: state.emergencyContactPhone,
-          dietaryRequirements: state.dietaryRequirements || undefined,
-          languagePreference: state.languagePreference,
-          dateOfBirth: state.dateOfBirth || undefined,
-          isNonSwimmer: state.isNonSwimmer,
-          isSeaSicknessProne: state.isSeaSicknessProne,
-          gdprConsent: state.gdprConsent,
-          marketingConsent: state.marketingConsent,
-          safetyAcknowledgments: state.safetyAcks,
-          // Pass the actual typed signature if available, otherwise just use 'Digital E-Signature' for auto-signing flows
-          waiverSignatureText: state.signatureText.trim() || 'Digital E-Signature',
+          tripCode: s.tripCode,
+          fullName: s.fullName,
+          emergencyContactName: s.emergencyContactName,
+          emergencyContactPhone: s.emergencyContactPhone,
+          dietaryRequirements: s.dietaryRequirements || undefined,
+          languagePreference: s.languagePreference,
+          dateOfBirth: s.dateOfBirth || undefined,
+          isNonSwimmer: s.isNonSwimmer,
+          isSeaSicknessProne: s.isSeaSicknessProne,
+          gdprConsent: s.gdprConsent,
+          marketingConsent: s.marketingConsent,
+          safetyAcknowledgments: s.safetyAcks,
+          waiverSignatureText: s.signatureText.trim() || 'Digital E-Signature',
           waiverAgreed: true,
-          waiverTextHash: waiverHash || 'firma_template',
-          turnstileToken: 'dev-bypass',
+          // Firma-signed waivers use the literal marker; legacy uses the SHA-256 hash
+          waiverTextHash: firmaTemplateId ? 'firma_template' : waiverHash,
+          turnstileToken: s.turnstileToken,
         }),
       })
 
@@ -84,7 +93,7 @@ export function StepWaiver({
           guestId,
           tripSlug,
           qrToken,
-          guestName: state.fullName,
+          guestName: s.fullName,
           checkedInAt: new Date().toISOString(),
           addonOrderIds: [],
         }))
@@ -95,43 +104,76 @@ export function StepWaiver({
     } catch {
       onUpdate({ isSubmitting: false, submitError: 'Connection error. Please try again.' })
     }
-  }
+  }, [tripSlug, firmaTemplateId, waiverHash, state, onUpdate, onNext])
 
-  // Pre-load the Firma signing session if a template is enforced
+  // ── Pre-load Firma signing session ─────────────────────────────────────────
+  // Uses the per-boat templateId (not a global env var) for multi-tenancy
   useEffect(() => {
     if (firmaTemplateId && !firmaUrl && !firmaLoading) {
       setFirmaLoading(true)
-      // Call our server action to spawn a signing request
-      createSignatureRequest(tripSlug, 'guest-pending', {
-         firstName: state.fullName.split(' ')[0] || 'Guest',
-         lastName: state.fullName.split(' ').slice(1).join(' '),
-         email: '' // Email not collected in basic Join flow
-      })
+      createSignatureRequest(
+        tripSlug,
+        state.fullName,
+        firmaTemplateId,
+        {
+          firstName: state.fullName.split(' ')[0] || 'Guest',
+          lastName: state.fullName.split(' ').slice(1).join(' '),
+          email: '', // Email not collected in basic Join flow
+        }
+      )
       .then(res => {
-         if (res.success && res.data?.embed_url) {
-            setFirmaUrl(res.data.embed_url)
-         }
+        if (res.success && res.data?.embed_url) {
+          setFirmaUrl(res.data.embed_url)
+        }
       })
       .catch(e => console.error("Firma load error", e))
       .finally(() => setFirmaLoading(false))
     }
   }, [firmaTemplateId, firmaUrl, firmaLoading, tripSlug, state.fullName])
 
-  // Listen for Firma's completion ping
+  // ── Firma completion listener (defense-in-depth origin validation) ─────────
+  // Uses dynamic origin extraction from the trusted Firma embed URL
+  // instead of hardcoding a domain we don't control.
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Security: confirm origin if known
+      // 1. Dynamic origin validation — only trust the domain Firma gave us
+      if (firmaUrl) {
+        try {
+          const trustedOrigin = new URL(firmaUrl).origin
+          if (event.origin !== trustedOrigin) {
+            console.warn(`[Security] Blocked unauthorized postMessage from: ${event.origin}`)
+            return
+          }
+        } catch {
+          console.error('[Security] Failed to parse Firma URL for origin validation')
+          return
+        }
+      }
+
+      // 2. Process the valid Firma completion event
       if (event.data?.event === 'document.completed' || event.data === 'document.completed') {
-        // Auto-sign standard flow bypassing input
+        // Read FRESH state from ref — bypasses the stale closure problem
+        const fresh = stateRef.current
+        // Merge the Firma auto-sign fields into the snapshot
+        // (onUpdate hasn't flushed yet because React batches state updates)
+        const snapshot: JoinFlowState = {
+          ...fresh,
+          waiverAgreed: true,
+          signatureText: 'Digital E-Signature',
+          waiverScrolled: true,
+        }
         onUpdate({ waiverAgreed: true, signatureText: 'Digital E-Signature', waiverScrolled: true })
-        handleSign() // submit registration
+        handleSign(snapshot)
       }
     }
+
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.fullName, onUpdate])
+    // stateRef and firmaUrl are the only external values read inside the handler.
+    // stateRef identity never changes; firmaUrl changes once when loaded.
+  }, [firmaUrl, onUpdate, handleSign])
 
+  // ── Manual sign handler ────────────────────────────────────────────────────
   const handleManualSign = () => {
     if (!state.waiverAgreed || !state.signatureText.trim() || !state.waiverScrolled) return
     handleSign()
@@ -168,6 +210,7 @@ export function StepWaiver({
                src={firmaUrl}
                className="w-full h-full z-10"
                frameBorder="0"
+               title="Digital waiver signing"
              />
            )}
            {!firmaLoading && !firmaUrl && (
@@ -198,7 +241,7 @@ export function StepWaiver({
             role="region"
             aria-label="Waiver text"
           >
-            {waiverText || `By participating in this charter, you acknowledge and accept all risks associated with boating activities. You agree to follow all safety instructions from the captain and crew. DockPass and the boat operator are not liable for personal injury, loss, or damage arising from participation in this trip.`}
+            {waiverText || `By participating in this charter, you acknowledge and accept all risks associated with boating activities. You agree to follow all safety instructions from the captain and crew. BoatCheckin and the boat operator are not liable for personal injury, loss, or damage arising from participation in this trip.`}
           </div>
 
           {/* Agree checkbox */}

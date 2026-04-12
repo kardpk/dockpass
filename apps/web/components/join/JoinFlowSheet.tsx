@@ -12,6 +12,7 @@ import { StepInsurance } from './StepInsurance'
 import { StepAddons } from './StepAddons'
 import { StepBoarding } from './StepBoarding'
 import type { JoinStep, JoinFlowState } from '@/types'
+import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
 
 interface JoinFlowSheetProps {
   isOpen: boolean
@@ -26,7 +27,6 @@ interface JoinFlowSheetProps {
     departureTime: string
     durationHours: number
     charterType: 'captained' | 'bareboat' | 'both'
-    safetyPoints: { id: string; text: string; icon?: string }[]
     addons: {
       id: string
       name: string
@@ -46,7 +46,7 @@ const STEPS: JoinStep[] = ['code', 'details', 'safety', 'waiver', 'addons', 'boa
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
   tripCode: '', codeError: '', codeAttempts: 0,
-  codeLocked: false, codeLockUntil: 0,
+  codeLocked: false, codeLockUntil: 0, turnstileToken: '',
   fullName: '', emergencyContactName: '',
   emergencyContactPhone: '', dietaryRequirements: '',
   languagePreference: 'en',
@@ -72,10 +72,11 @@ export function JoinFlowSheet({
     isEU: tripData.isEU,
   })
 
-  // Waiver text + hash received after step 1 validates the code
+  // Data received after step 1 validates the code
   const [validatedTrip, setValidatedTrip] = useState<{
-    waiverText: string
     waiverHash: string
+    firmaTemplateId: string | null
+    safetyCards: GuestSafetyCardData[]
   } | null>(null)
 
   const updateState = useCallback((partial: Partial<JoinFlowState>) => {
@@ -138,7 +139,7 @@ export function JoinFlowSheet({
                 />
               </div>
               <p className="text-[11px] text-[#6B7C93] mt-1">
-                Step {Math.max(1, stepIndex + 1)} of {STEPS.length - 1}
+                Step {Math.max(1, stepIndex + 1)} of {STEPS.length}
               </p>
             </div>
           )}
@@ -159,8 +160,8 @@ export function JoinFlowSheet({
                   tripSlug={tripSlug}
                   state={state}
                   onUpdate={updateState}
-                  onValidated={(waiverText, waiverHash) => {
-                    setValidatedTrip({ waiverText, waiverHash })
+                  onValidated={(_waiverText, waiverHash, firmaTemplateId, safetyCards) => {
+                    setValidatedTrip({ waiverHash, firmaTemplateId: firmaTemplateId ?? null, safetyCards: (safetyCards ?? []) as GuestSafetyCardData[] })
                     goToStep('details')
                   }}
                 />
@@ -177,7 +178,7 @@ export function JoinFlowSheet({
 
               {state.step === 'safety' && (
                 <StepSafety
-                  safetyPoints={tripData.safetyPoints}
+                  safetyCards={validatedTrip?.safetyCards ?? []}
                   state={state}
                   onUpdate={updateState}
                   onNext={() => goToStep('waiver')}
@@ -187,8 +188,9 @@ export function JoinFlowSheet({
 
               {state.step === 'waiver' && (
                 <StepWaiver
-                  waiverText={validatedTrip?.waiverText ?? ''}
+                  waiverText=""
                   waiverHash={validatedTrip?.waiverHash ?? ''}
+                  firmaTemplateId={validatedTrip?.firmaTemplateId ?? ''}
                   state={state}
                   onUpdate={updateState}
                   tripSlug={tripSlug}

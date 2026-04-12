@@ -1,4 +1,4 @@
-# DockPass — Phase 3B Agent Instructions
+# BoatCheckin — Phase 3B Agent Instructions
 # Guest Trip Page: The Public-Facing Experience
 # @3B_GUEST_TRIP_PAGE
 
@@ -11,7 +11,7 @@ This page is what the GUEST sees when
 they open the link Conrad sent them.
 
 No login. No account. Works on any phone.
-First impression of DockPass for every guest.
+First impression of BoatCheckin for every guest.
 Gets the most traffic of any page in the product.
 
 Must be fast, beautiful, multilingual,
@@ -549,7 +549,7 @@ All text shown on the guest trip page in
 all 6 supported languages.
 Operator-entered content (boat name, rules etc)
 is NOT translated — shown as-is.
-Only DockPass UI labels are translated.
+Only BoatCheckin UI labels are translated.
 
 export type TripT = typeof EN_TRIP
 
@@ -964,13 +964,13 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params
   const result = await getTripPageData(slug)
-  if (!result.found) return { title: 'Trip not found — DockPass' }
+  if (!result.found) return { title: 'Trip not found — BoatCheckin' }
   const d = result.data
   return {
-    title: `${d.boat.boatName} — ${formatTripDate(d.tripDate)} | DockPass`,
+    title: `${d.boat.boatName} — ${formatTripDate(d.tripDate)} | BoatCheckin`,
     description: `Join ${d.boat.captainName ?? 'your captain'} aboard ${d.boat.boatName} on ${formatTripDate(d.tripDate)} from ${d.boat.marinaName}.`,
     openGraph: {
-      title: `${d.boat.boatName} | DockPass`,
+      title: `${d.boat.boatName} | BoatCheckin`,
       description: `Charter on ${formatTripDate(d.tripDate)} at ${formatTime(d.departureTime)} · ${d.boat.marinaName}`,
       images: d.photos[0]?.publicUrl
         ? [{ url: d.photos[0].publicUrl }]
@@ -1194,7 +1194,7 @@ Visual spec (from DESIGN.md hero section):
   Full width, no horizontal padding on mobile
 
   Top row:
-    "DockPass ⚓" white bold left
+    "BoatCheckin ⚓" white bold left
     Language selector right (flag emoji + language)
       Clicking opens language bottom sheet
       (Client Component wrapped inside)
@@ -1651,7 +1651,7 @@ Button in hero:
   Tap → opens bottom sheet
 
 Bottom sheet:
-  Standard DockPass bottom sheet pattern
+  Standard BoatCheckin bottom sheet pattern
   Title: "Select language"
   
   6 language options as list items:

@@ -122,7 +122,7 @@ export const guestRegistrationSchema = z.object({
     .optional()
     .transform(s => s?.trim() || undefined),
   languagePreference: z.enum(
-    ['en', 'es', 'pt', 'fr', 'de', 'it'],
+    ['en', 'es', 'pt', 'fr', 'de', 'it', 'ar'],
     { message: 'Unsupported language' }
   ),
   dateOfBirth: z.string()
@@ -136,10 +136,9 @@ export const guestRegistrationSchema = z.object({
   marketingConsent: z.boolean().optional().default(false),
 
   // Safety acknowledgments
-  // Each object: { id: string, text: string, acknowledgedAt: ISO string }
+  // Each object: { topic_key: string, acknowledgedAt: ISO string }
   safetyAcknowledgments: z.array(z.object({
-    id: z.string().min(1).max(50),
-    text: z.string().max(500),
+    topic_key: z.string().min(1).max(100),
     acknowledgedAt: z.string().datetime(),
   })).min(0).max(30),
 
@@ -152,7 +151,7 @@ export const guestRegistrationSchema = z.object({
     error: 'You must agree to the waiver',
   }),
   waiverTextHash: z.string()
-    .regex(/^[a-f0-9]{64}$/, 'Invalid waiver hash'),
+    .regex(/^([a-f0-9]{64}|firma_template)$/, 'Invalid waiver hash'),
 
   // Turnstile bot protection token
   turnstileToken: z.string().min(1),

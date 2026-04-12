@@ -6,16 +6,15 @@ import type { WizardAddon } from "./types";
 
 /**
  * Server action: Save complete boat profile to Supabase.
- * Called when operator completes all 8 wizard steps.
+ * Called when operator completes all 9 wizard steps.
  *
  * Flow:
  * 1. requireOperator() — auth check
- * 2. Upload captain photo to Supabase Storage
- * 3. Upload boat photos to Supabase Storage
- * 4. INSERT into boats table
- * 5. INSERT addons if any
- * 6. auditLog boat_created
- * 7. Return { boatId }
+ * 2. Boat count check against subscription tier
+ * 3. INSERT into boats table (with safety_cards JSONB + firma_template_id)
+ * 4. INSERT addons if any
+ * 5. auditLog boat_created
+ * 6. Return { boatId }
  */
 
 interface SaveBoatResult {
@@ -25,7 +24,7 @@ interface SaveBoatResult {
 }
 
 export async function saveBoatProfile(data: {
-  // We receive serialisable data only (no File objects)
+  // Serializable data only (no File objects)
   boatName: string;
   boatType: string;
   charterType: string;
@@ -66,8 +65,18 @@ export async function saveBoatProfile(data: {
   whatToBring: string;
   whatNotToBring: string;
 
-  waiverText: string;
-  safetyPoints: string[];
+  // Step 7 — Safety cards (USCG compliance, serialized)
+  safetyCards: {
+    id: string;
+    topic_key: string;
+    image_url: string;
+    custom_title?: string;
+    instructions: string;
+    sort_order: number;
+  }[];
+
+  // Step 8 — Firma waiver
+  firmaTemplateId: string;
 
   addons: WizardAddon[];
 }): Promise<SaveBoatResult> {
@@ -98,7 +107,17 @@ export async function saveBoatProfile(data: {
       ...data.customDonts.map((d) => `✗ ${d}`),
     ].join("\n");
 
-    // 4. INSERT boat
+    // 4. Build safety_cards JSONB for the database column
+    const safetyCardsJson = data.safetyCards.map((card, i) => ({
+      id: card.id,
+      topic_key: card.topic_key,
+      custom_title: card.custom_title || null,
+      instructions: card.instructions,
+      sort_order: i,
+      url: card.image_url || null,
+    }));
+
+    // 5. INSERT boat
     const { data: boat, error: boatError } = await supabase
       .from("boats")
       .insert({
@@ -124,8 +143,12 @@ export async function saveBoatProfile(data: {
         captain_rating: data.captainRating ? parseFloat(data.captainRating) : null,
         what_to_bring: data.whatToBring || null,
         house_rules: houseRulesText,
-        safety_briefing: data.safetyPoints.join("\n"),
-        waiver_text: data.waiverText,
+        // Waiver: now handled by Firma PDF, store placeholder text
+        waiver_text: data.firmaTemplateId
+          ? "[Firma PDF Waiver — template configured]"
+          : "[No waiver configured]",
+        firma_template_id: data.firmaTemplateId || null,
+        safety_cards: safetyCardsJson,
         onboard_info: {
           equipment: data.selectedEquipment,
           amenities: data.selectedAmenities,
@@ -141,7 +164,6 @@ export async function saveBoatProfile(data: {
           dos: data.customDos,
           donts: data.customDonts,
           customRuleSections: data.customRuleSections,
-          safetyPoints: data.safetyPoints,
         },
         is_active: true,
       })
@@ -153,7 +175,7 @@ export async function saveBoatProfile(data: {
       return { success: false, error: boatError?.message ?? "Failed to save boat." };
     }
 
-    // 5. INSERT addons
+    // 6. INSERT addons
     if (data.addons.length > 0) {
       const addonRows = data.addons.map((addon, i) => ({
         boat_id: boat.id,
@@ -175,7 +197,7 @@ export async function saveBoatProfile(data: {
       }
     }
 
-    // 6. Audit log
+    // 7. Audit log
     auditLog({
       action: "boat_created",
       operatorId: operator.id,
@@ -188,6 +210,8 @@ export async function saveBoatProfile(data: {
         boatType: data.boatType,
         charterType: data.charterType,
         addonCount: data.addons.length,
+        safetyCardCount: data.safetyCards.length,
+        firmaConfigured: !!data.firmaTemplateId,
       },
     });
 

@@ -1,7 +1,7 @@
 import 'server-only'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM_ADDRESS = 'DockPass <noreply@dockpass.io>'
+const FROM_ADDRESS = 'BoatCheckin <noreply@boatcheckin.com>'
 
 export async function sendEmail(params: {
   to: string
@@ -106,7 +106,7 @@ export async function sendReviewRequestEmail(params: {
     <div style="background:#F5F8FC;padding:16px 32px;text-align:center;
                 border-top:1px solid #D0E2F3;">
       <p style="color:#6B7C93;font-size:11px;margin:0;">
-        DockPass — Oakmont Logic LLC ·
+        BoatCheckin — Oakmont Logic LLC ·
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/privacy"
            style="color:#6B7C93;">Privacy</a> ·
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe"
@@ -137,7 +137,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     en: {
       subject: b => `How was your trip on ${b}? ⭐`,
       heading: 'Hope you had an amazing time!',
-      andTeam: '& the DockPass team',
+      andTeam: '& the BoatCheckin team',
       greeting: n => `Hi ${n}`,
       body: b => `Your charter on ${b} is complete. It takes 30 seconds to leave a review — and it means everything to a small charter operator.`,
       cta: 'Rate my experience ⭐',
@@ -147,7 +147,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     es: {
       subject: b => `¿Cómo fue tu viaje en ${b}? ⭐`,
       heading: '¡Esperamos que lo hayas pasado increíble!',
-      andTeam: 'y el equipo de DockPass',
+      andTeam: 'y el equipo de BoatCheckin',
       greeting: n => `Hola ${n}`,
       body: b => `Tu charter en ${b} ha terminado. Solo 30 segundos para dejar una reseña — significa mucho para los operadores.`,
       cta: 'Valorar mi experiencia ⭐',
@@ -157,7 +157,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     fr: {
       subject: b => `Comment était votre sortie sur ${b} ? ⭐`,
       heading: 'Nous espérons que vous avez passé un moment inoubliable !',
-      andTeam: "& l'équipe DockPass",
+      andTeam: "& l'équipe BoatCheckin",
       greeting: n => `Bonjour ${n}`,
       body: b => `Votre charter sur ${b} est terminé. 30 secondes pour laisser un avis — cela compte énormément.`,
       cta: 'Évaluer mon expérience ⭐',
@@ -167,7 +167,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     pt: {
       subject: b => `Como foi a sua viagem no ${b}? ⭐`,
       heading: 'Esperamos que tenha adorado!',
-      andTeam: '& a equipa DockPass',
+      andTeam: '& a equipa BoatCheckin',
       greeting: n => `Olá ${n}`,
       body: b => `O seu charter no ${b} terminou. São apenas 30 segundos para deixar uma avaliação.`,
       cta: 'Avaliar a minha experiência ⭐',
@@ -177,7 +177,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     de: {
       subject: b => `Wie war Ihre Tour auf ${b}? ⭐`,
       heading: 'Wir hoffen, es war wunderschön!',
-      andTeam: '& das DockPass-Team',
+      andTeam: '& das BoatCheckin-Team',
       greeting: n => `Hallo ${n}`,
       body: b => `Ihr Charter auf ${b} ist abgeschlossen. 30 Sekunden für eine Bewertung — es bedeutet alles.`,
       cta: 'Erfahrung bewerten ⭐',
@@ -187,7 +187,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     it: {
       subject: b => `Com'è andato il viaggio su ${b}? ⭐`,
       heading: 'Speriamo tu abbia trascorso un momento fantastico!',
-      andTeam: '& il team DockPass',
+      andTeam: '& il team BoatCheckin',
       greeting: n => `Ciao ${n}`,
       body: b => `Il tuo charter su ${b} è terminato. Ci vogliono 30 secondi per lasciare una recensione.`,
       cta: 'Valuta la mia esperienza ⭐',
@@ -274,7 +274,7 @@ export async function sendWeatherAlertEmail(params: {
   <!-- Footer -->
   <div style="background:#F5F8FC;padding:16px 32px;border-top:1px solid #D0E2F3;">
     <p style="color:#6B7C93;font-size:11px;margin:0;">
-      DockPass Weather Monitor ·
+      BoatCheckin Weather Monitor ·
       <a href="${appUrl}/privacy" style="color:#6B7C93;">Privacy</a> ·
       <a href="${appUrl}/unsubscribe" style="color:#6B7C93;">Unsubscribe</a>
     </p>
@@ -393,7 +393,7 @@ export async function sendTripReminderEmail(params: {
   <!-- Footer -->
   <div style="background:#F5F8FC;padding:16px 32px;border-top:1px solid #D0E2F3;">
     <p style="color:#6B7C93;font-size:11px;margin:0;">
-      DockPass · Powered by Oakmont Logic LLC ·
+      BoatCheckin · Powered by Oakmont Logic LLC ·
       <a href="${process.env.NEXT_PUBLIC_APP_URL}/privacy" style="color:#6B7C93;">Privacy</a>
     </p>
   </div>

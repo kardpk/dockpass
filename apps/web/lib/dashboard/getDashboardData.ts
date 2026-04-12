@@ -33,7 +33,7 @@ export async function getDashboardHomeData(
         boats (
           id, boat_name, boat_type, marina_name,
           marina_address, slip_number, lat, lng,
-          captain_name, waiver_text, safety_points
+          captain_name, waiver_text, safety_cards
         ),
         guests (
           id, full_name, language_preference,
@@ -41,6 +41,7 @@ export async function getDashboardHomeData(
           is_seasickness_prone, waiver_signed,
           waiver_signed_at, approval_status,
           checked_in_at, created_at,
+          safety_acknowledgments, waiver_text_hash,
           guest_addon_orders (
             quantity, total_cents,
             addons ( name, emoji )
@@ -155,6 +156,7 @@ export function shapeTripDetail(raw: Record<string, unknown>): OperatorTripDetai
 
   const guests: DashboardGuest[] = rawGuests.map((g) => ({
     id: g.id as string,
+    customerId: (g.customer_id as string | null) ?? null,
     fullName: (g.full_name as string) ?? '',
     languagePreference: (g.language_preference as string) ?? 'en',
     dietaryRequirements: (g.dietary_requirements as string | null) ?? null,
@@ -165,6 +167,8 @@ export function shapeTripDetail(raw: Record<string, unknown>): OperatorTripDetai
     approvalStatus: (g.approval_status as DashboardGuest['approvalStatus']) ?? 'auto_approved',
     checkedInAt: (g.checked_in_at as string | null) ?? null,
     createdAt: (g.created_at as string) ?? '',
+    safetyAcknowledgments: (g.safety_acknowledgments as { topic_key: string; acknowledgedAt: string }[]) ?? [],
+    waiverTextHash: (g.waiver_text_hash as string | null) ?? null,
     addonOrders: ((g.guest_addon_orders ?? []) as Record<string, unknown>[]).map((o) => ({
       addonName: ((o.addons as Record<string, unknown>)?.name as string) ?? '',
       emoji: ((o.addons as Record<string, unknown>)?.emoji as string) ?? '🎁',
@@ -200,7 +204,8 @@ export function shapeTripDetail(raw: Record<string, unknown>): OperatorTripDetai
       lng: boat.lng ? Number(boat.lng) : null,
       captainName: (boat.captain_name as string | null) ?? null,
       waiverText: (boat.waiver_text as string) ?? '',
-      safetyPoints: (boat.safety_points as { id: string; text: string }[]) ?? [],
+      firmaTemplateId: (boat.firma_template_id as string | null) ?? null,
+      safetyCards: (boat.safety_cards as Record<string, unknown>[]) ?? [],
     },
     guests,
     bookings: rawBookings.map((b) => ({

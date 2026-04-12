@@ -1,4 +1,4 @@
-# DockPass — Phase 3F Agent Instructions
+# BoatCheckin — Phase 3F Agent Instructions
 # Post-Trip: Review Gate + Postcard + Rebook
 # @3F_POST_TRIP
 
@@ -13,7 +13,7 @@ A guest just spent 4 hours on a beautiful
 boat off Miami. They're happy, slightly
 sunburned, and their phone is in their hand.
 
-DockPass owns this moment.
+BoatCheckin owns this moment.
 
 The review gate protects Conrad from
 bad public reviews — private feedback stays
@@ -22,9 +22,9 @@ and Boatsetter, where they actually matter.
 
 The postcard is the viral loop. A 1080×1080
 Instagram-ready card with the guest's name,
-boat, date, and the ⚓ DockPass watermark
+boat, date, and the ⚓ BoatCheckin watermark
 — shared to 300 followers who have never
-heard of DockPass.
+heard of BoatCheckin.
 
 The rebook link is the next revenue event.
 The referral is the acquisition flywheel.
@@ -455,7 +455,7 @@ export async function sendReviewRequestEmail(params: {
     <div style="background:#F5F8FC;padding:16px 32px;text-align:center;
                 border-top:1px solid #D0E2F3;">
       <p style="color:#6B7C93;font-size:11px;margin:0;">
-        DockPass — Oakmont Logic LLC ·
+        BoatCheckin — Oakmont Logic LLC ·
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/privacy"
            style="color:#6B7C93;">Privacy</a> ·
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe"
@@ -486,7 +486,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     en: {
       subject: b => `How was your trip on ${b}? ⭐`,
       heading: 'Hope you had an amazing time!',
-      andTeam: '& the DockPass team',
+      andTeam: '& the BoatCheckin team',
       greeting: n => `Hi ${n}`,
       body: b => `Your charter on ${b} is complete. It takes 30 seconds to leave a review — and it means everything to a small charter operator.`,
       cta: 'Rate my experience ⭐',
@@ -496,7 +496,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     es: {
       subject: b => `¿Cómo fue tu viaje en ${b}? ⭐`,
       heading: '¡Esperamos que lo hayas pasado increíble!',
-      andTeam: 'y el equipo de DockPass',
+      andTeam: 'y el equipo de BoatCheckin',
       greeting: n => `Hola ${n}`,
       body: b => `Tu charter en ${b} ha terminado. Solo 30 segundos para dejar una reseña — significa mucho para los operadores.`,
       cta: 'Valorar mi experiencia ⭐',
@@ -506,7 +506,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     fr: {
       subject: b => `Comment était votre sortie sur ${b} ? ⭐`,
       heading: 'Nous espérons que vous avez passé un moment inoubliable !',
-      andTeam: "& l'équipe DockPass",
+      andTeam: "& l'équipe BoatCheckin",
       greeting: n => `Bonjour ${n}`,
       body: b => `Votre charter sur ${b} est terminé. 30 secondes pour laisser un avis — cela compte énormément.`,
       cta: 'Évaluer mon expérience ⭐',
@@ -516,7 +516,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     pt: {
       subject: b => `Como foi a sua viagem no ${b}? ⭐`,
       heading: 'Esperamos que tenha adorado!',
-      andTeam: '& a equipa DockPass',
+      andTeam: '& a equipa BoatCheckin',
       greeting: n => `Olá ${n}`,
       body: b => `O seu charter no ${b} terminou. São apenas 30 segundos para deixar uma avaliação.`,
       cta: 'Avaliar a minha experiência ⭐',
@@ -526,7 +526,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     de: {
       subject: b => `Wie war Ihre Tour auf ${b}? ⭐`,
       heading: 'Wir hoffen, es war wunderschön!',
-      andTeam: '& das DockPass-Team',
+      andTeam: '& das BoatCheckin-Team',
       greeting: n => `Hallo ${n}`,
       body: b => `Ihr Charter auf ${b} ist abgeschlossen. 30 Sekunden für eine Bewertung — es bedeutet alles.`,
       cta: 'Erfahrung bewerten ⭐',
@@ -536,7 +536,7 @@ function getReviewEmailTranslation(lang: string): ReviewEmailT {
     it: {
       subject: b => `Com'è andato il viaggio su ${b}? ⭐`,
       heading: 'Speriamo tu abbia trascorso un momento fantastico!',
-      andTeam: '& il team DockPass',
+      andTeam: '& il team BoatCheckin',
       greeting: n => `Ciao ${n}`,
       body: b => `Il tuo charter su ${b} è terminato. Ci vogliono 30 secondi per lasciare una recensione.`,
       cta: 'Valuta la mia esperienza ⭐',
@@ -937,9 +937,9 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params
   const result = await getTripPageData(slug)
-  if (!result.found) return { title: 'Trip — DockPass' }
+  if (!result.found) return { title: 'Trip — BoatCheckin' }
   return {
-    title: `${result.data.boat.boatName} — Thank you | DockPass`,
+    title: `${result.data.boat.boatName} — Thank you | BoatCheckin`,
     description: `Rate your experience on ${result.data.boat.boatName}.`,
     robots: { index: false },
   }
@@ -1157,7 +1157,7 @@ export function PostTripHero({
   const firstName = guestName?.split(' ')[0] ?? null
   const signedBy = captainName
     ? `Captain ${captainName}`
-    : operatorName ?? 'The DockPass Team'
+    : operatorName ?? 'The BoatCheckin Team'
 
   return (
     <div className="bg-[#1D9E75] px-5 pt-8 pb-10 text-white text-center">
@@ -1174,7 +1174,7 @@ export function PostTripHero({
       )}
 
       <p className="text-white/80 text-[15px] mb-4">
-        — {signedBy} & the DockPass team
+        — {signedBy} & the BoatCheckin team
       </p>
 
       {/* Trip summary chips */}
@@ -1610,7 +1610,7 @@ export function PostcardSection({
           const file = new File([blob], 'my-charter.png', { type: 'image/png' })
           await navigator.share({
             title: `My charter on ${postcardData.boatName}`,
-            text: `Amazing day on the water ⚓ via @dockpass.io`,
+            text: `Amazing day on the water ⚓ via @boatcheckin.com`,
             files: [file],
           })
 
@@ -1772,7 +1772,7 @@ function PostcardCanvas({ data, theme, size }: PostcardCanvasProps) {
           padding: '60px 80px 40px',
         }}
       >
-        {/* DockPass branding */}
+        {/* BoatCheckin branding */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -1923,7 +1923,7 @@ function PostcardCanvas({ data, theme, size }: PostcardCanvasProps) {
           margin: 0,
           fontWeight: 500,
         }}>
-          dockpass.io
+          boatcheckin.com
         </p>
         <p style={{
           color: theme.text,
@@ -2048,13 +2048,13 @@ export function ReferralSection({
   const appUrl = process.env.NEXT_PUBLIC_APP_URL
   const referralUrl = `${appUrl}?ref=${tripSlug}&boat=${encodeURIComponent(boatName)}`
 
-  const shareMessage = `Just had an amazing charter on ${boatName} 🛥️ Book your own with DockPass — digital check-in, no paperwork: ${referralUrl}`
+  const shareMessage = `Just had an amazing charter on ${boatName} 🛥️ Book your own with BoatCheckin — digital check-in, no paperwork: ${referralUrl}`
 
   async function copyLink() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Try DockPass for your next charter',
+          title: 'Try BoatCheckin for your next charter',
           text: shareMessage,
           url: referralUrl,
         })
@@ -2076,7 +2076,7 @@ export function ReferralSection({
           </h2>
           <p className="text-[14px] text-[#6B7C93] mb-4">
             Know someone planning a charter?
-            Share DockPass with them.
+            Share BoatCheckin with them.
           </p>
           <button
             onClick={copyLink}
@@ -2416,7 +2416,7 @@ TEST 7 — Postcard renders:
     ✓ Date
     ✓ Captain name
     ✓ Marina name
-    ✓ ⚓ dockpass.io watermark
+    ✓ ⚓ boatcheckin.com watermark
     ✓ Weather icon + temperature (if set)
 
 TEST 8 — Postcard download:
@@ -2427,7 +2427,7 @@ TEST 8 — Postcard download:
     All text readable
     ⚓ anchor watermark in bottom-right corner
     Navy or coral background depending on style
-    dockpass.io footer text
+    boatcheckin.com footer text
   Check Supabase: postcards row with downloaded_at set
 
 TEST 9 — Postcard share (mobile):

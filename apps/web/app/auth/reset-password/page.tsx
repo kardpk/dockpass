@@ -18,7 +18,7 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const supabase = createClient();
     // On mount, exchange the hash tokens for a session
-    supabase.auth.onAuthStateChange((event) => {
+    supabase.auth.onAuthStateChange((event: string) => {
       if (event === "PASSWORD_RECOVERY") {
         // Session is now active — user can call updateUser
       }

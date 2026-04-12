@@ -76,11 +76,17 @@ export async function POST(
       duration_hours, max_guests, operator_id,
       boats (
         id, boat_name, boat_type, marina_name,
-        marina_address, lat, lng, captain_name
+        marina_address, lat, lng, captain_name,
+        safety_cards
+      ),
+      guests (
+        id, waiver_signed, waiver_text_hash,
+        safety_acknowledgments, approval_status
       )
     `)
     .eq('id', tripId)
     .eq('slug', slug)
+    .is('guests.deleted_at', null)
     .single()
 
   if (tripErr || !trip) {
@@ -138,6 +144,37 @@ export async function POST(
   const boat = trip.boats as any
 
   try {
+    // ── LAYER 9.5: USCG PRE-DEPARTURE SAFETY COMPLIANCE ──────
+    // Server-side enforcement: independently verify every guest
+    // has signed the waiver and completed all required safety cards.
+    // This guard is the last line of defense even if the UI is bypassed.
+    const boatData = trip.boats as unknown as Record<string, unknown>
+    const safetyCards = (boatData?.safety_cards as unknown[]) ?? []
+    const requiredSafetyCards = safetyCards.length
+    const tripGuests = (trip.guests ?? []) as Record<string, unknown>[]
+
+    const nonCompliantGuests = tripGuests.filter(g => {
+      const hasWaiver = (g.waiver_signed as boolean) ||
+                        (g.waiver_text_hash as string) === 'firma_template'
+      const safetyAcks = (g.safety_acknowledgments as unknown[]) ?? []
+      const hasSafety = safetyAcks.length >= requiredSafetyCards
+      const isApproved = (g.approval_status as string) !== 'pending'
+      return !(hasWaiver && hasSafety && isApproved)
+    })
+
+    if (nonCompliantGuests.length > 0) {
+      // Release lock before returning
+      await redis.del(lockKey).catch(() => null)
+      return NextResponse.json(
+        {
+          error: `Pre-departure safety check failed. ${nonCompliantGuests.length} guest(s) are missing waivers or safety acknowledgments.`,
+          code: 'SAFETY_COMPLIANCE_FAILED',
+          nonCompliantCount: nonCompliantGuests.length,
+        },
+        { status: 400 }
+      )
+    }
+
     // ── STEP 1: Update trip status ───────────
     // This is the source of truth — do first
     const { error: updateErr } = await supabase
@@ -189,7 +226,7 @@ export async function POST(
         title: 'Insurance activation needs attention',
         body: 'Buoy API could not activate automatically. Contact support.',
         data: { tripId },
-      }).catch(() => null)
+      })
     }
 
     // ── STEP 3: Audit log (USCG departure record) ──
@@ -223,13 +260,13 @@ export async function POST(
 
     // ── STEP 5: Notify operator dashboard ───
     // Supabase Realtime broadcasts to dashboard
-    await supabase.from('operator_notifications').insert({
+    void supabase.from('operator_notifications').insert({
       operator_id: trip.operator_id,
       type: 'trip_started',
       title: '⚓ Trip started',
       body: `${boat?.boat_name} has departed with ${data.confirmedGuestCount} guests`,
       data: { tripId, slug: trip.slug },
-    }).catch(() => null)
+    })
 
     return NextResponse.json({
       data: {
@@ -250,7 +287,6 @@ export async function POST(
       .update({ status: 'upcoming', started_at: null })
       .eq('id', tripId)
       .eq('started_at', startedAt)
-      .catch(() => null)
 
     return NextResponse.json(
       { error: 'Failed to start trip. Please try again.' },

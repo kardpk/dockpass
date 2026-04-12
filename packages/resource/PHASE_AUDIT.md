@@ -1,4 +1,4 @@
-# DockPass — Phase Audit & Boat Onboarding Complete Spec
+# BoatCheckin — Phase Audit & Boat Onboarding Complete Spec
 # @PHASE_AUDIT
 # Conducted: April 2026
 # Covers: Phase 1 (Auth), Phase 2 (Boat Wizard),
@@ -1341,7 +1341,7 @@ seed updated, any errors encountered.
 @docs/agents/17-AUDIT.md
 @docs/agents/20-PHASE_AUDIT.md
 
-TASK: Build the complete DockPass 8-step
+TASK: Build the complete BoatCheckin 8-step
 boat profile wizard. This is Phase 2.
 Migration 002 must be complete first.
 No scraping — pure manual entry with

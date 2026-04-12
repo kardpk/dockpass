@@ -10,7 +10,7 @@ function initVapid() {
   const privKey = process.env.VAPID_PRIVATE_KEY
   if (!pubKey || !privKey) return
   webpush.setVapidDetails(
-    'mailto:hello@dockpass.io',
+    'mailto:hello@boatcheckin.com',
     pubKey,
     privKey
   )
@@ -66,14 +66,27 @@ export async function sendPushToAllGuests(
 ): Promise<{ sent: number; failed: number }> {
   const supabase = createServiceClient()
 
+  // 1. Get all active guests for this trip
   const { data: guests } = await supabase
     .from('guests')
-    .select('id, push_subscription')
+    .select('id')
     .eq('trip_id', tripId)
     .is('deleted_at', null)
-    .not('push_subscription', 'is', null)
 
-  if (!guests || guests.length === 0) {
+  const guestIds = guests?.map(g => g.id) || []
+  if (guestIds.length === 0) {
+    return { sent: 0, failed: 0 }
+  }
+
+  // 2. Lookup push subscriptions for these guests
+  const { data: subs } = await supabase
+    .from('push_subscriptions')
+    .select('endpoint, keys')
+    .eq('target_type', 'guest')
+    .in('target_id', guestIds)
+    .eq('is_active', true)
+
+  if (!subs || subs.length === 0) {
     return { sent: 0, failed: 0 }
   }
 
@@ -81,10 +94,9 @@ export async function sendPushToAllGuests(
   let failed = 0
 
   await Promise.allSettled(
-    guests.map(async guest => {
-      if (!guest.push_subscription) return
+    subs.map(async sub => {
       try {
-        await sendPush(guest.push_subscription, payload)
+        await sendPush(sub, payload)
         sent++
       } catch {
         failed++
@@ -96,13 +108,12 @@ export async function sendPushToAllGuests(
 }
 
 async function removeExpiredPushSubscription(
-  subscription: object
+  subscription: any
 ): Promise<void> {
+  if (!subscription || !subscription.endpoint) return
   const supabase = createServiceClient()
-  // Find and clear the subscription from the guest record
   await supabase
-    .from('guests')
-    .update({ push_subscription: null })
-    // In actual implementation we might need a stored serialized string or JSONB compare if exact struct isn't matched
-    .eq('push_subscription', subscription)
+    .from('push_subscriptions')
+    .delete()
+    .eq('endpoint', subscription.endpoint)
 }

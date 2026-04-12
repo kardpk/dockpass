@@ -137,7 +137,7 @@ export async function POST(
       orderCount: orders.length,
       totalCents,
     },
-  }).catch(() => null)
+  })
 
   return NextResponse.json({ data: inserted, totalCents })
 }

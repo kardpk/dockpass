@@ -1,4 +1,4 @@
-# DockPass — Phase 3G Agent Instructions
+# BoatCheckin — Phase 3G Agent Instructions
 # Real-time Layer: Live Updates + Guest-Captain Chat
 # @3G_REALTIME
 
@@ -9,7 +9,7 @@
 Phases 3A–3F built a complete product.
 Everything works. Nothing is live.
 
-Phase 3G makes DockPass feel alive.
+Phase 3G makes BoatCheckin feel alive.
 
 When Conrad opens his dashboard at 9:45am,
 he sees Ahmed checking in — the row appears

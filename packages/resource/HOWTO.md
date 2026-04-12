@@ -1,4 +1,4 @@
-# DockPass — How To Build Each Feature
+# BoatCheckin — How To Build Each Feature
 # @HOWTO
 
 ## How to use this document
@@ -160,7 +160,7 @@ in order. Do not skip steps.
 5. Generate trip code with generateTripCode()
 6. Insert trip record to database
 7. On success: show trip detail page with:
-   - The trip link: dockpass.io/trip/{slug}
+   - The trip link: boatcheckin.com/trip/{slug}
    - Pre-written WhatsApp message (tap to copy)
    - Trip code prominently displayed
 8. Copy button for WhatsApp message
@@ -312,9 +312,9 @@ in order. Do not skip steps.
 2. Verify operator owns this trip
 3. Fetch all guests for trip (DATABASE.md query pattern)
 4. Generate PDF using pdf-lib (BACKEND.md implementation):
-   - Header: DockPass logo, vessel name, date, time, marina
+   - Header: BoatCheckin logo, vessel name, date, time, marina
    - Table: #, full name, emergency contact, dietary, waiver status
-   - Footer: generated timestamp, dockpass.io
+   - Footer: generated timestamp, boatcheckin.com
    - USCG format requirements (COMPLIANCE.md)
 5. Return PDF as downloadable file (Content-Disposition: attachment)
 6. Add "Download manifest PDF" button in dashboard
@@ -369,7 +369,7 @@ in order. Do not skip steps.
 6. POST /api/billing/portal (for manage billing)
 7. POST /api/webhooks/stripe (PAYMENTS.md full handler)
 8. Register webhook in Stripe dashboard:
-   dockpass.io/api/webhooks/stripe
+   boatcheckin.com/api/webhooks/stripe
    Events: checkout.session.completed,
            customer.subscription.updated,
            customer.subscription.deleted,
@@ -439,7 +439,7 @@ in order. Do not skip steps.
    - Boat name + captain name
    - Date + actual weather on that day
    - Marina name
-   - ⚓ dockpass.io watermark bottom right
+   - ⚓ boatcheckin.com watermark bottom right
 7. html2canvas renders at 1080x1080px
 8. Download button saves to camera roll
 9. Share button opens native share sheet

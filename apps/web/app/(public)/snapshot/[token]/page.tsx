@@ -1,15 +1,15 @@
 import { notFound } from 'next/navigation'
-import { verifySnapshotToken } from '@/lib/security/snapshot'
-import { getRedis } from '@/lib/redis/upstash'
+import { verifyCaptainToken } from '@/lib/security/tokens'
 import { createServiceClient } from '@/lib/supabase/service'
 import { shapeTripDetail, buildAddonSummary, buildCaptainAlerts } from '@/lib/dashboard/getDashboardData'
+import { getWeatherData } from '@/lib/trip/getWeatherData'
 import { LANGUAGE_FLAGS } from '@/lib/i18n/detect'
 import { CaptainSnapshotView } from '@/components/captain/CaptainSnapshotView'
 import type { Metadata } from 'next'
 import type { CaptainSnapshotData } from '@/types'
 
 export const metadata: Metadata = {
-  title: 'Captain Snapshot — DockPass',
+  title: 'Captain Snapshot — BoatCheckin',
   robots: { index: false },  // Never index captain pages
 }
 
@@ -20,14 +20,11 @@ export default async function SnapshotPage({
 }) {
   const { token } = await params
 
-  // Verify token
-  const result = verifySnapshotToken(token)
+  // Verify token natively (checks TTL and HMAC)
+  const result = verifyCaptainToken(token)
 
   if (!result) {
     return <TokenInvalidPage />
-  }
-  if (result.expired) {
-    return <TokenExpiredPage />
   }
 
   const tripId = result.tripId
@@ -39,10 +36,10 @@ export default async function SnapshotPage({
     .select(`
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, trip_code, status, started_at, charter_type, requires_approval,
-      special_notes, buoy_policy_id,
+      special_notes, buoy_policy_id, captain_token_version,
       boats (
         id, boat_name, boat_type, marina_name, marina_address, slip_number,
-        captain_name, lat, lng, waiver_text, safety_points,
+        captain_name, lat, lng, waiver_text, safety_cards,
         captain_photo_url
       ),
       guests (
@@ -50,6 +47,7 @@ export default async function SnapshotPage({
         dietary_requirements, is_non_swimmer,
         is_seasickness_prone, waiver_signed,
         waiver_signed_at, checked_in_at, approval_status, created_at,
+        safety_acknowledgments, waiver_text_hash,
         guest_addon_orders (
           quantity, total_cents,
           addons ( name, emoji )
@@ -61,15 +59,19 @@ export default async function SnapshotPage({
     `)
     .eq('id', tripId)
     .is('guests.deleted_at', null)
-    .single()
-
   if (!raw) notFound()
 
-  const trip = shapeTripDetail(raw as Record<string, unknown>)
-  const boat = raw.boats as any
+  if ((raw as any).captain_token_version !== result.version) {
+    return <TokenInvalidPage />
+  }
 
-  // Mocking getWeatherData due to omission from implementation list, fallback to empty
-  const weather = null 
+  const trip = shapeTripDetail(raw as unknown as Record<string, unknown>)
+  const boat = (raw as any).boats as any
+
+  // Fetch live weather from Open-Meteo (cached 3hr in Redis)
+  const weather = boat?.lat && boat?.lng
+    ? await getWeatherData(Number(boat.lat), Number(boat.lng), trip.tripDate)
+    : null
 
   const alerts = buildCaptainAlerts(trip.guests)
   const addonSummary = buildAddonSummary(trip.guests)
@@ -78,6 +80,8 @@ export default async function SnapshotPage({
     tripId,
     slug: trip.slug,
     boatName: trip.boat.boatName,
+    maxGuests: trip.maxGuests,
+    requiredSafetyCards: trip.boat.safetyCards?.length ?? 0,
     marinaName: trip.boat.marinaName,
     slipNumber: trip.boat.slipNumber,
     tripDate: trip.tripDate,
@@ -85,15 +89,17 @@ export default async function SnapshotPage({
     durationHours: trip.durationHours,
     captainName: trip.boat.captainName,
     weather: weather ? {
-      label: 'Sunny', // weather.label,
-      temperature: 75, // weather.temperature,
-      icon: '☀️', // weather.icon,
+      label: weather.label,
+      temperature: weather.temperature,
+      icon: weather.icon,
     } : null,
     alerts,
     guests: trip.guests.map(g => ({
       id: g.id,
       fullName: g.fullName,
       waiverSigned: g.waiverSigned,
+      waiverTextHash: g.waiverTextHash ?? null,
+      safetyAckCount: g.safetyAcknowledgments?.length ?? 0,
       languageFlag: LANGUAGE_FLAGS[g.languagePreference as keyof typeof LANGUAGE_FLAGS] ?? '🌐',
       addonEmojis: g.addonOrders.map(o => o.emoji),
     })),

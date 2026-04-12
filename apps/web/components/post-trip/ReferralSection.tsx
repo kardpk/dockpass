@@ -11,16 +11,16 @@ export function ReferralSection({
 }) {
   const [copied, setCopied] = useState(false)
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://dockpass.io'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://boatcheckin.com'
   const referralUrl = `${appUrl}?ref=${tripSlug}&boat=${encodeURIComponent(boatName)}`
 
-  const shareMessage = `Just had an amazing charter on ${boatName} 🛥️ Book your own with DockPass — digital check-in, no paperwork: ${referralUrl}`
+  const shareMessage = `Just had an amazing charter on ${boatName} 🛥️ Book your own with BoatCheckin — digital check-in, no paperwork: ${referralUrl}`
 
   async function copyLink() {
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({
-          title: 'Try DockPass for your next charter',
+          title: 'Try BoatCheckin for your next charter',
           text: shareMessage,
           url: referralUrl,
         })
@@ -42,7 +42,7 @@ export function ReferralSection({
           </h2>
           <p className="text-[14px] text-[#6B7C93] mb-4">
             Know someone planning a charter?
-            Share DockPass with them.
+            Share BoatCheckin with them.
           </p>
           <button
             onClick={copyLink}

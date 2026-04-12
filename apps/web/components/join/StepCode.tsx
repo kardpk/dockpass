@@ -10,12 +10,11 @@ interface StepCodeProps {
   tripSlug: string
   state: JoinFlowState
   onUpdate: (partial: Partial<JoinFlowState>) => void
-  onValidated: (waiverText: string, waiverHash: string) => void
+  onValidated: (waiverText: string, waiverHash: string, firmaTemplateId?: string | null, safetyCards?: unknown[]) => void
 }
 
 export function StepCode({ tripSlug, state, onUpdate, onValidated }: StepCodeProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [turnstileToken, setTurnstileToken] = useState('')
   const [lockCountdown, setLockCountdown] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -84,7 +83,7 @@ export function StepCode({ tripSlug, state, onUpdate, onValidated }: StepCodePro
         return
       }
 
-      onValidated(json.trip.waiverText, json.trip.waiverHash)
+      onValidated(json.trip.waiverText ?? '', json.trip.waiverHash, json.trip.firmaTemplateId, json.trip.safetyCards)
     } catch {
       onUpdate({ codeError: 'Connection error. Please try again.' })
     } finally {
@@ -151,7 +150,7 @@ export function StepCode({ tripSlug, state, onUpdate, onValidated }: StepCodePro
       {siteKey && (
         <Turnstile
           siteKey={siteKey}
-          onSuccess={setTurnstileToken}
+          onSuccess={(token) => onUpdate({ turnstileToken: token })}
           options={{ theme: 'light', size: 'invisible' }}
         />
       )}
@@ -176,8 +175,6 @@ export function StepCode({ tripSlug, state, onUpdate, onValidated }: StepCodePro
         Your information is kept private and secure
       </p>
 
-      {/* Keep turnstileToken in scope for when wired to registration */}
-      <input type="hidden" name="turnstileToken" value={turnstileToken} />
     </div>
   )
 }

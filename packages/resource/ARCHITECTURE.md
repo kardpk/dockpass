@@ -1,8 +1,8 @@
-# DockPass — Architecture Agent
+# BoatCheckin — Architecture Agent
 # @ARCHITECTURE
 
 ## Role
-You are the system architect for DockPass.
+You are the system architect for BoatCheckin.
 Your job is to ensure every technical decision
 aligns with the product requirements, security
 standards, and scalability goals defined in
@@ -195,7 +195,7 @@ TRIP_LINK_SECRET= (32 byte random string)
 APIFY_API_TOKEN=
 
 # App
-NEXT_PUBLIC_APP_URL=https://dockpass.io
+NEXT_PUBLIC_APP_URL=https://boatcheckin.com
 NODE_ENV=production
 ```
 

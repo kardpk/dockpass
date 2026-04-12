@@ -11,7 +11,7 @@ Phase 2 — Boat Wizard Steps 1–3:
 
 
 TASK: Build the boat setup wizard Steps 1–3
-for DockPass. Phase 2 of Session 3.
+for BoatCheckin. Phase 2 of Session 3.
 This is the first screen new operators see
 after signup. It must feel effortless.
 
@@ -169,7 +169,7 @@ If under limit: render <BoatWizard />
 
 
 Page metadata:
-  title: "Add your boat — DockPass"
+  title: "Add your boat — BoatCheckin"
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

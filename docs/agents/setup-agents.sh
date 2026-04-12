@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# DockPass — Agent Setup Script
+# BoatCheckin — Agent Setup Script
 # Updated: April 2026 — v2 (CTO Blueprint)
 # Run from your project root:
 # chmod +x setup-agents.sh && ./setup-agents.sh
 
-echo "⚓ Setting up DockPass agent structure..."
+echo "⚓ Setting up BoatCheckin agent structure..."
 
 # ============================================
 # ROOT PROJECT STRUCTURE
@@ -150,7 +150,7 @@ EOF
 # ============================================
 
 cat > .env.local.example << 'EOF'
-# DockPass Environment Variables
+# BoatCheckin Environment Variables
 # Copy to .env.local — NEVER commit .env.local
 
 # SUPABASE
@@ -213,7 +213,7 @@ EOF
 # ============================================
 
 cat > docs/agents/README.md << 'EOF'
-# DockPass Agent Documents
+# BoatCheckin Agent Documents
 # Updated: April 2026 — v2 CTO Blueprint
 
 ## Read Order (always start with MASTER)
@@ -268,7 +268,7 @@ cat > docs/agents/README.md << 'EOF'
 EOF
 
 echo ""
-echo "✅ DockPass v2 structure created"
+echo "✅ BoatCheckin v2 structure created"
 echo ""
 echo "📁 Folder tree:"
 find . -type d | grep -v node_modules | grep -v .git | grep -v .next | sort | sed 's|[^/]*/|  |g'
@@ -297,7 +297,7 @@ echo "  2. Copy .env.local.example to .env.local and fill in values"
 echo "  3. Run: npm install"
 echo "  4. Open in Cursor/Windsurf and use @ to reference agents"
 echo ""
-echo "⚓ DockPass v2 is ready to build."
+echo "⚓ BoatCheckin v2 is ready to build."
 
 # ============================================
 # ROOT PROJECT STRUCTURE
@@ -499,7 +499,7 @@ EOF
 # ============================================
 
 cat > docs/agents/README.md << 'EOF'
-# DockPass Agent Documents
+# BoatCheckin Agent Documents
 
 ## How to use in Antigravity IDE
 
@@ -569,4 +569,4 @@ echo "  3. Fill in all values in:             .env.local"
 echo "  4. Run:                               npm install"
 echo "  5. Open Antigravity IDE and use @ commands"
 echo ""
-echo "⚓ DockPass is ready to build."
+echo "⚓ BoatCheckin is ready to build."

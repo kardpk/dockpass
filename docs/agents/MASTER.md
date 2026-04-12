@@ -1,4 +1,4 @@
-# DockPass — Master Implementation Blueprint
+# BoatCheckin — Master Implementation Blueprint
 # @MASTER — READ THIS FIRST, ALWAYS
 
 ## Status: PRIMARY REFERENCE DOCUMENT
@@ -9,7 +9,7 @@
 
 ## What This Document Is
 
-This is the single source of truth for DockPass.
+This is the single source of truth for BoatCheckin.
 It combines the business architecture matrix with
 the full technical agent system. Every decision
 made in this project traces back to this document.
@@ -23,7 +23,7 @@ Before building anything:
 
 ## The Product (Non-Negotiable Definition)
 
-DockPass (dockpass.io) is a PWA that owns the
+BoatCheckin (boatcheckin.com) is a PWA that owns the
 unaddressed gap between charter booking confirmation
 and guest boarding.
 
@@ -55,8 +55,8 @@ SEQ  FEATURE                PROVIDER/TECH          PURPOSE
 3    Telecom & SMS          OpenPhone               Miami 786 area
                             (786 area code)         code builds trust
                             linked to               with Florida
-                            admin@dockpass.io       captains. SMS
-                                                    for DockPass links.
+                            admin@boatcheckin.com       captains. SMS
+                                                    for BoatCheckin links.
 
 4    Frontend + Edge        Next.js 15+             App Router, Server
                             React 19                Components, Server
@@ -87,7 +87,7 @@ SEQ  FEATURE                PROVIDER/TECH          PURPOSE
 10   Payments Engine        Stripe Connect          Webhook-driven.
                             (Latest API)            Splits payments:
                                                     booking fee to
-                                                    DockPass + payout
+                                                    BoatCheckin + payout
                                                     to operator.
 
 11   Baseline Revenue       BoatUS Affiliate        $30 per captain
@@ -100,7 +100,7 @@ SEQ  FEATURE                PROVIDER/TECH          PURPOSE
                                                     start. Florida
                                                     Livery Law compliant.
 
-13   Embedded Protection    Tint.ai API             "DockPass Guarantees"
+13   Embedded Protection    Tint.ai API             "BoatCheckin Guarantees"
                                                     premium subscription
                                                     for captains.
                                                     High-margin recurring.
@@ -159,7 +159,7 @@ Scraping:     Apify
 ### Revenue APIs
 ```
 Insurance:    Buoy API (per-trip, REST)
-Protection:   Tint.ai (DockPass Guarantees)
+Protection:   Tint.ai (BoatCheckin Guarantees)
 Affiliates:   BoatUS ($30/captain referral)
               Novamar (charter insurance)
               Boat-Ed (Florida boating course)
@@ -172,8 +172,8 @@ Address:      Northwest Agents, St. Petersburg FL
 Banking:      Mercury Bank (US business account)
 Payments:     Stripe Connect (US account)
 Phone:        OpenPhone — 786 area code
-Email:        admin@dockpass.io
-Domain:       dockpass.io (Cloudflare DNS)
+Email:        admin@boatcheckin.com
+Domain:       boatcheckin.com (Cloudflare DNS)
 IDE:          Cursor or Windsurf (Antigravity)
 ```
 
@@ -284,7 +284,7 @@ docs/agents/15-AUTOMATION.md
 //   - Command palette (operator search)
 
 // Build custom for:
-//   - All guest-facing components (DockPass brand)
+//   - All guest-facing components (BoatCheckin brand)
 //   - Weather widget
 //   - Boarding pass
 //   - Postcard generator
@@ -324,23 +324,23 @@ docs/agents/15-AUTOMATION.md
 
 ```typescript
 // Stripe Connect enables:
-//   - Split payments (DockPass fee + operator payout)
+//   - Split payments (BoatCheckin fee + operator payout)
 //   - Operator onboarding as Connected Accounts
 //   - Marketplace payment model
 
 // Two account types:
 //   Standard: operator manages their own Stripe
-//   Express: DockPass manages, simpler onboarding
+//   Express: BoatCheckin manages, simpler onboarding
 
 // Use Express for MVP:
 //   Faster operator onboarding
-//   DockPass controls the experience
+//   BoatCheckin controls the experience
 //   Payouts handled automatically
 
 // Revenue model:
 //   Guest pays $950 charter
 //   Stripe takes ~2.9% + 30¢
-//   DockPass takes platform fee (future)
+//   BoatCheckin takes platform fee (future)
 //   Operator receives remainder
 ```
 
@@ -348,7 +348,7 @@ docs/agents/15-AUTOMATION.md
 
 ```typescript
 // OpenPhone: 786 (Miami) area code VoIP
-// Linked to admin@dockpass.io
+// Linked to admin@boatcheckin.com
 // Used for:
 //   - Inbound operator calls
 //   - SMS to operators (not guests)
@@ -382,29 +382,29 @@ docs/agents/15-AUTOMATION.md
 // Guest insurance = Novamar affiliate
 
 // Revenue model:
-//   Buoy pays DockPass referral commission
-//   OR DockPass earns on policy spread
+//   Buoy pays BoatCheckin referral commission
+//   OR BoatCheckin earns on policy spread
 
 // Setup: Apply at buoy.insure for API access
 // Register Oakmont Logic LLC
 ```
 
-### 8. Tint.ai — DockPass Guarantees
+### 8. Tint.ai — BoatCheckin Guarantees
 
 ```typescript
 // Tint.ai: embedded insurance platform
-// Powers "DockPass Guarantees" product
+// Powers "BoatCheckin Guarantees" product
 // Premium subscription for operators
 
 // What it covers:
-//   Captain sells "DockPass Guarantee" to guests
+//   Captain sells "BoatCheckin Guarantee" to guests
 //   Guest pays extra (e.g. $15) for guarantee
 //   If trip cancelled: automatic refund
 //   If experience unsatisfactory: credit
 
 // Revenue model:
 //   Tint.ai handles underwriting
-//   DockPass earns margin on each policy
+//   BoatCheckin earns margin on each policy
 //   Positioned as high-margin recurring revenue
 
 // Implementation:
@@ -462,7 +462,7 @@ Legal + Banking (do in this order):
 □ 5. OpenPhone number
      openphone.com
      Get 786 (Miami/Dade) area code
-     Link to admin@dockpass.io
+     Link to admin@boatcheckin.com
      Cost: $13/month
 
 □ 6. Stripe Connect account
@@ -481,7 +481,7 @@ Legal + Banking (do in this order):
 
 □ 9. Apply: Tint.ai partnership
      tint.ai — request embedded insurance access
-     For DockPass Guarantees product
+     For BoatCheckin Guarantees product
 
 □ 10. Apply: BoatUS Affiliate
       boatus.com/affiliates
@@ -503,7 +503,7 @@ SUBSCRIPTIONS (primary):
 INSURANCE AFFILIATES:
   Novamar charter insurance  15-25% commission
   Buoy API per-trip          per-policy spread
-  Tint.ai DockPass Guarantee high-margin recurring
+  Tint.ai BoatCheckin Guarantee high-margin recurring
   Guest trip protection      $2-3 per policy
 
 MARINE AFFILIATES:
@@ -635,7 +635,7 @@ FRONTEND      Next.js 15 Server Components,
 
 PAYMENTS      Stripe Connect (Express accounts),
               payment splitting architecture,
-              Tint.ai DockPass Guarantees,
+              Tint.ai BoatCheckin Guarantees,
               BoatUS affiliate
 
 NOTIFICATIONS OpenPhone for operator calls,

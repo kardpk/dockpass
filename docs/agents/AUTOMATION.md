@@ -1,8 +1,8 @@
-# DockPass — Automation & Support Agent
+# BoatCheckin — Automation & Support Agent
 # @AUTOMATION
 
 ## Role
-You own the automated support system for DockPass.
+You own the automated support system for BoatCheckin.
 No human intervention for 95% of issues.
 Every expected problem has a pre-built resolution.
 Escalation only for genuine edge cases.
@@ -53,7 +53,7 @@ Automated response (inline UI):
                 the right link for your booking"
                Show: "Contact your organiser" button
                Pre-fills message: "Hi — can you resend
-               the DockPass trip code?"
+               the BoatCheckin trip code?"
   Attempt 4:   Same as above + show email support link
   Attempt 5:   Rate limit lockout
                "Too many attempts. Try again in 30 minutes.
@@ -174,8 +174,8 @@ No human intervention needed for either case
 ### Issue G7: Guest wants data deleted (GDPR)
 
 ```
-Trigger: Email to privacy@dockpass.io
-         OR form at dockpass.io/privacy#delete
+Trigger: Email to privacy@boatcheckin.com
+         OR form at boatcheckin.com/privacy#delete
 
 Automated flow:
   1. System receives deletion request
@@ -184,7 +184,7 @@ Automated flow:
       deleted within 72 hours as required by GDPR."
   3. Cron job processes deletion within 72 hours
   4. Auto-sends completion email:
-     "Your DockPass data has been deleted."
+     "Your BoatCheckin data has been deleted."
   5. Logs deletion in audit_log
 
 No human involvement required
@@ -208,12 +208,12 @@ Automated flow:
     "Here are your upcoming trip links:
     
     Saturday Oct 21 · 2pm — Conrad's Yacht Miami
-    Link: dockpass.io/trip/[slug]
+    Link: boatcheckin.com/trip/[slug]
     Code: SUN4
     WhatsApp message: [pre-written, tap to copy]
     
     Sunday Oct 22 · 11am — Conrad's Yacht Miami
-    Link: dockpass.io/trip/[slug2]
+    Link: boatcheckin.com/trip/[slug2]
     Code: OCT3"
 
 No human needed. Resolved in seconds.
@@ -273,7 +273,7 @@ Trigger: Stripe webhook: invoice.payment_failed
 
 Automated sequence:
   Day 1 (immediate):
-    Email: "Your DockPass payment didn't go through.
+    Email: "Your BoatCheckin payment didn't go through.
             No action needed yet — we'll retry in 3 days.
             [Update payment method] if needed."
     Dashboard: amber banner "Payment issue — please update billing"
@@ -282,7 +282,7 @@ Automated sequence:
   Day 4 (Stripe auto-retry):
     If successful: email "Payment successful — all good!"
     If failed again: email "Still having payment issues.
-                    Please update your card to keep DockPass active."
+                    Please update your card to keep BoatCheckin active."
     Account: still active
 
   Day 7 (final notice):
@@ -545,8 +545,8 @@ Automated fallback:
 // Powers the help chat bubble on all pages
 
 const SUPPORT_SYSTEM_PROMPT = `
-You are the DockPass support assistant.
-DockPass is a charter boat guest experience app.
+You are the BoatCheckin support assistant.
+BoatCheckin is a charter boat guest experience app.
 You help operators and guests with questions.
 
 CONTEXT YOU HAVE ACCESS TO:
@@ -562,8 +562,8 @@ RULES:
 - Never promise features that don't exist
 - Never discuss competitor platforms negatively
 - For billing disputes: always escalate to human
-- For legal questions: always say "contact us at hello@dockpass.io"
-- For data deletion: direct to dockpass.io/privacy#delete
+- For legal questions: always say "contact us at hello@boatcheckin.com"
+- For data deletion: direct to boatcheckin.com/privacy#delete
 - End every response with a confirmation question
   "Does that solve your issue?"
 
@@ -725,7 +725,7 @@ Automated handling:
        and confirmed the trip is proceeding.
        [Current conditions: X]"
   
-  DockPass never cancels trips automatically
+  BoatCheckin never cancels trips automatically
   Operator always has final decision
   System just informs — never overrides
 ```
@@ -845,7 +845,7 @@ Pre-built as static content — zero API cost
 ### Escalation email setup
 
 ```
-support@dockpass.io → your email (hidden)
+support@boatcheckin.com → your email (hidden)
 All Level 4 escalations routed here
 Target response time: 4 business hours
 

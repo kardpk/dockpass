@@ -1,4 +1,4 @@
-# DockPass — Dependencies
+# BoatCheckin — Dependencies
 # @DEPENDENCIES
 # All packages pinned to exact versions
 # Updated: April 2026

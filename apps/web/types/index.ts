@@ -1,5 +1,5 @@
 /* ============================================
-   DockPass — TypeScript Types (ARCH 2 from AUDIT.md)
+   BoatCheckin — TypeScript Types (ARCH 2 from AUDIT.md)
    ============================================ */
 
 // ── API Response wrapper ──
@@ -237,11 +237,10 @@ export interface GuestSession {
 /** Helper to get the localStorage key for a trip */
 export const GUEST_SESSION_KEY = (slug: string) => `dp-guest-${slug}`
 
-/** Individual safety acknowledgment (local tracking) */
+/** Individual safety acknowledgment (stored in guest record) */
 export interface SafetyAck {
-  id: string
-  text: string
-  acknowledgedAt: string    // ISO timestamp
+  topic_key: string              // matches SafetyCard.topic_key (e.g. 'life_jackets')
+  acknowledgedAt: string         // ISO timestamp
 }
 
 /** Steps in the guest join flow */
@@ -264,6 +263,7 @@ export interface JoinFlowState {
   codeAttempts: number
   codeLocked: boolean
   codeLockUntil: number       // unix ms timestamp
+  turnstileToken: string      // Cloudflare Turnstile verification token
 
   // Step 2 — details
   fullName: string
@@ -317,6 +317,8 @@ export interface DashboardGuest {
   approvalStatus: ApprovalStatus
   checkedInAt: string | null
   createdAt: string
+  safetyAcknowledgments: { topic_key: string; acknowledgedAt: string }[]
+  waiverTextHash: string | null   // 'firma_template' = Firma PDF, hex = legacy scroll
   addonOrders: {
     addonName: string
     emoji: string
@@ -352,7 +354,7 @@ export interface OperatorTripDetail {
     captainName: string | null
     waiverText: string
     firmaTemplateId: string | null
-    safetyPoints: { id: string; text: string }[]
+    safetyCards: Record<string, unknown>[]
   }
   guests: DashboardGuest[]
   bookings: {
@@ -388,6 +390,8 @@ export interface CaptainSnapshotData {
   tripId: string
   slug: string
   boatName: string
+  maxGuests: number
+  requiredSafetyCards: number   // boat.safety_cards.length — for USCG compliance math
   marinaName: string
   slipNumber: string | null
   tripDate: string
@@ -405,6 +409,8 @@ export interface CaptainSnapshotData {
     id: string
     fullName: string
     waiverSigned: boolean
+    waiverTextHash: string | null
+    safetyAckCount: number
     languageFlag: string
     addonEmojis: string[]
   }[]

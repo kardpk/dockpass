@@ -38,7 +38,7 @@ export async function GET(
       boats (
         id, boat_name, boat_type, marina_name,
         marina_address, slip_number, lat, lng,
-        captain_name, waiver_text, safety_points
+        captain_name, waiver_text, safety_cards
       ),
       guests (
         id, full_name, language_preference,
@@ -78,11 +78,11 @@ export async function GET(
     entityType: 'trip',
     entityId: tripId,
     changes: { guestCount: trip.guests.length },
-  }).catch(() => null)
+  })
 
   const filename = `dockpass-manifest-${trip.boat.boatName.replace(/\s+/g, '-').toLowerCase()}-${trip.tripDate}.pdf`
 
-  return new NextResponse(pdfBytes, {
+  return new NextResponse(Buffer.from(pdfBytes), {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,

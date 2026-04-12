@@ -66,7 +66,8 @@ export async function POST(
       charter_type,
       boats (
         boat_name, marina_name, slip_number,
-        captain_name, waiver_text
+        captain_name, waiver_text,
+        firma_template_id, safety_cards
       )
     `)
     .eq('slug', slug)
@@ -131,12 +132,14 @@ export async function POST(
   }
 
   // Code is correct — compute waiver hash to send to client
-  const boat = trip.boats as {
+  const boat = trip.boats as unknown as {
     boat_name: string
     marina_name: string
     slip_number: string | null
     captain_name: string | null
     waiver_text: string | null
+    firma_template_id: string | null
+    safety_cards: unknown[] | null
   } | null
 
   const waiverHash = boat?.waiver_text
@@ -155,7 +158,8 @@ export async function POST(
       durationHours: trip.duration_hours,
       charterType: trip.charter_type,
       waiverHash,
-      waiverText: boat?.waiver_text ?? '',
+      firmaTemplateId: boat?.firma_template_id ?? null,
+      safetyCards: boat?.safety_cards ?? [],
     },
   })
 }

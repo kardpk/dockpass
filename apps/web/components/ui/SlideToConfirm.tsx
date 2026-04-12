@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useMotionValue, animate, PanInfo } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
 
@@ -17,7 +17,13 @@ export function SlideToConfirm({
   const [complete, setComplete] = useState(false)
   const constraintsRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
-  const [trackWidth, setTrackWidth] = useState(0)
+  const [trackWidth, setTrackWidth] = useState(320)
+
+  useEffect(() => {
+    if (constraintsRef.current) {
+      setTrackWidth(constraintsRef.current.offsetWidth)
+    }
+  }, [])
 
   const THUMB_SIZE = 60
   const COMPLETE_THRESHOLD = 0.85 // 85% of track
@@ -53,7 +59,6 @@ export function SlideToConfirm({
   return (
     <div
       ref={constraintsRef}
-      onLayout={(e: any) => setTrackWidth(e.nativeEvent?.layout?.width ?? 320)}
       className={cn(
         'relative w-full h-[64px] rounded-[16px] overflow-hidden select-none',
         disabled && 'opacity-40 cursor-not-allowed',

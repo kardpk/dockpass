@@ -12,9 +12,9 @@ const readSchema = z.object({
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ tripId: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { tripId } = await params
+  const { slug } = await params
   const body = await req.json().catch(() => ({}))
   const parsed = readSchema.safeParse(body)
   if (!parsed.success) {
@@ -30,7 +30,7 @@ export async function POST(
     await supabase
       .from('trip_messages')
       .update({ read_at: now })
-      .eq('trip_id', tripId)
+      .eq('trip_id', slug)
       .eq('operator_id', operator.id)
       .is('read_at', null)
       .neq('sender_type', 'captain')
@@ -40,7 +40,7 @@ export async function POST(
     await supabase
       .from('trip_messages')
       .update({ read_at: now })
-      .eq('trip_id', tripId)
+      .eq('trip_id', slug)
       .in('sender_type', ['captain', 'operator'])
       .is('read_at', null)
   }

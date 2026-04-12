@@ -1,12 +1,12 @@
-# DockPass
+# BoatCheckin
 
-**dockpass.io** — by Oakmont Logic LLC
+**boatcheckin.com** — by Oakmont Logic LLC
 
 ---
 
 ## About
 
-DockPass — a product by [Oakmont Logic LLC](https://oakmontlogic.com).
+BoatCheckin — a product by [Oakmont Logic LLC](https://oakmontlogic.com).
 
 ## Getting Started
 

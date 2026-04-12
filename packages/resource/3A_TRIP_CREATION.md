@@ -1,4 +1,4 @@
-# DockPass — Phase 3A Agent Instructions
+# BoatCheckin — Phase 3A Agent Instructions
 # Trip Creation: Operator → 30-Second Link
 # @3A_TRIP_CREATION
 
@@ -824,7 +824,7 @@ import { TripCreateForm } from './TripCreateForm'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Create trip — DockPass',
+  title: 'Create trip — BoatCheckin',
 }
 
 // Fetch operator's boats server-side
@@ -1916,7 +1916,7 @@ import { TripCard } from '@/components/dashboard/TripCard'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Trips — DockPass' }
+export const metadata: Metadata = { title: 'Trips — BoatCheckin' }
 
 export default async function TripsPage() {
   const { operator } = await requireOperator()
@@ -2418,7 +2418,7 @@ TEST 1 — Unit tests pass:
   __tests__/unit/utils/ must pass.
 
 TEST 2 — Create private trip end-to-end:
-  Login as demo operator (demo@dockpass.io)
+  Login as demo operator (demo@boatcheckin.com)
   Navigate to /dashboard/trips/new
   Select boat (Conrad's Yacht Miami)
   Set date to tomorrow
@@ -2430,7 +2430,7 @@ TEST 2 — Create private trip end-to-end:
   Click "Generate trip link →"
   EXPECTED:
     Success screen appears
-    Trip link shown (dockpass.io/trip/[slug])
+    Trip link shown (boatcheckin.com/trip/[slug])
     Trip code displayed large
     WhatsApp message ready to copy
     QR code rendered

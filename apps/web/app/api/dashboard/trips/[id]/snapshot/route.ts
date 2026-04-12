@@ -37,13 +37,14 @@ export async function POST(
       max_guests, status, charter_type,
       boats (
         boat_name, marina_name, slip_number,
-        captain_name, lat, lng, waiver_text, safety_points
+        captain_name, lat, lng, waiver_text, safety_cards
       ),
       guests (
         id, full_name, language_preference,
         dietary_requirements, is_non_swimmer,
         is_seasickness_prone, waiver_signed,
         approval_status, created_at,
+        safety_acknowledgments, waiver_text_hash,
         guest_addon_orders (
           quantity, total_cents,
           addons ( name, emoji )
@@ -71,6 +72,8 @@ export async function POST(
     tripId: id,
     slug: trip.slug,
     boatName: trip.boat.boatName,
+    maxGuests: trip.maxGuests,
+    requiredSafetyCards: trip.boat.safetyCards?.length ?? 0,
     marinaName: trip.boat.marinaName,
     slipNumber: trip.boat.slipNumber,
     tripDate: trip.tripDate,
@@ -83,6 +86,8 @@ export async function POST(
       id: g.id,
       fullName: g.fullName,
       waiverSigned: g.waiverSigned,
+      waiverTextHash: g.waiverTextHash ?? null,
+      safetyAckCount: g.safetyAcknowledgments?.length ?? 0,
       languageFlag: LANGUAGE_FLAGS[g.languagePreference as keyof typeof LANGUAGE_FLAGS] ?? '🌐',
       addonEmojis: g.addonOrders.map(o => o.emoji),
     })),

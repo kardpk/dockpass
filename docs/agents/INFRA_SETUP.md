@@ -1,4 +1,4 @@
-# DockPass — Infrastructure Setup
+# BoatCheckin — Infrastructure Setup
 # @INFRA_SETUP
 # Create every service account in this exact order
 # Each step gives you credentials for .env.local
@@ -11,7 +11,7 @@ Have these ready:
 - Oakmont Logic LLC EIN number
 - Wyoming LLC formation documents
 - Mercury Bank account (or US bank)
-- dockpass.io domain in Cloudflare
+- boatcheckin.com domain in Cloudflare
 - Your personal email (not dockpass email yet)
 
 ---
@@ -21,21 +21,21 @@ Have these ready:
 **Google Workspace or Zoho Mail**
 
 ```
-Create: admin@dockpass.io
-        hello@dockpass.io
-        security@dockpass.io
-        privacy@dockpass.io
+Create: admin@boatcheckin.com
+        hello@boatcheckin.com
+        security@boatcheckin.com
+        privacy@boatcheckin.com
 
 Zoho Mail (free for 1 user):
   zoho.com/mail → Free plan
-  Add domain: dockpass.io
+  Add domain: boatcheckin.com
   Verify via Cloudflare DNS TXT record
 
 OR Google Workspace ($6/mo):
   workspace.google.com
   Better for calendar + docs integration
 
-Use admin@dockpass.io for ALL service signups
+Use admin@boatcheckin.com for ALL service signups
 ```
 
 ---
@@ -107,8 +107,8 @@ Use admin@dockpass.io for ALL service signups
    ✓ Confirm email (DISABLE for MVP — friction)
    
    Authentication → URL Configuration
-   Site URL: https://dockpass.io
-   Redirect URLs: https://dockpass.io/auth/callback
+   Site URL: https://boatcheckin.com
+   Redirect URLs: https://boatcheckin.com/auth/callback
 
 7. Create second project for staging:
    Name: dockpass-staging
@@ -122,7 +122,7 @@ Use admin@dockpass.io for ALL service signups
 
 ```
 1. Go to upstash.com
-2. Create account with admin@dockpass.io
+2. Create account with admin@boatcheckin.com
 3. Create database:
    Name: dockpass-redis
    Type: Regional
@@ -162,8 +162,8 @@ Use admin@dockpass.io for ALL service signups
    
 5. Domain setup:
    Settings → Domains
-   Add: dockpass.io
-   Add: www.dockpass.io
+   Add: boatcheckin.com
+   Add: www.boatcheckin.com
    Follow DNS instructions (add to Cloudflare)
 
 6. Important settings:
@@ -252,7 +252,7 @@ Use admin@dockpass.io for ALL service signups
    
 5. Create webhook:
    Developers → Webhooks → Add endpoint
-   URL: https://dockpass.io/api/webhooks/stripe
+   URL: https://boatcheckin.com/api/webhooks/stripe
    Events to listen:
      ✓ checkout.session.completed
      ✓ customer.subscription.created
@@ -267,21 +267,21 @@ Use admin@dockpass.io for ALL service signups
 6. Create products (do this carefully):
    Products → Add product for each tier:
    
-   Product: DockPass Solo
+   Product: BoatCheckin Solo
      Price 1: $49/month recurring
        ID: copy as STRIPE_PRICE_SOLO_MONTHLY
      Price 2: $468/year recurring (=$39/mo)
        ID: copy as STRIPE_PRICE_SOLO_ANNUAL
    
-   Product: DockPass Captain
+   Product: BoatCheckin Captain
      Price 1: $89/month
      Price 2: $852/year
    
-   Product: DockPass Fleet
+   Product: BoatCheckin Fleet
      Price 1: $179/month
      Price 2: $1716/year
    
-   Product: DockPass Marina
+   Product: BoatCheckin Marina
      Price 1: $349/month
      Price 2: $3348/year
 
@@ -301,10 +301,10 @@ Use admin@dockpass.io for ALL service signups
 
 ```
 1. Go to resend.com
-2. Create account with admin@dockpass.io
+2. Create account with admin@boatcheckin.com
 3. Add domain:
    Domains → Add domain
-   Enter: dockpass.io
+   Enter: boatcheckin.com
    Add DNS records to Cloudflare (shown in UI)
    Wait for verification (5-10 min)
 
@@ -318,9 +318,9 @@ Use admin@dockpass.io for ALL service signups
    Name: dockpass-staging
    
 6. Set from addresses:
-   hello@dockpass.io (guest emails)
-   admin@dockpass.io (operator emails)
-   no-reply@dockpass.io (automated)
+   hello@boatcheckin.com (guest emails)
+   admin@boatcheckin.com (operator emails)
+   no-reply@boatcheckin.com (automated)
 ```
 
 ---
@@ -353,14 +353,14 @@ Use admin@dockpass.io for ALL service signups
 
 ```
 1. Go to mapbox.com
-2. Create account with admin@dockpass.io
+2. Create account with admin@boatcheckin.com
 3. Get default public token OR create restricted one:
    Tokens → Create a token
    Name: dockpass-production
    Token scopes: ✓ styles:read ✓ tiles:read
    Allowed URLs:
-     https://dockpass.io
-     https://www.dockpass.io
+     https://boatcheckin.com
+     https://www.boatcheckin.com
      http://localhost:3000
    Copy: NEXT_PUBLIC_MAPBOX_TOKEN=pk.eyJ1...
    
@@ -375,7 +375,7 @@ Use admin@dockpass.io for ALL service signups
 
 ```
 1. Go to cloudflare.com (you may already have account)
-2. Add site: dockpass.io
+2. Add site: boatcheckin.com
    Change nameservers at your registrar to Cloudflare
    
 3. DNS records needed:
@@ -393,8 +393,8 @@ Use admin@dockpass.io for ALL service signups
    
 5. Create Turnstile widget:
    Cloudflare Dashboard → Turnstile → Add site
-   Site name: DockPass Guest Check-in
-   Domain: dockpass.io
+   Site name: BoatCheckin Guest Check-in
+   Domain: boatcheckin.com
    Widget type: Invisible
    Copy to .env.local:
      NEXT_PUBLIC_TURNSTILE_SITE_KEY=[site key]
@@ -440,7 +440,7 @@ BUOY API (per-trip insurance):
   Website: buoy.insure
   Email: partnerships@buoy.insure
   What to say:
-    "We're building DockPass (dockpass.io),
+    "We're building BoatCheckin (boatcheckin.com),
      a charter guest experience platform.
      We'd like to integrate Buoy for automatic
      per-trip policy activation on Florida
@@ -449,11 +449,11 @@ BUOY API (per-trip insurance):
   Timeline: 2-4 weeks for API access
   → Build the product first, integrate when approved
 
-TINT.AI (DockPass Guarantees):
+TINT.AI (BoatCheckin Guarantees):
   Website: tint.ai
   Contact: partners@tint.ai
   Same message, different angle:
-    "We want to offer 'DockPass Guarantees' —
+    "We want to offer 'BoatCheckin Guarantees' —
      embedded trip protection for charter guests."
   Timeline: 2-6 weeks
   → Non-blocking, phase 2 revenue
@@ -461,7 +461,7 @@ TINT.AI (DockPass Guarantees):
 BOATUS AFFILIATE:
   Website: boatus.com/affiliate-program
   Very easy approval — just a URL affiliate
-  Login with admin@dockpass.io
+  Login with admin@boatcheckin.com
   Get affiliate tracking URL immediately
   → BOATUS_AFFILIATE_URL=[your affiliate link]
 ```

@@ -32,14 +32,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const result = await getTripPageData(slug)
-  if (!result.found) return { title: 'Trip not found — DockPass' }
+  if (!result.found) return { title: 'Trip not found — BoatCheckin' }
   const d = result.data
 
   return {
-    title: `${d.boat.boatName} — ${formatTripDate(d.tripDate)} | DockPass`,
+    title: `${d.boat.boatName} — ${formatTripDate(d.tripDate)} | BoatCheckin`,
     description: `Join ${d.boat.captainName ?? 'your captain'} aboard ${d.boat.boatName} on ${formatTripDate(d.tripDate)} from ${d.boat.marinaName}.`,
     openGraph: {
-      title: `${d.boat.boatName} | DockPass`,
+      title: `${d.boat.boatName} | BoatCheckin`,
       description: `Charter on ${formatTripDate(d.tripDate)} at ${formatTime(d.departureTime)} · ${d.boat.marinaName}`,
       images: d.photos[0]?.publicUrl ? [{ url: d.photos[0].publicUrl }] : [],
     },
@@ -256,7 +256,6 @@ export default async function TripPage({
           departureTime: trip.departureTime,
           durationHours: trip.durationHours,
           charterType: trip.charterType as 'captained' | 'bareboat' | 'both',
-          safetyPoints: trip.boat.safetyPoints,
           addons: trip.addons,
           isEU: false, // TODO: detect from Accept-Language or CF-IPCountry header
         }}

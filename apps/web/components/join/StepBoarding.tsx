@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { Share } from 'lucide-react'
 import { formatTripDate, formatTime, formatDuration } from '@/lib/utils/format'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 import type { JoinFlowState } from '@/types'
 
 interface StepBoardingProps {
@@ -25,6 +26,7 @@ interface StepBoardingProps {
 export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardingProps) {
   const [pwaPrompt, setPwaPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [pwaInstalled, setPwaInstalled] = useState(false)
+  const { isSupported, permission, isSubscribing, requestSubscription } = usePushNotifications()
 
   // Capture PWA install prompt
   useEffect(() => {
@@ -74,7 +76,7 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
         {/* Top half */}
         <div className="px-5 pt-5 pb-4">
           <p className="text-[11px] font-semibold text-[#6B7C93] tracking-[0.15em] uppercase mb-2">
-            DOCKPASS
+            BOATCHECKIN
           </p>
           <h3 className="text-[20px] font-bold text-[#0D1B2A] mb-4">{tripData.boatName}</h3>
 
@@ -158,7 +160,7 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
               ⚓
             </div>
             <div className="flex-1">
-              <p className="text-white font-medium text-[14px]">Add DockPass to your home screen</p>
+              <p className="text-white font-medium text-[14px]">Add BoatCheckin to your home screen</p>
               <p className="text-white/70 text-[12px]">Get weather updates and dock alerts</p>
             </div>
             <button
@@ -166,6 +168,26 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
               className="bg-white text-[#0C447C] text-[13px] font-semibold px-3 py-1.5 rounded-[8px] flex-shrink-0"
             >
               Add
+            </button>
+          </div>
+        )}
+
+        {/* Push Notification prompt */}
+        {isSupported && permission === 'default' && (
+          <div className="bg-[#E8F2FB] rounded-[16px] p-4 flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-[10px] flex items-center justify-center text-[20px] flex-shrink-0">
+              🔔
+            </div>
+            <div className="flex-1">
+              <p className="text-[#0D1B2A] font-medium text-[14px]">Push Notifications</p>
+              <p className="text-[#6B7C93] text-[12px]">Get weather alerts directly</p>
+            </div>
+            <button
+              onClick={() => requestSubscription('guest', state.guestId)}
+              disabled={isSubscribing}
+              className="bg-[#0C447C] text-white text-[13px] font-semibold px-3 py-1.5 rounded-[8px] flex-shrink-0 disabled:opacity-50"
+            >
+              {isSubscribing ? 'Wait' : 'Enable'}
             </button>
           </div>
         )}

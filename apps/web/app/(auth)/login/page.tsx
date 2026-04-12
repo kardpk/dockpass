@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm";
 import { AUTH_ERRORS } from "./error-messages";
 
 export const metadata: Metadata = {
-  title: "Sign in — DockPass",
+  title: "Sign in — BoatCheckin",
 };
 
 export default async function LoginPage(props: {

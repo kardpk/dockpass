@@ -14,7 +14,6 @@ interface TripDataForJoin {
   departureTime: string
   durationHours: number
   charterType: 'captained' | 'bareboat' | 'both'
-  safetyPoints: { id: string; text: string; icon?: string }[]
   addons: {
     id: string
     name: string

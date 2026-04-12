@@ -1,9 +1,9 @@
-# DockPass — Agent Index
+# BoatCheckin — Agent Index
 # @AGENTS (read this first)
 
 ## What is this?
 
-This is the agentic development system for DockPass.
+This is the agentic development system for BoatCheckin.
 Each .md file is a specialised agent with deep expertise
 in one area. Use @ commands in Antigravity IDE terminal
 to include the relevant agent in your context window

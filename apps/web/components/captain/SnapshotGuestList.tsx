@@ -6,6 +6,8 @@ interface GuestRow {
   id: string
   fullName: string
   waiverSigned: boolean
+  waiverTextHash: string | null
+  safetyAckCount: number
   languageFlag: string
   addonEmojis: string[]
 }
@@ -101,12 +103,22 @@ export function SnapshotGuestList({
                   </span>
                 )}
                 <div className="flex flex-col items-end gap-1">
-                  <span className={
-                    guest.waiverSigned
-                      ? 'text-[12px] font-bold text-[#1D9E75]'
-                      : 'text-[12px] font-bold text-[#E5910A]'
-                  }>
-                    {guest.waiverSigned ? '✓ Signed' : '⏳ Pending'}
+                  {guest.waiverTextHash === 'firma_template' ? (
+                    <span className="text-[12px] font-bold text-[#0C447C]">
+                      📝 Firma
+                    </span>
+                  ) : guest.waiverSigned ? (
+                    <span className="text-[12px] font-bold text-[#1D9E75]">
+                      ✓ Signed
+                    </span>
+                  ) : (
+                    <span className="text-[12px] font-bold text-[#E5910A]">
+                      ⏳ Pending
+                    </span>
+                  )}
+                  {/* Safety ack count */}
+                  <span className="text-[10px] text-[#6B7C93]">
+                    🛡 {guest.safetyAckCount} cards
                   </span>
                   
                   {!guest.waiverSigned && (

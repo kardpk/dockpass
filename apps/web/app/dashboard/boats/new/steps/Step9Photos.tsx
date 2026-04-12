@@ -11,14 +11,14 @@ import type { WizardData, WizardAddon, BoatTypeKey } from "../types";
 
 const MAX_PHOTOS = 12;
 
-interface Step8Props {
+interface Step9Props {
   data: WizardData;
   onNext: (partial: Partial<WizardData>) => void;
   saving?: boolean;
   template: BoatTemplate | null;
 }
 
-export function Step8Photos({ data, onNext, saving, template }: Step8Props) {
+export function Step9Photos({ data, onNext, saving, template }: Step9Props) {
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [boatPhotos, setBoatPhotos] = useState<File[]>(data.boatPhotos);

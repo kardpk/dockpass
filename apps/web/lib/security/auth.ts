@@ -53,7 +53,7 @@ export async function requireOperator() {
   let { data: operator } = await supabase
     .from("operators")
     .select(
-      "id, full_name, email, company_name, subscription_status, subscription_tier, is_active, max_boats, trial_ends_at"
+      "id, full_name, email, company_name, subscription_status, subscription_tier, is_active, max_boats, trial_ends_at, firma_workspace_id"
     )
     .eq("id", user.id)
     .single();
@@ -80,7 +80,7 @@ export async function requireOperator() {
     // Fetch newly created operator
     const { data: healed, error: fetchError } = await supabase
       .from("operators")
-      .select("id, full_name, email, company_name, subscription_status, subscription_tier, is_active, max_boats, trial_ends_at")
+      .select("id, full_name, email, company_name, subscription_status, subscription_tier, is_active, max_boats, trial_ends_at, firma_workspace_id")
       .eq("id", user.id)
       .single();
       

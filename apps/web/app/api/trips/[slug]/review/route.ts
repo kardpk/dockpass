@@ -118,16 +118,14 @@ export async function POST(
   }
 
   // Mark guest as reviewed (non-blocking)
-  supabase
+  void supabase
     .from('guests')
     .update({ reviewed_at: new Date().toISOString() })
     .eq('id', guestId)
-    .then()
-    .catch(() => null)
 
   // Notify operator of positive review (non-blocking)
   if (isPublic) {
-    supabase
+    void supabase
       .from('operator_notifications')
       .insert({
         operator_id: trip.operator_id,
@@ -136,8 +134,6 @@ export async function POST(
         body: `${guest.full_name.split(' ')[0]} left a ${rating}-star review`,
         data: { tripId: trip.id, reviewId: review.id, rating },
       })
-      .then()
-      .catch(() => null)
   }
 
   auditLog({
@@ -148,7 +144,7 @@ export async function POST(
     entityId: trip.id,
     changes: { rating, isPublic, guestId },
     operatorId: trip.operator_id,
-  }).catch(() => null)
+  })
 
   return NextResponse.json({
     data: {

@@ -116,39 +116,12 @@ export async function POST(
   }
 
   // ── Queue review requests (2hr delay) ────
-  try {
-    const workerRedis = process.env.REDIS_URL
-    if (workerRedis) {
-      const { Queue } = await import('bullmq')
-      const Redis = (await import('ioredis')).default
-      const connection = new Redis(workerRedis, {
-        maxRetriesPerRequest: null,
-        lazyConnect: true,
-      })
-      await connection.connect()
-
-      const reviewQueue = new Queue('review-requests', { connection })
-
-      await reviewQueue.add(
-        'review-request',
-        {
-          tripId,
-          tripSlug: trip.slug,
-          boatName: (trip.boats as any)?.boat_name ?? '',
-          captainName: (trip.boats as any)?.captain_name ?? null,
-          operatorId: trip.operator_id,
-        },
-        {
-          delay: 2 * 60 * 60 * 1000, // 2 hours
-          jobId: `review-${tripId}`,   // deduplication
-        }
-      )
-
-      await connection.quit()
-    }
-  } catch (queueErr) {
-    console.error('[end-trip] review queue error:', queueErr)
-  }
+  // TODO: Re-enable when BullMQ worker is deployed.
+  // Requires: npm install bullmq ioredis + separate worker process.
+  console.warn(
+    `[end-trip] Review queue disabled. Trip ${tripId} ended. ` +
+    `Install bullmq + deploy worker to auto-send review requests.`
+  )
 
   // ── Audit log ────────────────────────────
   auditLog({
@@ -163,16 +136,16 @@ export async function POST(
       actualHours: Math.round(actualHours * 10) / 10,
       buoyPolicyId: trip.buoy_policy_id,
     },
-  }).catch(() => null)
+  })
 
   // ── Notify operator ──────────────────────
-  supabase.from('operator_notifications').insert({
+  void supabase.from('operator_notifications').insert({
     operator_id: trip.operator_id,
     type: 'trip_ended',
     title: '✓ Trip completed',
     body: `${(trip.boats as any)?.boat_name} has returned`,
     data: { tripId },
-  }).then().catch(() => null)
+  })
 
   return NextResponse.json({
     data: {

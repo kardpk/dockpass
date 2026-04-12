@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// DockPass Service Worker
+// BoatCheckin Service Worker
 // Handles: push notifications, static caching, offline pages
 // ═══════════════════════════════════════════════════════════════
 
@@ -87,7 +87,7 @@ self.addEventListener("push", (event) => {
     payload = event.data.json();
   } catch {
     payload = {
-      title: "DockPass",
+      title: "BoatCheckin",
       body: event.data.text(),
       url: "/dashboard",
     };
@@ -103,7 +103,7 @@ self.addEventListener("push", (event) => {
     actions: payload.actions || [],
   };
 
-  event.waitUntil(self.registration.showNotification(payload.title || "DockPass", options));
+  event.waitUntil(self.registration.showNotification(payload.title || "BoatCheckin", options));
 });
 
 // ─── Notification Click — open or focus the URL ────────────────

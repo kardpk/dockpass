@@ -72,7 +72,7 @@ export async function POST(
       trip_id: id,
       operator_id: operator.id,
       sender_type: 'system',
-      sender_name: 'DockPass Weather',
+      sender_name: 'BoatCheckin Weather',
       body: `⚠️ ${parsed.data.message}`,
       is_quick_chip: false,
     })

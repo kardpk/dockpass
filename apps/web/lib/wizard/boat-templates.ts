@@ -1340,7 +1340,8 @@ export function getDefaultsFromTemplate(
     customDonts: [...t.standardDonts],
     whatToBring: t.whatToBring.join("\n"),
     whatNotToBring: t.whatNotToBring.join("\n"),
-    waiverText: t.waiverTemplate,
-    safetyPoints: [...t.safetyPoints],
+    // waiverText and safetyPoints are no longer part of wizard data.
+    // Waivers are now uploaded as PDFs via Firma.dev (Step 9).
+    // Safety is handled via videos (Step 7) and images (Step 8).
   };
 }

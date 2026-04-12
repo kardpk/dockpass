@@ -182,10 +182,13 @@ export async function POST(
   }
 
   // ── LAYER 11: Verify waiver hash ──────────────────────────────────────────
+  // Firma-signed waivers are verified by Firma's platform, not by text hash.
+  // The 'firma_template' literal is whitelisted in guestRegistrationSchema (Zod).
+  const isFirmaSigned = data.waiverTextHash === 'firma_template'
   const waiverText = (trip.boats as { waiver_text?: string | null } | null)
     ?.waiver_text ?? null
 
-  if (waiverText && !verifyWaiverHash(data.waiverTextHash, waiverText)) {
+  if (waiverText && !isFirmaSigned && !verifyWaiverHash(data.waiverTextHash, waiverText)) {
     return NextResponse.json(
       { error: 'The waiver has been updated. Please reload and try again.' },
       { status: 409 }
@@ -263,10 +266,10 @@ export async function POST(
       approvalStatus,
       safetyCardsAcknowledged: data.safetyAcknowledgments.length,
     },
-  }).catch(() => null)
+  })
 
   // Notify operator (non-blocking — table may not exist yet)
-  supabase
+  void supabase
     .from('operator_notifications')
     .insert({
       operator_id: trip.operator_id,
@@ -275,8 +278,6 @@ export async function POST(
       body: `${data.fullName} registered for your trip`,
       data: { tripId: trip.id, guestId },
     })
-    .then()
-    .catch(() => null)
 
   return NextResponse.json({
     data: {

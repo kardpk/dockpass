@@ -1,9 +1,9 @@
-/** DockPass application config — central constants */
+/** BoatCheckin application config — central constants */
 
 export const APP_CONFIG = {
-  name: "DockPass",
+  name: "BoatCheckin",
   tagline: "Your charter trip, all in one link",
-  domain: "dockpass.io",
+  domain: "boatcheckin.com",
   company: "Oakmont Logic LLC",
 
   // Design tokens (also in globals.css)

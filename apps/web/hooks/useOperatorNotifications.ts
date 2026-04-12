@@ -47,7 +47,7 @@ export function useOperatorNotifications(
       .is('read_at', null)
       .order('created_at', { ascending: false })
       .limit(20)
-      .then(({ data }) => {
+      .then(({ data }: { data: any }) => {
         setNotifications((data ?? []).map(mapNotification))
       })
   }, [operatorId])
@@ -70,7 +70,7 @@ export function useOperatorNotifications(
           table: 'operator_notifications',
           filter: `operator_id=eq.${operatorId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const notification = mapNotification(payload.new as Record<string, unknown>)
 
           setNotifications(prev => [notification, ...prev])
@@ -94,7 +94,7 @@ export function useOperatorNotifications(
           }
         }
       )
-      .subscribe((state) => {
+      .subscribe((state: string) => {
         if (state === 'SUBSCRIBED') setConnectionStatus('connected')
         else if (state === 'CLOSED') setConnectionStatus('disconnected')
         else if (state === 'CHANNEL_ERROR') setConnectionStatus('error')

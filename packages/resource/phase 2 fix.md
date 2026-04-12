@@ -1,4 +1,4 @@
-Good call. Scraping is a shortcut that can break. This wizard is the heart of DockPass — every operator does this once and it runs forever. Let me think through every boat type deeply before writing a single instruction.
+Good call. Scraping is a shortcut that can break. This wizard is the heart of BoatCheckin — every operator does this once and it runs forever. Let me think through every boat type deeply before writing a single instruction.
 
 ---
 
@@ -126,7 +126,7 @@ Now I have everything needed. Here is the complete Phase 2 replacement:
 @docs/agents/16-UX\_SCREENS.md  
 @docs/agents/17-AUDIT.md
 
-TASK: Build the complete DockPass Boat Profile  
+TASK: Build the complete BoatCheckin Boat Profile  
 Wizard. This replaces the previous Phase 2 spec.  
 NO scraping. NO URL import.   
 Pure manual entry with intelligent pre-loading  
@@ -1862,7 +1862,7 @@ PART B — LIABILITY WAIVER:
     
   Disclaimer banner:  
     ⚠️ amber background  
-    "DockPass provides this template as a   
+    "BoatCheckin provides this template as a   
     starting point. Consult a maritime   
     attorney to ensure your waiver provides   
     adequate protection in your jurisdiction."  
@@ -1939,7 +1939,7 @@ SECTION 2 — ADD-ON MENU:
   Title: "Add-on menu"  
   Subtext: "Items guests can pre-order   
     before arriving. You earn the full   
-    amount — DockPass takes a small   
+    amount — BoatCheckin takes a small   
     platform fee on orders."  
     
   SUGGESTED ADD-ONS:  

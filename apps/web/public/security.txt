@@ -1,5 +1,5 @@
-Contact: security@dockpass.io
+Contact: security@boatcheckin.com
 Expires: 2027-04-01T00:00:00.000Z
 Preferred-Languages: en
-Policy: https://dockpass.io/security-policy
-Acknowledgments: https://dockpass.io/security-acknowledgments
+Policy: https://boatcheckin.com/security-policy
+Acknowledgments: https://boatcheckin.com/security-acknowledgments

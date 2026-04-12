@@ -4,7 +4,7 @@ import { TripCard } from '@/components/dashboard/TripCard'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Trips — DockPass' }
+export const metadata: Metadata = { title: 'Trips — BoatCheckin' }
 
 export default async function TripsPage() {
   const { operator } = await requireOperator()

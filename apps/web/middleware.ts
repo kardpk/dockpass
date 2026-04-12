@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
- * DockPass Middleware — CRITICAL 2 + HIGH 4 + HIGH 7 + AUTH GUARD
+ * BoatCheckin Middleware — CRITICAL 2 + HIGH 4 + HIGH 7 + AUTH GUARD
  * Handles: Auth guard, CSP, security headers, CORS, request size limits
  */
 
@@ -13,8 +13,8 @@ const WEBHOOK_PATHS = [
 ]
 
 const ALLOWED_ORIGINS = [
-  'https://dockpass.io',
-  'https://www.dockpass.io',
+  'https://boatcheckin.com',
+  'https://www.boatcheckin.com',
   process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '',
 ].filter(Boolean)
 

@@ -20,8 +20,8 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
-        "dockpass.io",
-        "www.dockpass.io",
+        "boatcheckin.com",
+        "www.boatcheckin.com",
         "localhost:3000",
       ],
       bodySizeLimit: "2mb",

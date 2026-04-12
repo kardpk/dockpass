@@ -49,8 +49,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
       .is('deleted_at', null)
       .order('created_at', { ascending: true })
       .limit(100)
-      .then(({ data }) => {
-        const mapped = (data ?? []).map(mapMessage)
+      .then(({ data }: { data: any }) => {
+        const mapped: ChatMessage[] = (data ?? []).map(mapMessage)
         setMessages(mapped)
         const unread = mapped.filter(
           m => m.senderType !== senderType && !m.readAt
@@ -76,7 +76,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           table: 'trip_messages',
           filter: `trip_id=eq.${tripId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const msg = mapMessage(payload.new as Record<string, unknown>)
           setMessages(prev => {
             if (prev.some(m => m.id === msg.id)) return prev
@@ -87,7 +87,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
         }
       )
-      .on('broadcast', { event: 'typing' }, (payload) => {
+      .on('broadcast', { event: 'typing' }, (payload: any) => {
         const { sender } = payload.payload as { sender: string }
         if (sender !== senderId) {
           setIsTyping(true)
@@ -99,7 +99,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }, 3000)
         }
       })
-      .subscribe((state) => {
+      .subscribe((state: string) => {
         if (state === 'SUBSCRIBED') setConnectionStatus('connected')
         else if (state === 'CLOSED') setConnectionStatus('disconnected')
         else if (state === 'CHANNEL_ERROR') setConnectionStatus('error')

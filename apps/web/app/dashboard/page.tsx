@@ -11,7 +11,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import type { WeatherData } from '@/lib/trip/getWeatherData'
 
-export const metadata: Metadata = { title: 'Dashboard — DockPass' }
+export const metadata: Metadata = { title: 'Dashboard — BoatCheckin' }
 
 export default async function DashboardPage() {
   const { operator } = await requireOperator()

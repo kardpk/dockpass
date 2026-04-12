@@ -1,4 +1,4 @@
-# DockPass — Compliance Agent
+# BoatCheckin — Compliance Agent
 # @COMPLIANCE
 
 ## Role
@@ -60,7 +60,7 @@ export const gdprConsentFields = {
   // Required for EU guests
   dataProcessingConsent: {
     required: true,
-    text: 'I consent to DockPass processing my personal data ' +
+    text: 'I consent to BoatCheckin processing my personal data ' +
           'for this charter trip as described in the Privacy Policy.',
     link: '/privacy',
   },
@@ -133,7 +133,7 @@ Digital signatures are legally valid in the US under:
 - Electronic Signatures in Global and National Commerce Act (ESIGN)
 - Uniform Electronic Transactions Act (UETA) — adopted in 47 states
 
-Requirements met by DockPass:
+Requirements met by BoatCheckin:
 ✓ Intent to sign (checkbox: "I have read and agree")
 ✓ Typed name as signature
 ✓ Consent to electronic process
@@ -147,7 +147,7 @@ Requirements met by DockPass:
 Electronic signatures valid under eIDAS Regulation (EU) No 910/2014
 Simple Electronic Signature (SES) — valid for most contracts
 
-DockPass waiver qualifies as SES:
+BoatCheckin waiver qualifies as SES:
 ✓ Identifies the signatory (full name)
 ✓ Associated with signed data (waiver text hash)
 ✓ Timestamp recorded
@@ -163,9 +163,9 @@ operators in EU who request higher legal certainty.
 ```
 Add to operator onboarding (waiver setup screen):
 
-"DockPass provides a digital waiver signing tool.
+"BoatCheckin provides a digital waiver signing tool.
 The enforceability of liability waivers varies by
-jurisdiction and activity type. DockPass is not a
+jurisdiction and activity type. BoatCheckin is not a
 law firm and this is not legal advice. Operators are
 responsible for ensuring their waiver text is
 appropriate for their jurisdiction and activity.
@@ -186,7 +186,7 @@ We recommend consulting a maritime attorney."
 }
 
 // Retention: minimum 3 years for maritime liability
-// DockPass retains 90 days then anonymises
+// BoatCheckin retains 90 days then anonymises
 // Operators should download manifest PDF for their records
 ```
 
@@ -225,7 +225,7 @@ export function requiresBoatingCourse(params: {
 Commercial charter vessels carrying passengers
 for hire are regulated under 46 CFR 185.730
 
-Requirements (automatically met by DockPass manifest PDF):
+Requirements (automatically met by BoatCheckin manifest PDF):
 ✓ Vessel name and official number
 ✓ Route/voyage description
 ✓ Number of passengers
@@ -235,7 +235,7 @@ Requirements (automatically met by DockPass manifest PDF):
 
 Operators should maintain manifest on vessel
 during trip and for 24 hours after return.
-DockPass manifest PDF satisfies this requirement.
+BoatCheckin manifest PDF satisfies this requirement.
 ```
 
 ---
@@ -243,11 +243,11 @@ DockPass manifest PDF satisfies this requirement.
 ## Privacy Policy Requirements
 
 ```
-DockPass Privacy Policy must cover:
+BoatCheckin Privacy Policy must cover:
 
 1. Data controller identity
    Oakmont Logic LLC, Wyoming, USA
-   hello@dockpass.io
+   hello@boatcheckin.com
 
 2. Data collected and purpose (see above)
 
@@ -278,7 +278,7 @@ DockPass Privacy Policy must cover:
    restriction, objection
 
 8. Contact for requests
-   privacy@dockpass.io
+   privacy@boatcheckin.com
 
 9. Cookie policy
    Session cookies only (auth)
@@ -294,7 +294,7 @@ DockPass Privacy Policy must cover:
 ```
 Must include:
 
-1. DockPass is a communication tool — not a charter operator
+1. BoatCheckin is a communication tool — not a charter operator
    We are not responsible for the charter experience itself
 
 2. Waiver disclaimer
@@ -306,9 +306,9 @@ Must include:
    Must maintain accurate boat/captain information
 
 4. Guest data
-   Operators agree to DockPass privacy policy
+   Operators agree to BoatCheckin privacy policy
    Operators may not misuse guest contact details
-   No spam to guests via DockPass
+   No spam to guests via BoatCheckin
 
 5. Commission
    8% on add-on orders processed through platform
@@ -319,7 +319,7 @@ Must include:
    Data export available for 30 days post-cancellation
 
 7. Liability limitation
-   DockPass liability capped at last 3 months subscription fees
+   BoatCheckin liability capped at last 3 months subscription fees
 ```
 
 ---
@@ -368,13 +368,13 @@ Requirements to display insurance offers:
 - Must not act as insurance broker
 
 Required disclosure (show on insurance offer card):
-"DockPass earns a referral fee if you purchase
+"BoatCheckin earns a referral fee if you purchase
 a policy. This is not insurance advice. Review
 the policy terms at the provider's website."
 
 License requirements:
-- DockPass does not sell insurance
-- DockPass refers to licensed insurance providers
+- BoatCheckin does not sell insurance
+- BoatCheckin refers to licensed insurance providers
 - No insurance license required for pure referrals
 - Oakmont Logic LLC referral arrangement is sufficient
 ```

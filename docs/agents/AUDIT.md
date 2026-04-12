@@ -1,4 +1,4 @@
-# DockPass — Security & Architecture Audit
+# BoatCheckin — Security & Architecture Audit
 # @AUDIT
 # Conducted: April 2026
 # Status: MUST READ before Session 2
@@ -687,8 +687,8 @@ const WEBHOOK_PATHS = [
 ]
 
 const ALLOWED_ORIGINS = [
-  'https://dockpass.io',
-  'https://www.dockpass.io',
+  'https://boatcheckin.com',
+  'https://www.boatcheckin.com',
   process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '',
 ].filter(Boolean)
 
@@ -735,8 +735,8 @@ API calls on your billing account.
 1. Go to account.mapbox.com/access-tokens
 2. Create a NEW token (not the default public one)
 3. Set allowed URLs:
-   https://dockpass.io
-   https://www.dockpass.io
+   https://boatcheckin.com
+   https://www.boatcheckin.com
    http://localhost:3000 (dev token only)
 4. Allowed scopes: styles:read, tiles:read
    (READ only — no create/delete permissions)
@@ -775,11 +775,11 @@ is a basic industry standard.
 
 **Fix — create public/security.txt:**
 ```
-Contact: security@dockpass.io
+Contact: security@boatcheckin.com
 Expires: 2027-04-01T00:00:00.000Z
 Preferred-Languages: en
-Policy: https://dockpass.io/security-policy
-Acknowledgments: https://dockpass.io/security-acknowledgments
+Policy: https://boatcheckin.com/security-policy
+Acknowledgments: https://boatcheckin.com/security-acknowledgments
 ```
 
 ---
@@ -1013,8 +1013,8 @@ environment. Add a dedicated staging branch.
 
 ```
 Branches:
-  main       → production (dockpass.io)
-  staging    → staging (staging.dockpass.io)
+  main       → production (boatcheckin.com)
+  staging    → staging (staging.boatcheckin.com)
   develop    → feature work
   feature/*  → PRs into develop
 
@@ -1037,7 +1037,7 @@ Disallow: /dashboard/
 Disallow: /api/
 Disallow: /snapshot/
 
-Sitemap: https://dockpass.io/sitemap.xml
+Sitemap: https://boatcheckin.com/sitemap.xml
 ```
 
 ---
@@ -1253,8 +1253,8 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
-        'dockpass.io',
-        'www.dockpass.io',
+        'boatcheckin.com',
+        'www.boatcheckin.com',
         'localhost:3000',
       ],
       bodySizeLimit: '2mb',

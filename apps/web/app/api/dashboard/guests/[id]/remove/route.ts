@@ -34,7 +34,7 @@ export async function DELETE(
     entityType: 'guest',
     entityId: id,
     changes: { guestName: data.full_name },
-  }).catch(() => null)
+  })
 
   return NextResponse.json({ data: { removed: true } })
 }

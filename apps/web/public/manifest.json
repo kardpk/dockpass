@@ -1,6 +1,6 @@
 {
-  "name": "DockPass",
-  "short_name": "DockPass",
+  "name": "BoatCheckin",
+  "short_name": "BoatCheckin",
   "description": "Your charter trip, all in one link",
   "start_url": "/",
   "display": "standalone",

@@ -28,7 +28,7 @@ export async function GET(
         captain_name, captain_photo_url, captain_bio,
         captain_license, captain_languages,
         what_to_bring, house_rules, waiver_text,
-        cancellation_policy, safety_points
+        cancellation_policy, safety_cards
       ),
       guests (
         id, full_name, emergency_contact_name,

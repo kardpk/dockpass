@@ -1,4 +1,4 @@
-import { createSupabaseServer } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 
 export async function TripReviewsSummary({
@@ -7,7 +7,7 @@ export async function TripReviewsSummary({
   tripId: string
   operatorId: string
 }) {
-  const supabase = await createSupabaseServer()
+  const supabase = await createClient()
 
   const { data: reviews } = await supabase
     .from('trip_reviews')

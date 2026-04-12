@@ -1,14 +1,14 @@
-# DockPass — Master Product Context
+# BoatCheckin — Master Product Context
 # Read this before any other agent document
 
-## What is DockPass?
+## What is BoatCheckin?
 
-DockPass (dockpass.io) is a PWA webapp that solves the unowned gap
+BoatCheckin (boatcheckin.com) is a PWA webapp that solves the unowned gap
 in the charter boat industry: everything that happens between
 "booking confirmed" and "guest steps on the boat."
 
 Owned by: Oakmont Logic LLC (Wyoming, USA)
-Domain: dockpass.io
+Domain: boatcheckin.com
 Stack: Next.js + Supabase + Redis + Render + Vercel
 
 ---
@@ -46,7 +46,7 @@ Works in any language, any country.
 - Receives read-only snapshot via share button
 - Sees: guest list, waiver status, alerts, add-ons
 - Updated live as guests register
-- No DockPass account required ever
+- No BoatCheckin account required ever
 
 ---
 
@@ -166,7 +166,7 @@ Annual billing: 20% discount
 
 ---
 
-## What DockPass Is NOT
+## What BoatCheckin Is NOT
 
 - Not a booking platform (does not compete with Boatsetter)
 - Not a marketplace for finding boats
@@ -180,7 +180,7 @@ Annual billing: 20% discount
 
 Company: Oakmont Logic LLC
 State: Wyoming, USA
-Product: DockPass
-Domain: dockpass.io
+Product: BoatCheckin
+Domain: boatcheckin.com
 Banking: Mercury Bank (US)
 Payments: Stripe (US account)

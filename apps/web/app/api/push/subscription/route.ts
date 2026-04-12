@@ -1,33 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
-/**
- * POST /api/push/subscription
- * Handles browser push subscription rotation.
- * Called by the service worker's `pushsubscriptionchange` event.
- *
- * Body:
- *   - oldEndpoint: string (previous endpoint to deactivate)
- *   - newSubscription: PushSubscription JSON (new endpoint + keys)
- */
 export async function POST(req: NextRequest) {
   try {
-    const { oldEndpoint, newSubscription } = await req.json();
+    const { oldEndpoint, newSubscription, targetType, targetId } = await req.json();
 
-    if (!newSubscription?.endpoint) {
+    if (!newSubscription?.endpoint || !targetType || !targetId) {
       return NextResponse.json(
-        { error: "Missing newSubscription.endpoint" },
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!['guest', 'operator', 'captain'].includes(targetType)) {
+      return NextResponse.json(
+        { error: "Invalid targetType" },
         { status: 400 }
       );
     }
 
     const supabase = createServiceClient();
 
-    // If we have an old endpoint, mark it as inactive
+    // If we have an old endpoint, simply delete it (cleaner than setting inactive)
     if (oldEndpoint) {
       await supabase
         .from("push_subscriptions")
-        .update({ is_active: false })
+        .delete()
         .eq("endpoint", oldEndpoint);
     }
 
@@ -36,6 +34,8 @@ export async function POST(req: NextRequest) {
       {
         endpoint: newSubscription.endpoint,
         keys: newSubscription.keys,
+        target_type: targetType,
+        target_id: targetId,
         is_active: true,
         updated_at: new Date().toISOString(),
       },

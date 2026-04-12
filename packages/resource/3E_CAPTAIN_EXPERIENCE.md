@@ -1,4 +1,4 @@
-# DockPass — Phase 3E Agent Instructions
+# BoatCheckin — Phase 3E Agent Instructions
 # Captain Experience: Snapshot + Slide to Start + End Trip
 # @3E_CAPTAIN_EXPERIENCE
 
@@ -7,7 +7,7 @@
 ## CONTEXT
 
 This is the most legally consequential
-code in DockPass.
+code in BoatCheckin.
 
 When the captain slides that button:
 six things happen simultaneously:
@@ -247,7 +247,7 @@ function initVapid() {
   const privKey = process.env.VAPID_PRIVATE_KEY
   if (!pubKey || !privKey) return
   webpush.setVapidDetails(
-    'mailto:hello@dockpass.io',
+    'mailto:hello@boatcheckin.com',
     pubKey,
     privKey
   )
@@ -349,7 +349,7 @@ PART 2 — TRIP LIFECYCLE API ROUTES
 
 ────────────────────────────────────────────
 2A. POST /api/trips/[slug]/start
-    The most important route in DockPass
+    The most important route in BoatCheckin
 ────────────────────────────────────────────
 
 Create: apps/web/app/api/trips/[slug]/
@@ -937,7 +937,7 @@ import type { Metadata } from 'next'
 import type { CaptainSnapshotData } from '@/types'
 
 export const metadata: Metadata = {
-  title: 'Captain Snapshot — DockPass',
+  title: 'Captain Snapshot — BoatCheckin',
   robots: { index: false },  // Never index captain pages
 }
 

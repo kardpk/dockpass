@@ -12,7 +12,7 @@ The following icon files are needed for push notifications and PWA functionality
 
 ## Design Guidelines
 
-- Use the DockPass anchor logo on brand blue (`#0C447C`) background
+- Use the BoatCheckin anchor logo on brand blue (`#0C447C`) background
 - `badge-72.png` should be **monochrome** (single color on transparent) — Android uses it as the small status bar icon
 - Export as **PNG** with transparent background where applicable
 - Ensure icons are legible at small sizes

@@ -5,13 +5,14 @@ import { shapeTripDetail, buildAddonSummary } from '@/lib/dashboard/getDashboard
 import { getWeatherData } from '@/lib/trip/getWeatherData'
 import { TripDetailHeader } from '@/components/dashboard/TripDetailHeader'
 import { GuestManagementTable } from '@/components/dashboard/GuestManagementTable'
+import { TripStatusBar } from '@/components/dashboard/TripStatusBar'
 import { AddonOrdersSummary } from '@/components/dashboard/AddonOrdersSummary'
 import { TripReviewsSummary } from '@/components/dashboard/TripReviewsSummary'
 import { TripActionBar } from '@/components/dashboard/TripActionBar'
 import { WeatherAlertCard } from '@/components/dashboard/WeatherAlertCard'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Trip detail — DockPass' }
+export const metadata: Metadata = { title: 'Trip detail — BoatCheckin' }
 
 export default async function TripDetailPage({
   params,
@@ -34,7 +35,7 @@ export default async function TripDetailPage({
       boats (
         id, boat_name, boat_type, marina_name,
         marina_address, slip_number, lat, lng,
-        captain_name, waiver_text, safety_points
+        captain_name, waiver_text, safety_cards
       ),
       guests (
         id, full_name, language_preference,
@@ -42,6 +43,7 @@ export default async function TripDetailPage({
         is_seasickness_prone, waiver_signed,
         waiver_signed_at, approval_status,
         checked_in_at, created_at,
+        safety_acknowledgments, waiver_text_hash,
         guest_addon_orders (
           quantity, total_cents,
           addons ( name, emoji )
@@ -98,6 +100,16 @@ export default async function TripDetailPage({
         initialGuests={trip.guests}
         maxGuests={trip.maxGuests}
         requiresApproval={trip.requiresApproval}
+      />
+
+      {/* Trip Control — Start/End + compliance banner */}
+      <TripStatusBar
+        tripId={trip.id}
+        tripSlug={trip.slug}
+        initialStatus={trip.status}
+        initialStartedAt={trip.startedAt}
+        initialGuests={trip.guests}
+        requiredSafetyCards={trip.boat.safetyCards?.length ?? 0}
       />
 
       {addonSummary.length > 0 && (

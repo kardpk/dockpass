@@ -1,5 +1,5 @@
 -- ==========================================
--- DockPass — Seed Data (local testing)
+-- BoatCheckin — Seed Data (local testing)
 -- Run: npx supabase db reset (applies migration + seed)
 -- ==========================================
 
@@ -7,7 +7,7 @@
 INSERT INTO operators (id, email, full_name, company_name, subscription_tier, subscription_status, max_boats, is_active)
 VALUES (
   '00000000-0000-0000-0000-000000000001',
-  'demo@dockpass.io',
+  'demo@boatcheckin.com',
   'Conrad Rivera',
   'Conrad Charter Co.',
   'fleet',

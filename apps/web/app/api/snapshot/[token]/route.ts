@@ -59,13 +59,14 @@ export async function GET(
       special_notes, buoy_policy_id,
       boats (
         id, boat_name, boat_type, marina_name, marina_address,
-        slip_number, captain_name, lat, lng, waiver_text, safety_points
+        slip_number, captain_name, lat, lng, waiver_text, safety_cards
       ),
       guests (
         id, full_name, language_preference,
         dietary_requirements, is_non_swimmer,
         is_seasickness_prone, waiver_signed, waiver_signed_at,
         checked_in_at, approval_status, created_at,
+        safety_acknowledgments, waiver_text_hash,
         guest_addon_orders (
           quantity, total_cents,
           addons ( name, emoji )
@@ -93,6 +94,8 @@ export async function GET(
     tripId,
     slug: trip.slug,
     boatName: trip.boat.boatName,
+    maxGuests: trip.maxGuests,
+    requiredSafetyCards: trip.boat.safetyCards?.length ?? 0,
     marinaName: trip.boat.marinaName,
     slipNumber: trip.boat.slipNumber,
     tripDate: trip.tripDate,
@@ -105,6 +108,8 @@ export async function GET(
       id: g.id,
       fullName: g.fullName,
       waiverSigned: g.waiverSigned,
+      waiverTextHash: g.waiverTextHash ?? null,
+      safetyAckCount: g.safetyAcknowledgments?.length ?? 0,
       languageFlag: LANGUAGE_FLAGS[g.languagePreference as keyof typeof LANGUAGE_FLAGS] ?? '🌐',
       addonEmojis: g.addonOrders.map(o => o.emoji),
     })),

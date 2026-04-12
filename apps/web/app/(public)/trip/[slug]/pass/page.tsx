@@ -66,7 +66,7 @@ export default function BoardingPassPage({ params }: Props) {
         <div className="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(12,68,124,0.12)] overflow-hidden">
           <div className="px-5 pt-5 pb-4">
             <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-[#6B7C93] mb-2">
-              DOCKPASS
+              BOATCHECKIN
             </p>
             <p className="text-[13px] text-[#6B7C93]">
               Checked in {new Date(session.checkedInAt).toLocaleDateString()}

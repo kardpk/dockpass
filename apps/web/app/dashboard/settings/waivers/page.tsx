@@ -3,7 +3,7 @@ import { generateTemplateEditorJwt } from '@/app/actions/operatorFirma'
 import { WaiverSettingsClient } from './WaiverSettingsClient'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Waiver Settings — DockPass' }
+export const metadata: Metadata = { title: 'Waiver Settings — BoatCheckin' }
 
 export default async function WaiversPage() {
   const { operator } = await requireOperator()
@@ -27,7 +27,7 @@ export default async function WaiversPage() {
 
       <WaiverSettingsClient
         operatorId={operator.id}
-        companyName={operator.company_name || operator.full_name || 'DockPass Partner'}
+        companyName={operator.company_name || operator.full_name || 'BoatCheckin Partner'}
         workspaceId={operator.firma_workspace_id}
         jwtToken={jwt}
       />

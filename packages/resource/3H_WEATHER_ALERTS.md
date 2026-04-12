@@ -1,4 +1,4 @@
-# DockPass — Phase 3H Agent Instructions
+# BoatCheckin — Phase 3H Agent Instructions
 # Weather + Alerts: Monitoring + Notifications
 # @3H_WEATHER_ALERTS
 
@@ -331,7 +331,7 @@ export async function sendWeatherAlertEmail(params: {
   <!-- Footer -->
   <div style="background:#F5F8FC;padding:16px 32px;border-top:1px solid #D0E2F3;">
     <p style="color:#6B7C93;font-size:11px;margin:0;">
-      DockPass Weather Monitor ·
+      BoatCheckin Weather Monitor ·
       <a href="${appUrl}/privacy" style="color:#6B7C93;">Privacy</a> ·
       <a href="${appUrl}/unsubscribe" style="color:#6B7C93;">Unsubscribe</a>
     </p>
@@ -454,7 +454,7 @@ export async function sendTripReminderEmail(params: {
   <!-- Footer -->
   <div style="background:#F5F8FC;padding:16px 32px;border-top:1px solid #D0E2F3;">
     <p style="color:#6B7C93;font-size:11px;margin:0;">
-      DockPass · Powered by Oakmont Logic LLC ·
+      BoatCheckin · Powered by Oakmont Logic LLC ·
       <a href="${process.env.NEXT_PUBLIC_APP_URL}/privacy" style="color:#6B7C93;">Privacy</a>
     </p>
   </div>
@@ -600,7 +600,7 @@ export async function POST(
     trip_id: id,
     operator_id: operator.id,
     sender_type: 'system',
-    sender_name: 'DockPass Weather',
+    sender_name: 'BoatCheckin Weather',
     body: `⚠️ ${parsed.data.message}`,
     is_quick_chip: false,
   })

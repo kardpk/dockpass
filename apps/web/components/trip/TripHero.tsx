@@ -36,7 +36,7 @@ export function TripHero({
       {/* Top row */}
       <div className="flex items-center justify-between mb-5">
         <span className="text-white font-bold text-[17px] tracking-tight">
-          DockPass ⚓
+          BoatCheckin ⚓
         </span>
         <LanguageSelector currentLang={currentLang} />
       </div>

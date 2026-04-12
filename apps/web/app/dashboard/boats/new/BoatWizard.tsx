@@ -18,8 +18,9 @@ import { Step3Captain } from "./steps/Step3Captain";
 import { Step4Equipment } from "./steps/Step4Equipment";
 import { Step5Rules } from "./steps/Step5Rules";
 import { Step6Packing } from "./steps/Step6Packing";
-import { Step7Safety } from "./steps/Step7Safety";
-import { Step8Photos } from "./steps/Step8Photos";
+import { Step7SafetyCards } from "./steps/Step7SafetyCards";
+import { Step8Waiver } from "./steps/Step8Waiver";
+import { Step9Photos } from "./steps/Step9Photos";
 import { StepComplete } from "./steps/StepComplete";
 
 const variants = {
@@ -34,8 +35,8 @@ const variants = {
   }),
 };
 
-const DRAFT_KEY = "dockpass_boat_wizard_draft";
-const DRAFT_STEP_KEY = "dockpass_boat_wizard_step";
+const DRAFT_KEY = "boatcheckin_boat_wizard_draft";
+const DRAFT_STEP_KEY = "boatcheckin_boat_wizard_step";
 
 export function BoatWizard() {
   const [step, setStep] = useState(1);
@@ -48,17 +49,47 @@ export function BoatWizard() {
   const [templateLoading, setTemplateLoading] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Hydrate draft from LocalStorage
+  // Hydrate draft from LocalStorage (with migration from 10-step to 9-step schema)
   useEffect(() => {
     try {
       const savedData = localStorage.getItem(DRAFT_KEY);
       const savedStep = localStorage.getItem(DRAFT_STEP_KEY);
       if (savedData) {
-        setData(JSON.parse(savedData));
+        const parsed = JSON.parse(savedData);
+
+        // ── Draft migration: 10-step → 9-step schema ──
+        // Remove deprecated video acknowledgement field
+        if ("safetyVideoAcknowledged" in parsed) {
+          delete parsed.safetyVideoAcknowledged;
+        }
+        // Migrate old safetyImages[] → safetyCards[]
+        if (parsed.safetyImages && !parsed.safetyCards) {
+          parsed.safetyCards = parsed.safetyImages.map(
+            (img: { id: string; preview: string; title: string; instructions: string }, i: number) => ({
+              id: img.id,
+              topic_key: "custom",
+              image_url: null,
+              file: null,
+              preview: img.preview || "",
+              custom_title: img.title || "",
+              instructions: img.instructions || "",
+              sort_order: i,
+            })
+          );
+          delete parsed.safetyImages;
+        }
+        // Remove non-serializable waiverPdfFile if present
+        if ("waiverPdfFile" in parsed) {
+          delete parsed.waiverPdfFile;
+        }
+
+        setData({ ...INITIAL_WIZARD_DATA, ...parsed });
       }
       if (savedStep) {
-        const parsed = parseInt(savedStep, 10);
-        if (!isNaN(parsed) && parsed >= 1 && parsed <= TOTAL_STEPS) {
+        let parsed = parseInt(savedStep, 10);
+        // Clamp to new max (was 10, now 9)
+        if (!isNaN(parsed) && parsed >= 1) {
+          parsed = Math.min(parsed, TOTAL_STEPS);
           setStep(parsed);
         }
       }
@@ -71,9 +102,19 @@ export function BoatWizard() {
 
   // Auto-save draft to LocalStorage
   useEffect(() => {
-    if (!isHydrated) return; // Prevent overwriting draft with initial render state
+    if (!isHydrated) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      // Strip non-serializable File objects before saving
+      const serializable = {
+        ...data,
+        captainPhotoFile: null,
+        boatPhotos: [],
+        safetyCards: data.safetyCards.map((card) => ({
+          ...card,
+          file: null, // File objects cannot be stored in localStorage
+        })),
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(serializable));
       localStorage.setItem(DRAFT_STEP_KEY, step.toString());
     } catch (e) {
       console.warn("Failed to save boat draft:", e);
@@ -124,8 +165,20 @@ export function BoatWizard() {
           customRuleSections: merged.customRuleSections,
           whatToBring: merged.whatToBring,
           whatNotToBring: merged.whatNotToBring,
-          waiverText: merged.waiverText,
-          safetyPoints: merged.safetyPoints,
+
+          // Step 7 — Safety cards (USCG compliance)
+          safetyCards: merged.safetyCards.map((card) => ({
+            id: card.id,
+            topic_key: card.topic_key,
+            image_url: card.image_url || "",
+            custom_title: card.custom_title ?? "",
+            instructions: card.instructions,
+            sort_order: card.sort_order,
+          })),
+
+          // Step 8 — Firma waiver
+          firmaTemplateId: merged.firmaTemplateId,
+
           addons: merged.addons,
         });
 
@@ -235,13 +288,13 @@ export function BoatWizard() {
       </div>
 
       {/* Save error */}
-        {saveError && (
-          <div className="max-w-[640px] mx-auto px-page mb-standard">
-            <div className="p-standard bg-error-bg rounded-chip text-[13px] text-error-text">
-              ⚠️ {saveError}
-            </div>
+      {saveError && (
+        <div className="max-w-[640px] mx-auto px-page mb-standard">
+          <div className="p-standard bg-error-bg rounded-chip text-[13px] text-error-text">
+            ⚠️ {saveError}
           </div>
-        )}
+        </div>
+      )}
 
       {/* Step content */}
       <div className="max-w-[640px] mx-auto px-page pb-hero overflow-hidden">
@@ -268,8 +321,9 @@ export function BoatWizard() {
             {step === 4 && <Step4Equipment data={data} onNext={goNext} template={template} />}
             {step === 5 && <Step5Rules data={data} onNext={goNext} />}
             {step === 6 && <Step6Packing data={data} onNext={goNext} />}
-            {step === 7 && <Step7Safety data={data} onNext={goNext} />}
-            {step === 8 && <Step8Photos data={data} onNext={goNext} saving={saving} template={template} />}
+            {step === 7 && <Step7SafetyCards data={data} onNext={goNext} />}
+            {step === 8 && <Step8Waiver data={data} onNext={goNext} />}
+            {step === 9 && <Step9Photos data={data} onNext={goNext} saving={saving} template={template} />}
           </motion.div>
         </AnimatePresence>
       </div>

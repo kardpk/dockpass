@@ -7,7 +7,7 @@ import { TripCreateForm } from './TripCreateForm'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Create trip — DockPass',
+  title: 'Create trip — BoatCheckin',
 }
 
 async function getOperatorBoats(operatorId: string) {
