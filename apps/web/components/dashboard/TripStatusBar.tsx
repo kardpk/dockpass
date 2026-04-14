@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useTripStatus } from '@/hooks/useTripStatus'
 import { useTripGuests } from '@/hooks/useTripGuests'
 import { RealtimeIndicator } from './RealtimeIndicator'
+import { cn } from '@/lib/utils/cn'
 import type { TripStatus, DashboardGuest } from '@/types'
 
 interface TripStatusBarProps {
@@ -33,6 +34,11 @@ export function TripStatusBar({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // ── Inline confirmation panel state ─────────────────────
+  const [showStartConfirm, setShowStartConfirm] = useState(false)
+  const [briefingConfirmed, setBriefingConfirmed] = useState(false)
+  const [captainBriefedAll, setCaptainBriefedAll] = useState(false)
+
   // ── USCG PRE-DEPARTURE COMPLIANCE ──────────────────────
   const isReadyToDepart = useMemo(() => {
     if (guests.length === 0) return false
@@ -53,10 +59,8 @@ export function TripStatusBar({
     }).length
   , [guests, requiredSafetyCards])
 
-  // ── Generate token + Start trip ────────────────────────
+  // ── Start trip with briefing attestation ─────────────────
   async function handleStartTrip() {
-    if (!window.confirm('Start this trip? This will activate insurance and notify all guests.')) return
-
     setLoading(true)
     setError(null)
 
@@ -73,7 +77,7 @@ export function TripStatusBar({
       const snapshotToken = tokenJson.data?.token
       if (!snapshotToken) throw new Error('No token returned')
 
-      // Step 2: Call start endpoint with the token
+      // Step 2: Call start endpoint with the token + briefing attestation
       const startRes = await fetch(`/api/trips/${tripSlug}/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,6 +85,16 @@ export function TripStatusBar({
           snapshotToken,
           confirmedGuestCount: guests.length,
           checklistConfirmed: true,
+          // Include briefing attestation from dashboard
+          ...(briefingConfirmed && captainBriefedAll ? {
+            briefingAttestation: {
+              type: 'full_verbal' as const,
+              topicsCovered: ['emergency_exits', 'life_jacket_location', 'life_jacket_donning',
+                              'instruction_placards', 'hazardous_conditions'],
+              signature: 'Operator — Dashboard Confirmation',
+              confirmedAt: new Date().toISOString(),
+            },
+          } : {}),
         }),
       })
 
@@ -88,6 +102,8 @@ export function TripStatusBar({
         const body = await startRes.json().catch(() => ({ error: 'Unknown error' }))
         throw new Error(body.error || 'Failed to start trip')
       }
+
+      setShowStartConfirm(false)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to start trip'
       setError(msg)
@@ -104,7 +120,6 @@ export function TripStatusBar({
     setError(null)
 
     try {
-      // Generate token for the end request
       const tokenRes = await fetch(
         `/api/dashboard/trips/${tripId}/snapshot`,
         { method: 'POST' }
@@ -192,10 +207,120 @@ export function TripStatusBar({
         </div>
       )}
 
-      {/* Action buttons */}
-      {status === 'upcoming' && (
+      {/* ── Inline Start Trip Confirmation Panel ─────────────── */}
+      {showStartConfirm && status === 'upcoming' && (
+        <div className="rounded-[16px] border-2 border-[#0C447C] bg-white overflow-hidden shadow-lg">
+          {/* Panel header */}
+          <div className="bg-[#0C447C] px-4 py-3 flex items-center gap-2">
+            <span className="text-[18px]">🛡️</span>
+            <p className="text-[14px] font-bold text-white">
+              Pre-Departure Confirmation
+            </p>
+          </div>
+
+          <div className="px-4 py-4 space-y-3">
+            {/* Summary */}
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-[#6B7C93]">Passengers</span>
+              <span className="font-bold text-[#0D1B2A]">{guests.length}</span>
+            </div>
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-[#6B7C93]">Waivers signed</span>
+              <span className="font-bold text-[#1D9E75]">
+                {guests.filter(g => g.waiverSigned || g.waiverTextHash === 'firma_template').length} / {guests.length}
+              </span>
+            </div>
+
+            <hr className="border-[#D0E2F3]" />
+
+            {/* Safety briefing attestation */}
+            <div className="p-3 bg-[#F5F8FC] rounded-[12px] space-y-3">
+              <p className="text-[12px] font-bold text-[#6B7C93] uppercase tracking-wider">
+                46 CFR §185.506 — Safety Briefing
+              </p>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <div
+                  onClick={() => setCaptainBriefedAll(!captainBriefedAll)}
+                  className={cn(
+                    'w-5 h-5 rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 mt-0.5',
+                    'transition-all duration-150',
+                    captainBriefedAll
+                      ? 'bg-[#0C447C] border-[#0C447C]'
+                      : 'bg-white border-[#D0E2F3]'
+                  )}
+                >
+                  {captainBriefedAll && (
+                    <svg width="10" height="8" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="2"
+                            strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] text-[#0D1B2A] leading-relaxed">
+                  The captain has verbally briefed all passengers on life jacket locations,
+                  emergency exits, and safety procedures
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <div
+                  onClick={() => setBriefingConfirmed(!briefingConfirmed)}
+                  className={cn(
+                    'w-5 h-5 rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 mt-0.5',
+                    'transition-all duration-150',
+                    briefingConfirmed
+                      ? 'bg-[#0C447C] border-[#0C447C]'
+                      : 'bg-white border-[#D0E2F3]'
+                  )}
+                >
+                  {briefingConfirmed && (
+                    <svg width="10" height="8" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="2"
+                            strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] text-[#0D1B2A] leading-relaxed">
+                  Insurance will be activated and passengers will be notified
+                </span>
+              </label>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => {
+                  setShowStartConfirm(false)
+                  setBriefingConfirmed(false)
+                  setCaptainBriefedAll(false)
+                }}
+                disabled={loading}
+                className="flex-1 h-[44px] rounded-[10px] border border-[#D0E2F3] text-[#6B7C93] font-semibold text-[14px] hover:bg-[#F5F8FC] transition-colors disabled:opacity-40"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStartTrip}
+                disabled={loading || !briefingConfirmed || !captainBriefedAll}
+                className={cn(
+                  'flex-1 h-[44px] rounded-[10px] font-bold text-[14px] transition-all',
+                  briefingConfirmed && captainBriefedAll
+                    ? 'bg-[#1D9E75] text-white hover:bg-[#178a64] active:scale-[0.98]'
+                    : 'bg-[#D0E2F3] text-[#6B7C93] cursor-not-allowed'
+                )}
+              >
+                {loading ? 'Starting...' : '⚓ Confirm & Start'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Start Trip button — opens confirmation panel */}
+      {status === 'upcoming' && !showStartConfirm && (
         <button
-          onClick={handleStartTrip}
+          onClick={() => setShowStartConfirm(true)}
           disabled={!isReadyToDepart || loading}
           className="
             w-full h-[52px] rounded-[14px]
@@ -207,7 +332,7 @@ export function TripStatusBar({
             disabled:hover:bg-[#1D9E75]
           "
         >
-          {loading ? 'Starting...' : isReadyToDepart ? '⚓ Start Trip' : '🔒 Waiting on compliance...'}
+          {loading ? 'Starting...' : isReadyToDepart ? '🛡️ Start Trip' : '🔒 Waiting on compliance...'}
         </button>
       )}
 

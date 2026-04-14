@@ -7,17 +7,18 @@ import { formatTripDate, formatTime } from '@/lib/utils/format'
 import { SlideToConfirm } from '@/components/ui/SlideToConfirm'
 import { getComplianceRules, isPartyBoatTriggered } from '@/lib/compliance/rules'
 import type { CaptainSnapshotData } from '@/types'
+import type { BriefingAttestation } from './SafetyBriefingGate'
 
 interface StartTripFlowProps {
   snapshot: CaptainSnapshotData
   token: string
   onStarted: (result: { startedAt: string; buoyPolicyId: string | null }) => void
   onCancel: () => void
+  briefingAttestation?: BriefingAttestation | null
 }
 
 const CHECKLIST_ITEMS = [
   { id: 'guests', label: 'All guests accounted for' },
-  { id: 'safety', label: 'Safety briefing given to all passengers' },
   { id: 'jackets', label: 'Life jackets accessible and located' },
   { id: 'weather', label: 'Weather conditions are acceptable' },
   { id: 'manifest', label: 'Passenger manifest downloaded or accessible' },
@@ -26,7 +27,7 @@ const CHECKLIST_ITEMS = [
 type ChecklistId = typeof CHECKLIST_ITEMS[number]['id']
 
 export function StartTripFlow({
-  snapshot, token, onStarted, onCancel,
+  snapshot, token, onStarted, onCancel, briefingAttestation,
 }: StartTripFlowProps) {
   const [checked, setChecked] = useState<Set<ChecklistId>>(new Set())
   const [showConfirm, setShowConfirm] = useState(false)
@@ -80,6 +81,7 @@ export function StartTripFlow({
             captainName: snapshot.captainName,
             confirmedGuestCount: snapshot.guests.length,
             checklistConfirmed: true,
+            briefingAttestation: briefingAttestation ?? undefined,
           }),
         }
       )

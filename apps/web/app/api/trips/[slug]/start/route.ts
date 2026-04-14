@@ -18,6 +18,12 @@ const startSchema = z.object({
     v => v === true,
     { message: 'Pre-departure checklist must be confirmed' }
   ),
+  briefingAttestation: z.object({
+    type: z.enum(['full_verbal', 'abbreviated_with_cards', 'pa_announcement', 'reduced_private']),
+    topicsCovered: z.array(z.string()).min(1),
+    signature: z.string().min(2).max(100),
+    confirmedAt: z.string(),
+  }).optional(),
 })
 
 export async function POST(
@@ -206,6 +212,14 @@ export async function POST(
         started_at: startedAt,
         started_by_captain: resolvedCaptainName,
         guest_count_at_start: data.confirmedGuestCount,
+        // Safety briefing attestation (if provided)
+        ...(data.briefingAttestation ? {
+          safety_briefing_confirmed_at: data.briefingAttestation.confirmedAt,
+          safety_briefing_confirmed_by: data.briefingAttestation.signature,
+          safety_briefing_topics: data.briefingAttestation.topicsCovered,
+          safety_briefing_type: data.briefingAttestation.type,
+          safety_briefing_signature: data.briefingAttestation.signature,
+        } : {}),
       })
       .eq('id', tripId)
       .eq('status', 'upcoming') // Extra safety: only update if still upcoming

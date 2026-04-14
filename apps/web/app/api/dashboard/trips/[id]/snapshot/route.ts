@@ -35,6 +35,7 @@ export async function POST(
     .select(`
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, status, charter_type, trip_purpose, force_full_compliance,
+      safety_briefing_confirmed_at, safety_briefing_confirmed_by, safety_briefing_type,
       boats (
         boat_name, marina_name, slip_number,
         captain_name, lat, lng, waiver_text, safety_cards
@@ -154,6 +155,9 @@ export async function POST(
     crewManifest,
     tripPurpose: ((raw as Record<string, unknown>).trip_purpose as string ?? 'commercial') as import('@/types').TripPurpose,
     forceFullCompliance: (raw as Record<string, unknown>).force_full_compliance as boolean ?? false,
+    safetyBriefingConfirmedAt: (raw as Record<string, unknown>).safety_briefing_confirmed_at as string ?? null,
+    safetyBriefingConfirmedBy: (raw as Record<string, unknown>).safety_briefing_confirmed_by as string ?? null,
+    safetyBriefingType: (raw as Record<string, unknown>).safety_briefing_type as string ?? null,
   }
 
   // Cache snapshot in Redis (1hr TTL)

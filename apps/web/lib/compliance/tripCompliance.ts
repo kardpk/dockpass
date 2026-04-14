@@ -1,4 +1,73 @@
-import type { TripPurpose, ComplianceProfile } from '@/types'
+import type { TripPurpose, ComplianceProfile, BriefingTopic } from '@/types'
+
+// ─── USCG 46 CFR §185.506 Briefing Topics ───────────────────────────────────
+
+const USCG_BRIEFING_TOPICS: BriefingTopic[] = [
+  {
+    id: 'emergency_exits',
+    label: 'Emergency exits & survival craft',
+    description: 'Pointed out all emergency exits and survival craft embarkation areas',
+    cfrRef: '§185.506(a)(1)',
+    required: true,
+  },
+  {
+    id: 'life_jacket_location',
+    label: 'Life jacket locations',
+    description: 'Showed passengers where life jackets are stowed on this vessel',
+    cfrRef: '§185.506(a)(2)',
+    required: true,
+  },
+  {
+    id: 'life_jacket_donning',
+    label: 'Life jacket donning procedure',
+    description: 'Demonstrated or directed passengers to crew for proper life jacket fitting',
+    cfrRef: '§185.506(a)(3)',
+    required: true,
+  },
+  {
+    id: 'instruction_placards',
+    label: 'Instruction placards',
+    description: 'Pointed out location of instruction placards for lifesaving devices',
+    cfrRef: '§185.506(a)(4)',
+    required: true,
+  },
+  {
+    id: 'hazardous_conditions',
+    label: 'Hazardous conditions protocol',
+    description: 'Informed passengers they must don life jackets when directed by captain',
+    cfrRef: '§185.506(a)(5)',
+    required: true,
+  },
+  {
+    id: 'reduced_manning',
+    label: 'Reduced manning notice',
+    description: 'Disclosed any reduced manning or equipment conditions if applicable',
+    cfrRef: '§185.506(a)(6)',
+    required: false, // only required if vessel is operating with reduced manning
+  },
+]
+
+const SOCIAL_BRIEFING_TOPICS: BriefingTopic[] = [
+  USCG_BRIEFING_TOPICS[0]!, // emergency_exits
+  USCG_BRIEFING_TOPICS[1]!, // life_jacket_location
+  {
+    id: 'fire_extinguisher',
+    label: 'Fire extinguisher location',
+    description: 'Showed passengers where fire extinguishers are located',
+    cfrRef: 'Best practice',
+    required: true,
+  },
+]
+
+const FAMILY_BRIEFING_TOPICS: BriefingTopic[] = [
+  {
+    id: 'life_jackets_onboard',
+    label: 'Life jackets onboard & accessible',
+    description: 'Confirmed life jackets are onboard and accessible for all passengers',
+    cfrRef: 'Safety best practice',
+    required: true,
+  },
+]
 
 // ─── Compliance Profile Presets ──────────────────────────────────────────────
 
@@ -11,17 +80,21 @@ const FULL_COMPLIANCE: ComplianceProfile = {
   insuranceBindRequired: true,
   headCountRequired: true,
   preDepBlockOnNonCompliance: true,
+  verbalBriefingRequired: true,
+  briefingTopics: USCG_BRIEFING_TOPICS,
 }
 
 /** Social compliance — friends, fishing buddies */
 const SOCIAL_COMPLIANCE: ComplianceProfile = {
-  waiverRequired: false,   // recommended but not required
+  waiverRequired: false,
   safetyBriefingRequired: false,
   floatPlanRecommended: true,
   emergencyContactRequired: false,
   insuranceBindRequired: false,
   headCountRequired: true,
-  preDepBlockOnNonCompliance: false, // don't block the Start Trip button
+  preDepBlockOnNonCompliance: false,
+  verbalBriefingRequired: true,
+  briefingTopics: SOCIAL_BRIEFING_TOPICS,
 }
 
 /** Minimal compliance — family day out */
@@ -33,9 +106,11 @@ const MINIMAL_COMPLIANCE: ComplianceProfile = {
   insuranceBindRequired: false,
   headCountRequired: false,
   preDepBlockOnNonCompliance: false,
+  verbalBriefingRequired: true,
+  briefingTopics: FAMILY_BRIEFING_TOPICS,
 }
 
-/** Training/delivery — float plan recommended, everything else optional */
+/** Training/delivery — full safety topics, everything else optional */
 const TRAINING_COMPLIANCE: ComplianceProfile = {
   waiverRequired: false,
   safetyBriefingRequired: false,
@@ -44,6 +119,8 @@ const TRAINING_COMPLIANCE: ComplianceProfile = {
   insuranceBindRequired: false,
   headCountRequired: false,
   preDepBlockOnNonCompliance: false,
+  verbalBriefingRequired: true,
+  briefingTopics: USCG_BRIEFING_TOPICS,
 }
 
 // ─── Compliance Profile Derivation ───────────────────────────────────────────

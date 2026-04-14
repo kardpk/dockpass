@@ -42,6 +42,8 @@ export async function GET(
     .select(`
       id, trip_code, trip_date, departure_time,
       duration_hours, max_guests, status, charter_type,
+      safety_briefing_confirmed_at, safety_briefing_confirmed_by,
+      safety_briefing_type, safety_briefing_topics,
       boats (
         boat_name, marina_name, slip_number,
         captain_name
@@ -88,6 +90,22 @@ export async function GET(
     [`Max Capacity: ${trip.max_guests}`],
     [`Charter Type: ${(trip.charter_type as string) ?? 'captained'}`],
     [`Generated: ${new Date().toISOString()}`],
+    [],
+    // Safety Briefing Attestation
+    ['SAFETY BRIEFING ATTESTATION'],
+    ...(trip.safety_briefing_confirmed_at
+      ? [
+          [`Status: CONFIRMED`],
+          [`Confirmed By: ${(trip.safety_briefing_confirmed_by as string) ?? 'N/A'}`],
+          [`Briefing Type: ${((trip.safety_briefing_type as string) ?? 'N/A').replace(/_/g, ' ')}`],
+          [`Confirmed At: ${(trip.safety_briefing_confirmed_at as string) ?? 'N/A'}`],
+          [`Topics Covered: ${((trip.safety_briefing_topics as string[]) ?? []).join('; ')}`],
+        ]
+      : [
+          [`Status: ⚠️ NOT YET CONFIRMED`],
+          [`Note: Captain has not confirmed delivering verbal safety orientation per 46 CFR §185.506`],
+        ]
+    ),
     [],
     ['#', 'Passenger Name', 'Emergency Contact Name', 'Emergency Contact Phone', 'Waiver Status', 'Boarded At'],
   ]

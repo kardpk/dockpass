@@ -21,6 +21,14 @@ export type TripPurpose =
   | 'training'        // Crew training, delivery
   | 'other';          // Catch-all
 
+export interface BriefingTopic {
+  id: string
+  label: string
+  description: string
+  cfrRef: string
+  required: boolean
+}
+
 export interface ComplianceProfile {
   waiverRequired: boolean
   safetyBriefingRequired: boolean
@@ -29,6 +37,8 @@ export interface ComplianceProfile {
   insuranceBindRequired: boolean
   headCountRequired: boolean
   preDepBlockOnNonCompliance: boolean
+  verbalBriefingRequired: boolean
+  briefingTopics: BriefingTopic[]
 }
 
 export const TRIP_PURPOSE_LABELS: Record<TripPurpose, {
@@ -501,6 +511,10 @@ export interface CaptainSnapshotData {
   }[]
   tripPurpose: TripPurpose
   forceFullCompliance: boolean
+  // Safety briefing gate
+  safetyBriefingConfirmedAt: string | null
+  safetyBriefingConfirmedBy: string | null
+  safetyBriefingType: string | null
 }
 
 // ═══════════════════════════════════════════

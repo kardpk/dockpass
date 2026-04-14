@@ -34,7 +34,8 @@ type AuditAction =
   | "crew_removed"
   | "captain_notes_updated"
   | "head_count_confirmed"
-  | "trip_reclassified";
+  | "trip_reclassified"
+  | "safety_briefing_confirmed";
 
 
 interface AuditParams {

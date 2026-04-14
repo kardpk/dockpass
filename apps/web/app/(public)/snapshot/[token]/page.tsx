@@ -37,6 +37,7 @@ export default async function SnapshotPage({
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, trip_code, status, started_at, charter_type, requires_approval,
       special_notes, captain_token_version, trip_purpose, force_full_compliance,
+      safety_briefing_confirmed_at, safety_briefing_confirmed_by, safety_briefing_type,
       boats (
         id, boat_name, boat_type, marina_name, marina_address, slip_number,
         captain_name, lat, lng, waiver_text, safety_cards,
@@ -166,6 +167,9 @@ export default async function SnapshotPage({
     crewManifest,
     tripPurpose: (raw as any).trip_purpose ?? 'commercial',
     forceFullCompliance: (raw as any).force_full_compliance ?? false,
+    safetyBriefingConfirmedAt: (raw as any).safety_briefing_confirmed_at ?? null,
+    safetyBriefingConfirmedBy: (raw as any).safety_briefing_confirmed_by ?? null,
+    safetyBriefingType: (raw as any).safety_briefing_type ?? null,
   }
 
   return (

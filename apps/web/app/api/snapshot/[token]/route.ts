@@ -89,6 +89,7 @@ export async function GET(
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, trip_code, status, started_at, charter_type, requires_approval,
       special_notes, trip_purpose, force_full_compliance,
+      safety_briefing_confirmed_at, safety_briefing_confirmed_by, safety_briefing_type,
       boats (
         id, boat_name, boat_type, marina_name, marina_address,
         slip_number, captain_name, lat, lng, waiver_text, safety_cards, length_ft, state_code
@@ -208,6 +209,9 @@ export async function GET(
     crewManifest,
     tripPurpose: ((raw as Record<string, unknown>).trip_purpose as string ?? 'commercial') as import('@/types').TripPurpose,
     forceFullCompliance: (raw as Record<string, unknown>).force_full_compliance as boolean ?? false,
+    safetyBriefingConfirmedAt: (raw as Record<string, unknown>).safety_briefing_confirmed_at as string ?? null,
+    safetyBriefingConfirmedBy: (raw as Record<string, unknown>).safety_briefing_confirmed_by as string ?? null,
+    safetyBriefingType: (raw as Record<string, unknown>).safety_briefing_type as string ?? null,
   }
 
   // Cache 1 min

@@ -15,6 +15,8 @@ import { HeadCountConfirm } from './HeadCountConfirm'
 import { downloadFloatPlan } from '@/lib/captain/floatPlan'
 import { useTripGuests } from '@/hooks/useTripGuests'
 import { getComplianceProfile, getComplianceLevel } from '@/lib/compliance/tripCompliance'
+import { SafetyBriefingGate } from './SafetyBriefingGate'
+import type { BriefingAttestation } from './SafetyBriefingGate'
 import type { CaptainSnapshotData, TripStatus, DashboardGuest, TripPurpose } from '@/types'
 
 // Dynamic import — html5-qrcode uses browser APIs that break SSR
@@ -41,6 +43,8 @@ export function CaptainSnapshotView({
   const [showEndFlow, setShowEndFlow] = useState(false)
   const [liveSnapshot, setLiveSnapshot] = useState(snapshot)
   const [showScanner, setShowScanner] = useState(false)
+  const [showBriefingGate, setShowBriefingGate] = useState(false)
+  const [briefingAttestation, setBriefingAttestation] = useState<BriefingAttestation | null>(null)
   // Realtime guest subscription adapter
   const initialDashboardGuests = useMemo<DashboardGuest[]>(() => 
     snapshot.guests.map(g => ({
@@ -174,6 +178,34 @@ export function CaptainSnapshotView({
     setShowEndFlow(false)
   }
 
+  // Show briefing gate overlay (before start flow)
+  if (showBriefingGate) {
+    return (
+      <SafetyBriefingGate
+        boatName={liveSnapshot.boatName}
+        captainName={liveSnapshot.captainName ?? 'Captain'}
+        tripDate={formatTripDate(liveSnapshot.tripDate)}
+        guestCount={mergedGuests.length}
+        briefingTopics={compliance.briefingTopics}
+        complianceLevel={complianceLevel.level}
+        token={token}
+        allowSkip={true}
+        onConfirmed={(attestation) => {
+          setBriefingAttestation(attestation)
+          setShowBriefingGate(false)
+          setShowStartFlow(true)
+        }}
+        onCancel={() => setShowBriefingGate(false)}
+        onSkip={() => {
+          // Grace period: skip briefing, go straight to start flow
+          setBriefingAttestation(null)
+          setShowBriefingGate(false)
+          setShowStartFlow(true)
+        }}
+      />
+    )
+  }
+
   // Show start flow overlay
   if (showStartFlow) {
     return (
@@ -182,6 +214,7 @@ export function CaptainSnapshotView({
         token={token}
         onStarted={onTripStarted}
         onCancel={() => setShowStartFlow(false)}
+        briefingAttestation={briefingAttestation}
       />
     )
   }
@@ -306,6 +339,24 @@ export function CaptainSnapshotView({
           </div>
         )}
 
+        {/* ── Safety Briefing Confirmation Status ──────────────── */}
+        {(briefingAttestation || liveSnapshot.safetyBriefingConfirmedAt) && (
+          <div className="p-4 rounded-[16px] bg-[#E8F2FB] border-2 border-[#0C447C]">
+            <div className="flex items-center gap-3">
+              <span className="text-[24px]">🛡️</span>
+              <div>
+                <p className="text-[14px] font-bold text-[#0C447C]">
+                  Safety Briefing Confirmed
+                </p>
+                <p className="text-[12px] text-[#6B7C93] mt-0.5">
+                  {briefingAttestation?.signature ?? liveSnapshot.safetyBriefingConfirmedBy} ·{' '}
+                  {briefingAttestation?.type?.replace(/_/g, ' ') ?? liveSnapshot.safetyBriefingType?.replace(/_/g, ' ')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── USCG PRE-DEPARTURE COMPLIANCE BANNER ──────────────── */}
         {status === 'upcoming' && (
           isReadyToDepart ? (
@@ -412,7 +463,7 @@ export function CaptainSnapshotView({
         <div className="pt-2 pb-8">
           {status === 'upcoming' && (
             <button
-              onClick={() => setShowStartFlow(true)}
+              onClick={() => setShowBriefingGate(true)}
               disabled={!isReadyToDepart}
               className="
                 w-full h-[64px] rounded-[16px]
@@ -424,7 +475,7 @@ export function CaptainSnapshotView({
                 disabled:hover:bg-[#1D9E75]
               "
             >
-              {isReadyToDepart ? '⚓ Start Trip →' : '🔒 Waiting on compliance...'}
+              {isReadyToDepart ? '🛡️ Safety Briefing & Start →' : '🔒 Waiting on compliance...'}
             </button>
           )}
 
