@@ -10,7 +10,7 @@ interface StepCodeProps {
   tripSlug: string
   state: JoinFlowState
   onUpdate: (partial: Partial<JoinFlowState>) => void
-  onValidated: (waiverText: string, waiverHash: string, firmaTemplateId?: string | null, safetyCards?: unknown[]) => void
+  onValidated: (waiverText: string, waiverHash: string, firmaTemplateId?: string | null, safetyCards?: unknown[], lengthFt?: number | null, boatType?: string, stateCode?: string) => void
 }
 
 export function StepCode({ tripSlug, state, onUpdate, onValidated }: StepCodeProps) {
@@ -83,7 +83,7 @@ export function StepCode({ tripSlug, state, onUpdate, onValidated }: StepCodePro
         return
       }
 
-      onValidated(json.trip.waiverText ?? '', json.trip.waiverHash, json.trip.firmaTemplateId, json.trip.safetyCards)
+      onValidated(json.trip.waiverText ?? '', json.trip.waiverHash, json.trip.firmaTemplateId, json.trip.safetyCards, json.trip.lengthFt, json.trip.boatType, json.trip.stateCode)
     } catch {
       onUpdate({ codeError: 'Connection error. Please try again.' })
     } finally {

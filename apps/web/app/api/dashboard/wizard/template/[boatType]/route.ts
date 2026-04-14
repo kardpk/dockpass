@@ -7,11 +7,16 @@ const VALID_TYPES: BoatTypeKey[] = [
   "motor_yacht",
   "fishing_charter",
   "catamaran",
+  "power_catamaran",
   "pontoon",
   "snorkel_dive",
   "sailing_yacht",
   "speedboat",
+  "wake_sports",
   "sunset_cruise",
+  "center_console",
+  "houseboat",
+  "pwc",
   "other",
 ];
 

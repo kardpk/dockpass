@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, MessageCircle, Share2, Check, Copy } from 'lucide-react'
+import { FileText, MessageCircle, Share2, Check, Copy, Anchor } from 'lucide-react'
 import type { TripStatus } from '@/types'
 
 interface TripActionBarProps {
@@ -17,6 +17,7 @@ export function TripActionBar({
 }: TripActionBarProps) {
   const [copiedMsg, setCopiedMsg] = useState(false)
   const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [downloadingCsv, setDownloadingCsv] = useState(false)
   const [generatingSnapshot, setGeneratingSnapshot] = useState(false)
   const [snapshotUrl, setSnapshotUrl] = useState<string | null>(initialSnapshotUrl || null)
   const [copiedSnapshot, setCopiedSnapshot] = useState(false)
@@ -39,6 +40,27 @@ export function TripActionBar({
       alert('Download failed. Please try again.')
     } finally {
       setDownloadingPdf(false)
+    }
+  }
+
+  async function downloadUscgCsv() {
+    setDownloadingCsv(true)
+    try {
+      const res = await fetch(`/api/dashboard/uscg-manifest/${tripId}`)
+      if (!res.ok) throw new Error()
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `USCG_Manifest_${tripId}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      alert('Download failed. Please try again.')
+    } finally {
+      setDownloadingCsv(false)
     }
   }
 
@@ -109,7 +131,7 @@ export function TripActionBar({
         )}
 
         {/* Action buttons */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           <button
             onClick={downloadPdf}
             disabled={downloadingPdf}
@@ -124,6 +146,22 @@ export function TripActionBar({
           >
             <FileText size={18} />
             {downloadingPdf ? 'Generating...' : 'Manifest PDF'}
+          </button>
+
+          <button
+            onClick={downloadUscgCsv}
+            disabled={downloadingCsv}
+            className="
+              flex flex-col items-center justify-center gap-1
+              h-[60px] rounded-[12px]
+              bg-[#E8F9F4] border border-[#1D9E75]/30
+              text-[#1D9E75] hover:bg-[#D0F0E6]
+              transition-colors disabled:opacity-40
+              text-[11px] font-medium
+            "
+          >
+            <Anchor size={18} />
+            {downloadingCsv ? 'Generating...' : 'USCG CSV'}
           </button>
 
           <button

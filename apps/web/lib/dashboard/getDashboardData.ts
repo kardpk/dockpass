@@ -37,11 +37,14 @@ export async function getDashboardHomeData(
         ),
         guests (
           id, full_name, language_preference,
-          dietary_requirements, is_non_swimmer,
+          dietary_requirements, date_of_birth, is_non_swimmer,
+          emergency_contact_name, emergency_contact_phone,
           is_seasickness_prone, waiver_signed,
           waiver_signed_at, approval_status,
           checked_in_at, created_at,
           safety_acknowledgments, waiver_text_hash,
+          fwc_license_url, livery_briefing_verified_at,
+          livery_briefing_verified_by,
           guest_addon_orders (
             quantity, total_cents,
             addons ( name, emoji )
@@ -158,8 +161,11 @@ export function shapeTripDetail(raw: Record<string, unknown>): OperatorTripDetai
     id: g.id as string,
     customerId: (g.customer_id as string | null) ?? null,
     fullName: (g.full_name as string) ?? '',
+    emergencyContactName: (g.emergency_contact_name as string | null) ?? null,
+    emergencyContactPhone: (g.emergency_contact_phone as string | null) ?? null,
     languagePreference: (g.language_preference as string) ?? 'en',
     dietaryRequirements: (g.dietary_requirements as string | null) ?? null,
+    dateOfBirth: (g.date_of_birth as string | null) ?? null,
     isNonSwimmer: (g.is_non_swimmer as boolean) ?? false,
     isSeaSicknessProne: (g.is_seasickness_prone as boolean) ?? false,
     waiverSigned: (g.waiver_signed as boolean) ?? false,
@@ -169,6 +175,9 @@ export function shapeTripDetail(raw: Record<string, unknown>): OperatorTripDetai
     createdAt: (g.created_at as string) ?? '',
     safetyAcknowledgments: (g.safety_acknowledgments as { topic_key: string; acknowledgedAt: string }[]) ?? [],
     waiverTextHash: (g.waiver_text_hash as string | null) ?? null,
+    fwcLicenseUrl: (g.fwc_license_url as string | null) ?? null,
+    liveryBriefingVerifiedAt: (g.livery_briefing_verified_at as string | null) ?? null,
+    liveryBriefingVerifiedBy: (g.livery_briefing_verified_by as string | null) ?? null,
     addonOrders: ((g.guest_addon_orders ?? []) as Record<string, unknown>[]).map((o) => ({
       addonName: ((o.addons as Record<string, unknown>)?.name as string) ?? '',
       emoji: ((o.addons as Record<string, unknown>)?.emoji as string) ?? '🎁',
@@ -250,9 +259,25 @@ export function buildAddonSummary(
 
 // ─── Build captain alerts ────────────────────
 export function buildCaptainAlerts(guests: DashboardGuest[]) {
+  const now = Date.now()
+  const YEAR_MS = 31557600000 // 365.25 days in ms
+
+  function getAge(dob: string | null): number | null {
+    if (!dob) return null
+    const ms = now - new Date(dob).getTime()
+    return ms / YEAR_MS
+  }
+
   return {
     nonSwimmers: guests.filter(g => g.isNonSwimmer).length,
-    children: 0,
+    children: guests.filter(g => {
+      const age = getAge(g.dateOfBirth)
+      return age !== null && age < 18
+    }).length,
+    childrenUnder6: guests.filter(g => {
+      const age = getAge(g.dateOfBirth)
+      return age !== null && age < 6
+    }).length,
     seasicknessProne: guests.filter(g => g.isSeaSicknessProne).length,
     dietary: guests
       .filter(g => g.dietaryRequirements)

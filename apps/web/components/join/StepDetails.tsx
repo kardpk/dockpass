@@ -1,16 +1,25 @@
 'use client'
 
-import { useState } from 'react'
-import { ChevronLeft } from 'lucide-react'
+import { useState, useMemo, useCallback } from 'react'
+import { ChevronLeft, Upload, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { z } from 'zod'
 import { cn } from '@/lib/utils/cn'
 import { SUPPORTED_LANGUAGES, LANGUAGE_FLAGS, LANGUAGE_NAMES } from '@/lib/i18n/constants'
 import type { JoinFlowState } from '@/types'
+import type { ComplianceRules } from '@/lib/compliance/rules'
+import { calculateAge } from '@/lib/compliance/rules'
 
 const detailsSchema = z.object({
   fullName: z.string().min(2, 'Name too short').max(100),
   emergencyContactName: z.string().min(2, 'Required').max(100),
   emergencyContactPhone: z.string().min(7, 'Invalid phone').max(20),
+})
+
+const relaxedDetailsSchema = z.object({
+  fullName: z.string().min(2, 'Name too short').max(100),
+  emergencyContactName: z.string().max(100).optional(),
+  emergencyContactPhone: z.string().max(20).optional(),
 })
 
 const LANGUAGE_OPTIONS = SUPPORTED_LANGUAGES.map((code) => ({
@@ -24,26 +33,106 @@ interface StepDetailsProps {
   onUpdate: (p: Partial<JoinFlowState>) => void
   onNext: () => void
   onBack: () => void
+  charterType: 'captained' | 'bareboat' | 'both'
+  tripSlug: string
+  complianceRules?: ComplianceRules | null
+  isRelaxedTrip?: boolean
 }
 
-export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProps) {
+/**
+ * Florida FWC Chapter 327: Boat operators born on or after Jan 1, 1988
+ * must hold an FWC-approved Boater Safety ID for bareboat/livery charters.
+ */
+function requiresFwcLicense(dob: string, charterType: string): boolean {
+  if (charterType === 'captained') return false
+  if (!dob) return false
+  return new Date(dob) >= new Date('1988-01-01')
+}
+
+export function StepDetails({ state, onUpdate, onNext, onBack, charterType, tripSlug, complianceRules, isRelaxedTrip = false }: StepDetailsProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showOptional, setShowOptional] = useState(false)
 
+  const isBareboat = charterType === 'bareboat' || charterType === 'both'
+  const fwcRequired = useMemo(
+    () => requiresFwcLicense(state.dateOfBirth, charterType),
+    [state.dateOfBirth, charterType]
+  )
+
+  // California Hard Age-Gate: block underage PWC operators
+  const isUnderage = useMemo(() => {
+    const minAge = complianceRules?.age_gates?.min_driver_age
+    if (!state.dateOfBirth || !minAge) return false
+    return calculateAge(state.dateOfBirth) < minAge
+  }, [state.dateOfBirth, complianceRules])
+
+  // Block continue if FWC license required but not uploaded, OR underage age-gate triggered
+  const canContinue = (!fwcRequired || !!state.fwcLicenseUrl) && !isUnderage
+
+  const handleFwcUpload = useCallback(async (file: File) => {
+    if (state.fwcLicenseUploading) return
+    onUpdate({ fwcLicenseUploading: true })
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch(`/api/trips/${tripSlug}/upload-fwc`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Upload failed' }))
+        setErrors(prev => ({ ...prev, fwcLicense: err.error }))
+        return
+      }
+
+      const { data } = await res.json()
+      onUpdate({ fwcLicenseUrl: data.url })
+      setErrors(prev => {
+        const next = { ...prev }
+        delete next.fwcLicense
+        return next
+      })
+    } catch {
+      setErrors(prev => ({ ...prev, fwcLicense: 'Upload failed. Please try again.' }))
+    } finally {
+      onUpdate({ fwcLicenseUploading: false })
+    }
+  }, [state.fwcLicenseUploading, tripSlug, onUpdate])
+
   function handleNext() {
-    const result = detailsSchema.safeParse({
+    const schema = isRelaxedTrip ? relaxedDetailsSchema : detailsSchema
+    const result = schema.safeParse({
       fullName: state.fullName,
-      emergencyContactName: state.emergencyContactName,
-      emergencyContactPhone: state.emergencyContactPhone,
+      emergencyContactName: state.emergencyContactName || undefined,
+      emergencyContactPhone: state.emergencyContactPhone || undefined,
     })
+
+    const fieldErrors: Record<string, string> = {}
+
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {}
       for (const [field, msgs] of Object.entries(result.error.flatten().fieldErrors)) {
         fieldErrors[field] = msgs[0] ?? 'Invalid'
       }
+    }
+
+    // Bareboat: DOB is required
+    if (isBareboat && !state.dateOfBirth) {
+      fieldErrors.dateOfBirth = 'Date of birth is required for bareboat charters'
+    }
+
+    // FWC license required but not uploaded
+    if (fwcRequired && !state.fwcLicenseUrl) {
+      fieldErrors.fwcLicense = 'FWC Boater Safety ID is required'
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors)
       return
     }
+
     setErrors({})
     onNext()
   }
@@ -59,7 +148,14 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
 
       <div>
         <h2 className="text-[20px] font-bold text-[#0D1B2A] mb-1">Your details</h2>
-        <p className="text-[14px] text-[#6B7C93]">Required for safety at sea</p>
+        <p className="text-[14px] text-[#6B7C93]">
+          {isRelaxedTrip ? 'For a safe day on the water' : 'Required for safety at sea'}
+        </p>
+        {isRelaxedTrip && (
+          <p className="text-[12px] text-[#0C447C] mt-1 bg-[#E8F2FB] px-3 py-1.5 rounded-lg inline-block">
+            🎉 This is a private trip — only your name is required
+          </p>
+        )}
       </div>
 
       {/* Full name */}
@@ -77,8 +173,8 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
       {/* Emergency contact name */}
       <FormField
         label="Emergency contact name"
-        required
-        helper="Someone not on the boat"
+        required={!isRelaxedTrip}
+        helper={isRelaxedTrip ? 'recommended but optional' : 'Someone not on the boat'}
         error={errors.emergencyContactName}
       >
         <input
@@ -94,7 +190,7 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
       {/* Emergency contact phone */}
       <FormField
         label="Emergency contact phone"
-        required
+        required={!isRelaxedTrip}
         error={errors.emergencyContactPhone}
       >
         <input
@@ -106,6 +202,158 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
           className={inputClass(!!errors.emergencyContactPhone)}
         />
       </FormField>
+
+      {/* ── Bareboat: DOB is REQUIRED (shown above optional toggle) ── */}
+      {isBareboat && (
+        <div className="space-y-4">
+          <FormField
+            label="Date of birth"
+            required
+            helper="Required for bareboat charter (FWC compliance)"
+            error={errors.dateOfBirth}
+          >
+            <input
+              type="date"
+              value={state.dateOfBirth}
+              onChange={e => onUpdate({ dateOfBirth: e.target.value })}
+              className={inputClass(!!errors.dateOfBirth)}
+            />
+          </FormField>
+
+          {/* ── California Hard Age-Gate (animated reveal) ── */}
+          <AnimatePresence>
+            {isUnderage && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+              >
+                <div className="mt-4 p-4 bg-[#FEE2E2] border-2 border-[#DC2626] rounded-[14px] space-y-2">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle size={20} className="text-[#DC2626] flex-shrink-0 mt-0.5 animate-pulse" />
+                    <div>
+                      <p className="text-[14px] font-bold text-[#DC2626]">
+                        ⛔ COMPLIANCE BLOCK
+                      </p>
+                      <p className="text-[13px] text-[#7F1D1D] leading-relaxed mt-1">
+                        State law requires the primary operator to be at least{' '}
+                        <strong>{complianceRules?.age_gates?.min_driver_age}</strong> years old
+                        for this vessel type. You cannot proceed with this booking.
+                      </p>
+                      <p className="text-[12px] text-[#991B1B] mt-2 font-medium">
+                        CA Harbors &amp; Navigation Code — Motorized vessel age restriction
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── FWC License Upload Gate (animated reveal) ── */}
+          <AnimatePresence>
+            {fwcRequired && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+              >
+                <div className="p-4 bg-[#FFF8E1] border border-[#FFD54F] rounded-[14px] space-y-3">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle size={20} className="text-[#F59E0B] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[14px] font-semibold text-[#92400E]">
+                        FWC Boater Safety ID Required
+                      </p>
+                      <p className="text-[13px] text-[#92400E]/80 mt-1 leading-relaxed">
+                        Florida law (Chapter 327) requires boaters born on or after
+                        January 1, 1988 to hold an approved Boating Safety Education ID
+                        to operate a vessel.
+                      </p>
+                    </div>
+                  </div>
+
+                  {state.fwcLicenseUrl ? (
+                    /* ── Upload Success ── */
+                    <div className="flex items-center gap-3 p-3 bg-[#ECFDF5] border border-[#6EE7B7] rounded-[10px]">
+                      <CheckCircle size={20} className="text-[#059669] flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-[#065F46]">
+                          FWC Boater Safety ID uploaded
+                        </p>
+                        <p className="text-[12px] text-[#6B7C93] truncate">
+                          Will be verified by marina staff on arrival
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onUpdate({ fwcLicenseUrl: null })}
+                        className="text-[12px] text-[#6B7C93] underline"
+                      >
+                        Replace
+                      </button>
+                    </div>
+                  ) : (
+                    /* ── Upload Input ── */
+                    <div className="space-y-2">
+                      <label
+                        className={cn(
+                          'flex items-center justify-center gap-2 w-full h-[52px] rounded-[10px] border-2 border-dashed cursor-pointer transition-all',
+                          state.fwcLicenseUploading
+                            ? 'border-[#FFD54F] bg-[#FFF8E1] cursor-wait'
+                            : 'border-[#F59E0B] bg-white hover:bg-[#FFFBEB]'
+                        )}
+                      >
+                        {state.fwcLicenseUploading ? (
+                          <>
+                            <Loader2 size={18} className="animate-spin text-[#F59E0B]" />
+                            <span className="text-[14px] font-medium text-[#92400E]">Uploading…</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={18} className="text-[#F59E0B]" />
+                            <span className="text-[14px] font-medium text-[#92400E]">
+                              📸 Upload photo of your card
+                            </span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/heic"
+                          className="hidden"
+                          disabled={state.fwcLicenseUploading}
+                          onChange={e => {
+                            const file = e.target.files?.[0]
+                            if (file) handleFwcUpload(file)
+                          }}
+                        />
+                      </label>
+
+                      {errors.fwcLicense && (
+                        <p className="text-[12px] text-[#D63B3B]">{errors.fwcLicense}</p>
+                      )}
+
+                      <p className="text-[12px] text-[#92400E]/70 text-center">
+                        No card?{' '}
+                        <a
+                          href="https://myfwc.com/boating/safety-education/courses/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0C447C] underline"
+                        >
+                          Complete the free FWC course →
+                        </a>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Optional info toggle */}
       <button
@@ -129,15 +377,17 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
             />
           </FormField>
 
-          {/* Date of birth */}
-          <FormField label="Date of birth" helper="optional, for course requirements">
-            <input
-              type="date"
-              value={state.dateOfBirth}
-              onChange={e => onUpdate({ dateOfBirth: e.target.value })}
-              className={inputClass(false)}
-            />
-          </FormField>
+          {/* Date of birth — only show here if NOT bareboat (already shown above) */}
+          {!isBareboat && (
+            <FormField label="Date of birth" helper="optional, for course requirements">
+              <input
+                type="date"
+                value={state.dateOfBirth}
+                onChange={e => onUpdate({ dateOfBirth: e.target.value })}
+                className={inputClass(false)}
+              />
+            </FormField>
+          )}
 
           {/* Language preference */}
           <FormField label="Preferred language">
@@ -215,7 +465,13 @@ export function StepDetails({ state, onUpdate, onNext, onBack }: StepDetailsProp
 
       <button
         onClick={handleNext}
-        className="w-full h-[56px] rounded-[12px] bg-[#0C447C] text-white font-semibold text-[16px] hover:bg-[#093a6b] transition-colors active:scale-[0.98]"
+        disabled={!canContinue && fwcRequired}
+        className={cn(
+          'w-full h-[56px] rounded-[12px] font-semibold text-[16px] transition-all active:scale-[0.98]',
+          !canContinue && fwcRequired
+            ? 'bg-[#D0E2F3] text-[#6B7C93] cursor-not-allowed'
+            : 'bg-[#0C447C] text-white hover:bg-[#093a6b]'
+        )}
       >
         Continue →
       </button>

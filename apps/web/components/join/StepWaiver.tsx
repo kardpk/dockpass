@@ -16,11 +16,12 @@ interface StepWaiverProps {
   tripSlug: string
   onNext: (requiresCourse: boolean) => void
   onBack: () => void
+  isRelaxedTrip?: boolean
 }
 
 export function StepWaiver({
   waiverText, waiverHash, firmaTemplateId, state, onUpdate,
-  tripSlug, onNext, onBack,
+  tripSlug, onNext, onBack, isRelaxedTrip = false,
 }: StepWaiverProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
@@ -86,6 +87,7 @@ export function StepWaiver({
           // Firma-signed waivers use the literal marker; legacy uses the SHA-256 hash
           waiverTextHash: firmaTemplateId ? 'firma_template' : waiverHash,
           turnstileToken: s.turnstileToken,
+          fwcLicenseUrl: s.fwcLicenseUrl ?? null,
         }),
       })
 
@@ -96,7 +98,7 @@ export function StepWaiver({
         return
       }
 
-      const { guestId, qrToken, requiresCourse } = json.data
+      const { guestId, qrToken, requiresCourse, approvalStatus } = json.data
 
       try {
         localStorage.setItem(`dp-guest-${tripSlug}`, JSON.stringify({
@@ -109,7 +111,7 @@ export function StepWaiver({
         }))
       } catch { /* Private mode ignore */ }
 
-      onUpdate({ isSubmitting: false, guestId, qrToken, requiresCourse, waiverTextHash: waiverHash })
+      onUpdate({ isSubmitting: false, guestId, qrToken, requiresCourse, approvalStatus: approvalStatus ?? null, waiverTextHash: waiverHash })
       onNext(requiresCourse)
     } catch {
       onUpdate({ isSubmitting: false, submitError: 'Connection error. Please try again.' })
@@ -202,9 +204,35 @@ export function StepWaiver({
       </button>
 
       <h2 className="text-[20px] font-bold text-[#0D1B2A] mb-1">
-        Sign the liability waiver
+        {isRelaxedTrip ? 'Acknowledgment' : 'Sign the liability waiver'}
       </h2>
-      <p className="text-[14px] text-[#6B7C93] mb-4">Please read carefully before signing</p>
+      <p className="text-[14px] text-[#6B7C93] mb-4">
+        {isRelaxedTrip ? 'A quick note for your safety' : 'Please read carefully before signing'}
+      </p>
+
+      {/* Skip button for private/family trips */}
+      {isRelaxedTrip && !firmaTemplateId && (
+        <button
+          type="button"
+          onClick={() => {
+            onUpdate({
+              waiverAgreed: true,
+              waiverScrolled: true,
+              signatureText: 'Skipped — Private Trip',
+            })
+            handleSign({
+              ...state,
+              waiverAgreed: true,
+              waiverScrolled: true,
+              signatureText: 'Skipped — Private Trip',
+            })
+          }}
+          disabled={state.isSubmitting}
+          className="w-full mb-4 py-3 px-4 rounded-[12px] border border-[#D0E2F3] bg-[#F5F8FC] text-[14px] text-[#0C447C] font-medium hover:bg-[#E8F2FB] transition-colors"
+        >
+          🎉 Skip waiver — this is a private trip
+        </button>
+      )}
 
       {/* Embedded Firma Editor */}
       {firmaTemplateId ? (

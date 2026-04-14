@@ -92,17 +92,46 @@ export function SignupForm() {
     }
   }
 
+  const inputClasses = `
+    w-full h-[48px] px-4 rounded-[4px]
+    bg-white/[0.04] border border-white/[0.12]
+    text-[15px] font-normal text-white
+    placeholder:text-white/20
+    focus:border-[#B8882A] focus:outline-none
+    transition-colors
+  `;
+
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <h1 className="text-h1 text-dark-text">Start your free trial</h1>
-      <p className="text-body text-grey-text mt-tight">
-        14 days free. No credit card.
+      {/* Kicker */}
+      <div className="flex items-center gap-[10px] mb-3">
+        <span className="w-[24px] h-[1px] bg-[#B8882A]" />
+        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#B8882A]">
+          14-day free trial
+        </span>
+      </div>
+
+      {/* Heading */}
+      <h1
+        className="text-[clamp(28px,4vw,38px)] font-bold leading-[1.08] tracking-[-0.025em] text-white mb-2"
+        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+      >
+        Start your <em className="italic text-[#B8882A]">free trial.</em>
+      </h1>
+      <p
+        className="text-[15px] font-normal text-[#9AADC4] mb-8 leading-relaxed"
+        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic" }}
+      >
+        Set up your first vessel in 15 minutes. No credit card.
       </p>
 
-      <div className="mt-section flex flex-col gap-page">
+      <div className="flex flex-col gap-5">
         {/* Full name */}
         <div>
-          <label htmlFor="fullName" className="text-label text-dark-text block mb-micro">
+          <label
+            htmlFor="fullName"
+            className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[#5A7090] block mb-2"
+          >
             Full name
           </label>
           <input
@@ -112,30 +141,39 @@ export function SignupForm() {
             required
             placeholder="Captain Conrad Rivera"
             onBlur={(e) => validateField("fullName", e.target.value)}
-            className="w-full h-[44px] px-standard border border-border rounded-input text-body text-dark-text placeholder:text-grey-text/50 focus:border-border-dark focus:outline-none transition-colors"
+            className={inputClasses}
           />
           {errors.fullName && (
-            <p className="text-[12px] text-error-text mt-micro">{errors.fullName}</p>
+            <p className="text-[12px] text-[#FF6B6B] mt-1.5">{errors.fullName}</p>
           )}
         </div>
 
         {/* Company name */}
         <div>
-          <label htmlFor="companyName" className="text-label text-dark-text block mb-micro">
+          <label
+            htmlFor="companyName"
+            className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[#5A7090] block mb-2"
+          >
             Company or boat name
+            <span className="font-normal normal-case tracking-normal ml-2 text-[#5A7090]/60">
+              optional
+            </span>
           </label>
           <input
             id="companyName"
             name="companyName"
             type="text"
-            placeholder="Conrad Charter Co. (optional)"
-            className="w-full h-[44px] px-standard border border-border rounded-input text-body text-dark-text placeholder:text-grey-text/50 focus:border-border-dark focus:outline-none transition-colors"
+            placeholder="Conrad Charter Co."
+            className={inputClasses}
           />
         </div>
 
         {/* Email */}
         <div>
-          <label htmlFor="email" className="text-label text-dark-text block mb-micro">
+          <label
+            htmlFor="email"
+            className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[#5A7090] block mb-2"
+          >
             Email address
           </label>
           <input
@@ -146,16 +184,19 @@ export function SignupForm() {
             autoComplete="email"
             placeholder="hello@yourboat.com"
             onBlur={(e) => validateField("email", e.target.value)}
-            className="w-full h-[44px] px-standard border border-border rounded-input text-body text-dark-text placeholder:text-grey-text/50 focus:border-border-dark focus:outline-none transition-colors"
+            className={inputClasses}
           />
           {errors.email && (
-            <p className="text-[12px] text-error-text mt-micro">{errors.email}</p>
+            <p className="text-[12px] text-[#FF6B6B] mt-1.5">{errors.email}</p>
           )}
         </div>
 
         {/* Password */}
         <div>
-          <label htmlFor="password" className="text-label text-dark-text block mb-micro">
+          <label
+            htmlFor="password"
+            className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[#5A7090] block mb-2"
+          >
             Password
           </label>
           <div className="relative">
@@ -166,27 +207,27 @@ export function SignupForm() {
               required
               placeholder="Min 8 characters"
               onBlur={(e) => validateField("password", e.target.value)}
-              className="w-full h-[44px] px-standard pr-[44px] border border-border rounded-input text-body text-dark-text placeholder:text-grey-text/50 focus:border-border-dark focus:outline-none transition-colors"
+              className={`${inputClasses} pr-12`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-grey-text hover:text-dark-text transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A7090] hover:text-[#9AADC4] transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
           {errors.password && (
-            <p className="text-[12px] text-error-text mt-micro">{errors.password}</p>
+            <p className="text-[12px] text-[#FF6B6B] mt-1.5">{errors.password}</p>
           )}
         </div>
       </div>
 
       {/* Server error */}
       {serverError && (
-        <div className="mt-page p-standard bg-error-bg rounded-chip">
-          <p className="text-[13px] text-error-text">{serverError}</p>
+        <div className="mt-4 p-3 bg-[rgba(214,59,59,0.1)] border border-[rgba(214,59,59,0.3)] rounded-[4px]">
+          <p className="text-[13px] text-[#FF6B6B]">{serverError}</p>
         </div>
       )}
 
@@ -194,7 +235,16 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full h-[52px] mt-section bg-navy text-white font-medium rounded-btn hover:bg-mid-blue transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+        className="
+          w-full h-[52px] mt-8
+          bg-[#B8882A] text-[#07101C]
+          font-semibold text-[14px] tracking-[0.04em]
+          rounded-[3px] border-none cursor-pointer
+          hover:bg-[#D4A84B] transition-all duration-200
+          disabled:opacity-50 disabled:cursor-not-allowed
+          flex items-center justify-center
+          hover:translate-y-[-1px]
+        "
       >
         {loading ? (
           <AnchorLoader size="sm" color="white" />
@@ -203,13 +253,37 @@ export function SignupForm() {
         )}
       </button>
 
+      {/* Divider */}
+      <div className="flex items-center gap-4 my-6">
+        <div className="flex-1 h-[1px] bg-white/[0.07]" />
+        <span className="text-[11px] font-normal text-[#5A7090] tracking-[0.1em]">
+          OR
+        </span>
+        <div className="flex-1 h-[1px] bg-white/[0.07]" />
+      </div>
+
       {/* Footer link */}
-      <p className="text-label text-grey-text text-center mt-page">
+      <p className="text-[14px] text-[#9AADC4] text-center">
         Already have an account?{" "}
-        <Link href="/login" className="text-navy hover:underline">
+        <Link
+          href="/login"
+          className="text-[#B8882A] hover:text-[#D4A84B] transition-colors no-underline font-medium"
+        >
           Sign in →
         </Link>
       </p>
+
+      {/* Compliance badges */}
+      <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+        {["ESIGN Act", "USCG Compliant", "GDPR Ready"].map((badge) => (
+          <span
+            key={badge}
+            className="text-[10px] font-medium tracking-[0.08em] uppercase text-[#B8882A] border border-[rgba(184,136,42,0.28)] bg-[rgba(184,136,42,0.1)] px-[10px] py-[4px] rounded-[3px]"
+          >
+            {badge}
+          </span>
+        ))}
+      </div>
     </form>
   );
 }

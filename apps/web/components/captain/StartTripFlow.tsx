@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { AnchorLoader } from '@/components/ui/AnchorLoader'
 import { cn } from '@/lib/utils/cn'
 import { formatTripDate, formatTime } from '@/lib/utils/format'
 import { SlideToConfirm } from '@/components/ui/SlideToConfirm'
+import { getComplianceRules, isPartyBoatTriggered } from '@/lib/compliance/rules'
 import type { CaptainSnapshotData } from '@/types'
 
 interface StartTripFlowProps {
@@ -32,9 +33,22 @@ export function StartTripFlow({
   const [isStarting, setIsStarting] = useState(false)
   const [startError, setStartError] = useState('')
   const [sliderComplete, setSliderComplete] = useState(false)
+  const [hasPartyBoatLicense, setHasPartyBoatLicense] = useState(false)
 
   const unsignedGuests = snapshot.guests.filter(g => !g.waiverSigned)
   const allChecked = checked.size === CHECKLIST_ITEMS.length
+
+  // Texas Party Boat Act: Dynamic trigger based on state, length, and guest count
+  const complianceRules = useMemo(
+    () => getComplianceRules(snapshot.stateCode, snapshot.boatType, snapshot.charterType),
+    [snapshot.stateCode, snapshot.boatType, snapshot.charterType]
+  )
+  const partyBoatTriggered = useMemo(
+    () => isPartyBoatTriggered(complianceRules, snapshot.lengthFt, snapshot.guests.length),
+    [complianceRules, snapshot.lengthFt, snapshot.guests.length]
+  )
+  // Block departure if party boat triggered but captain hasn't attested
+  const canSlide = allChecked && (!partyBoatTriggered || hasPartyBoatLicense)
 
   function toggleCheck(id: ChecklistId) {
     setChecked(prev => {
@@ -46,7 +60,7 @@ export function StartTripFlow({
   }
 
   function handleSliderComplete() {
-    if (!allChecked) return
+    if (!canSlide) return
     setSliderComplete(true)
     setShowConfirm(true)
   }
@@ -204,6 +218,47 @@ export function StartTripFlow({
           </div>
         </div>
 
+        {/* ── Texas Party Boat Act Attestation ────────────────────── */}
+        {partyBoatTriggered && (
+          <div className="p-5 bg-[#FFFBEB] rounded-[16px] border-2 border-[#F59E0B] border-opacity-40">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[20px]">🤠</span>
+              <h4 className="text-[14px] font-bold text-[#92400E] uppercase tracking-wider">
+                Texas Party Boat Act Triggered
+              </h4>
+            </div>
+            <p className="text-[13px] text-[#78350F] leading-relaxed mb-4">
+              This vessel exceeds 30ft and is carrying more than 6 passengers.
+              Texas Water Safety Act requires an annual TPWD inspection and a licensed operator.
+            </p>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <div className="mt-0.5 flex-shrink-0">
+                <div
+                  onClick={() => setHasPartyBoatLicense(!hasPartyBoatLicense)}
+                  className={cn(
+                    'w-6 h-6 rounded-[6px] border-2 flex items-center justify-center',
+                    'transition-all duration-150',
+                    hasPartyBoatLicense
+                      ? 'bg-[#F59E0B] border-[#F59E0B]'
+                      : 'bg-white border-[#D97706]'
+                  )}
+                >
+                  {hasPartyBoatLicense && (
+                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="2"
+                            strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-[13px] text-[#78350F] leading-relaxed">
+                I certify under penalty of law that I hold a valid Texas Party Boat
+                Operator License and this vessel displays a current TPWD inspection decal.
+              </span>
+            </label>
+          </div>
+        )}
+
         {/* Error */}
         {startError && (
           <div className="p-4 bg-[#FDEAEA] rounded-[12px]">
@@ -216,7 +271,7 @@ export function StartTripFlow({
 
       {/* Slider CTA */}
       <div className="px-5 pb-10 pt-4 bg-white border-t border-[#D0E2F3]">
-        {allChecked ? (
+        {canSlide ? (
           <SlideToConfirm
             label="SLIDE TO START TRIP"
             onComplete={handleSliderComplete}
@@ -229,7 +284,9 @@ export function StartTripFlow({
             bg-[#D0E2F3] flex items-center justify-center
           ">
             <span className="text-[15px] font-semibold text-[#6B7C93]">
-              Complete checklist to continue
+              {!allChecked
+                ? 'Complete checklist to continue'
+                : 'Complete compliance attestation above'}
             </span>
           </div>
         )}

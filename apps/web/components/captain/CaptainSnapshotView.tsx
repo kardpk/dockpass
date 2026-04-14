@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import { formatTripDate, formatTime, formatDuration } from '@/lib/utils/format'
 import { SnapshotAlerts } from './SnapshotAlerts'
 import { SnapshotGuestList } from './SnapshotGuestList'
@@ -8,8 +9,19 @@ import { SnapshotAddonSummary } from './SnapshotAddonSummary'
 import { StartTripFlow } from './StartTripFlow'
 import { EndTripFlow } from './EndTripFlow'
 import { CaptainChatPanel } from './CaptainChatPanel'
+import { CrewManifestPanel } from './CrewManifestPanel'
+import { TripNotesPanel } from './TripNotesPanel'
+import { HeadCountConfirm } from './HeadCountConfirm'
+import { downloadFloatPlan } from '@/lib/captain/floatPlan'
 import { useTripGuests } from '@/hooks/useTripGuests'
-import type { CaptainSnapshotData, TripStatus, DashboardGuest } from '@/types'
+import { getComplianceProfile, getComplianceLevel } from '@/lib/compliance/tripCompliance'
+import type { CaptainSnapshotData, TripStatus, DashboardGuest, TripPurpose } from '@/types'
+
+// Dynamic import — html5-qrcode uses browser APIs that break SSR
+const QrBoardingScanner = dynamic(
+  () => import('./QrBoardingScanner').then(m => ({ default: m.QrBoardingScanner })),
+  { ssr: false }
+)
 
 interface CaptainSnapshotViewProps {
   snapshot: CaptainSnapshotData
@@ -28,23 +40,30 @@ export function CaptainSnapshotView({
   const [showStartFlow, setShowStartFlow] = useState(false)
   const [showEndFlow, setShowEndFlow] = useState(false)
   const [liveSnapshot, setLiveSnapshot] = useState(snapshot)
+  const [showScanner, setShowScanner] = useState(false)
   // Realtime guest subscription adapter
   const initialDashboardGuests = useMemo<DashboardGuest[]>(() => 
     snapshot.guests.map(g => ({
       id: g.id,
       fullName: g.fullName,
+      emergencyContactName: null,
+      emergencyContactPhone: null,
       languagePreference: 'en',
       dietaryRequirements: null,
+      dateOfBirth: g.dateOfBirth ?? null,
       isNonSwimmer: false,
       isSeaSicknessProne: false,
       waiverSigned: g.waiverSigned,
       waiverSignedAt: null,
-      approvalStatus: 'auto_approved',
+      approvalStatus: (g as Record<string, unknown>).approvalStatus as DashboardGuest['approvalStatus'] ?? 'auto_approved',
       checkedInAt: null,
       createdAt: '',
       customerId: null,
       safetyAcknowledgments: [],
       waiverTextHash: g.waiverTextHash ?? null,
+      fwcLicenseUrl: (g as Record<string, unknown>).fwcLicenseUrl as string ?? null,
+      liveryBriefingVerifiedAt: (g as Record<string, unknown>).liveryBriefingVerifiedAt as string ?? null,
+      liveryBriefingVerifiedBy: (g as Record<string, unknown>).liveryBriefingVerifiedBy as string ?? null,
       addonOrders: []
     })), [snapshot.guests])
 
@@ -57,9 +76,14 @@ export function CaptainSnapshotView({
       if (update) {
         return {
           ...guest,
+          dateOfBirth: update.dateOfBirth ?? guest.dateOfBirth ?? null,
           waiverSigned: update.waiverSigned,
           waiverTextHash: update.waiverTextHash ?? guest.waiverTextHash,
           safetyAckCount: update.safetyAcknowledgments?.length ?? guest.safetyAckCount,
+          approvalStatus: update.approvalStatus ?? guest.approvalStatus ?? 'auto_approved',
+          fwcLicenseUrl: update.fwcLicenseUrl ?? guest.fwcLicenseUrl ?? null,
+          liveryBriefingVerifiedAt: update.liveryBriefingVerifiedAt ?? guest.liveryBriefingVerifiedAt ?? null,
+          liveryBriefingVerifiedBy: update.liveryBriefingVerifiedBy ?? guest.liveryBriefingVerifiedBy ?? null,
         }
       }
       return guest
@@ -70,36 +94,56 @@ export function CaptainSnapshotView({
         updated.push({
           id: rt.id,
           fullName: rt.fullName,
+          dateOfBirth: rt.dateOfBirth ?? null,
           waiverSigned: rt.waiverSigned,
           waiverTextHash: rt.waiverTextHash ?? null,
           safetyAckCount: rt.safetyAcknowledgments?.length ?? 0,
           languageFlag: '🌐',
           addonEmojis: [],
+          approvalStatus: rt.approvalStatus ?? 'auto_approved',
+          fwcLicenseUrl: rt.fwcLicenseUrl ?? null,
+          liveryBriefingVerifiedAt: rt.liveryBriefingVerifiedAt ?? null,
+          liveryBriefingVerifiedBy: rt.liveryBriefingVerifiedBy ?? null,
         })
       }
     }
     return updated
   }, [liveSnapshot.guests, realtimeUpdates])
 
-  // ── USCG PRE-DEPARTURE COMPLIANCE COMPUTATION ────────────
+  // ── COMPLIANCE PROFILE (derived from trip purpose) ────────────
+  const compliance = useMemo(
+    () => getComplianceProfile(
+      liveSnapshot.tripPurpose as TripPurpose,
+      liveSnapshot.forceFullCompliance
+    ),
+    [liveSnapshot.tripPurpose, liveSnapshot.forceFullCompliance]
+  )
+  const complianceLevel = useMemo(
+    () => getComplianceLevel(
+      liveSnapshot.tripPurpose as TripPurpose,
+      liveSnapshot.forceFullCompliance
+    ),
+    [liveSnapshot.tripPurpose, liveSnapshot.forceFullCompliance]
+  )
+
   const requiredCards = liveSnapshot.requiredSafetyCards ?? 0
 
   const isReadyToDepart = useMemo(() => {
     if (mergedGuests.length === 0) return false
     return mergedGuests.every(g => {
-      const hasWaiver = g.waiverSigned || g.waiverTextHash === 'firma_template'
-      const hasSafety = (g.safetyAckCount ?? 0) >= requiredCards
+      const hasWaiver = !compliance.waiverRequired || g.waiverSigned || g.waiverTextHash === 'firma_template'
+      const hasSafety = !compliance.safetyBriefingRequired || (g.safetyAckCount ?? 0) >= requiredCards
       return hasWaiver && hasSafety
     })
-  }, [mergedGuests, requiredCards])
+  }, [mergedGuests, requiredCards, compliance])
 
   const nonCompliantCount = useMemo(() =>
     mergedGuests.filter(g => {
-      const hasWaiver = g.waiverSigned || g.waiverTextHash === 'firma_template'
-      const hasSafety = (g.safetyAckCount ?? 0) >= requiredCards
+      const hasWaiver = !compliance.waiverRequired || g.waiverSigned || g.waiverTextHash === 'firma_template'
+      const hasSafety = !compliance.safetyBriefingRequired || (g.safetyAckCount ?? 0) >= requiredCards
       return !(hasWaiver && hasSafety)
     }).length
-  , [mergedGuests, requiredCards])
+  , [mergedGuests, requiredCards, compliance])
 
   // Polling fallback — reduced to 5 minutes since realtime is primary
   useEffect(() => {
@@ -170,12 +214,49 @@ export function CaptainSnapshotView({
               ? 'text-[12px] font-bold bg-[#1D9E75] px-2.5 py-1 rounded-full'
               : 'text-[12px] font-bold bg-white/20 px-2.5 py-1 rounded-full'
           }>
-            {status === 'active' ? '● Active' : 'Upcoming'}
+            {status === 'active' ? '● Active' : status === 'completed' ? '✓ Completed' : 'Upcoming'}
+          </span>
+        </div>
+        {/* Compliance mode badge */}
+        <div className="flex items-center gap-2 mt-1">
+          <span
+            className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+            style={{ backgroundColor: `${complianceLevel.color}22`, color: complianceLevel.color }}
+          >
+            {complianceLevel.icon} {complianceLevel.label}
           </span>
         </div>
         <h1 className="text-[24px] font-bold mb-1">
           {liveSnapshot.boatName}
         </h1>
+
+        {/* Captain badge */}
+        {liveSnapshot.captainName && (
+          <div className="flex items-center gap-2.5 mt-2 mb-2">
+            {liveSnapshot.captainPhotoUrl ? (
+              <img
+                src={liveSnapshot.captainPhotoUrl}
+                alt={liveSnapshot.captainName}
+                className="w-8 h-8 rounded-full border-2 border-white/40 object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-[12px] font-bold">
+                {liveSnapshot.captainName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+              </div>
+            )}
+            <div>
+              <p className="text-[14px] font-semibold leading-tight">
+                {liveSnapshot.captainName}
+              </p>
+              {liveSnapshot.captainLicense && (
+                <p className="text-[11px] text-white/60 leading-tight">
+                  🪪 {liveSnapshot.captainLicense}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2 mt-2">
           {[
             `📅 ${formatTripDate(liveSnapshot.tripDate)}`,
@@ -258,6 +339,21 @@ export function CaptainSnapshotView({
           )
         )}
 
+        {/* ── Head Count Verification (pre-departure) ── */}
+        {status === 'upcoming' && mergedGuests.length > 0 && (
+          <HeadCountConfirm
+            token={token}
+            digitalGuestCount={mergedGuests.length}
+          />
+        )}
+
+        {/* ── Crew Manifest ── */}
+        <CrewManifestPanel
+          crewManifest={liveSnapshot.crewManifest}
+          captainName={liveSnapshot.captainName}
+          captainLicense={liveSnapshot.captainLicense}
+        />
+
         {/* Passenger alerts */}
         <SnapshotAlerts alerts={liveSnapshot.alerts} />
 
@@ -265,6 +361,7 @@ export function CaptainSnapshotView({
         <SnapshotGuestList
           guests={mergedGuests}
           maxGuests={snapshot.maxGuests ?? mergedGuests.length}
+          captainToken={token}
         />
 
         {/* Add-on summary */}
@@ -272,17 +369,43 @@ export function CaptainSnapshotView({
           <SnapshotAddonSummary summary={liveSnapshot.addonSummary} />
         )}
 
+        {/* ── Trip Log (Notes) ── */}
+        <TripNotesPanel token={token} initialNotes="" />
+
         {/* Chat panel (when trip is active) */}
         {status === 'active' && (
           <CaptainChatPanel
             snapshot={liveSnapshot}
-            token={token}
           />
         )}
 
+        {/* ── USCG Float Plan Download ── */}
+        <div className="bg-white rounded-[20px] border border-[#D0E2F3] overflow-hidden">
+          <button
+            onClick={() => downloadFloatPlan(liveSnapshot)}
+            className="
+              w-full px-5 py-4 flex items-center gap-3
+              text-left hover:bg-[#F5F8FC] transition-colors
+            "
+          >
+            <span className="text-[20px]">📋</span>
+            <div className="flex-1">
+              <p className="text-[14px] font-semibold text-[#0D1B2A]">
+                USCG Float Plan
+              </p>
+              <p className="text-[12px] text-[#6B7C93]">
+                Download pre-filled float plan for this trip
+              </p>
+            </div>
+            <span className="text-[11px] font-bold text-[#0C447C] bg-[#E8F2FB] px-3 py-1.5 rounded-full">
+              Download
+            </span>
+          </button>
+        </div>
+
         {/* Refresh indicator */}
         <p className="text-[11px] text-[#6B7C93] text-center">
-          Live updates active · Fallback refresh every 5 min
+          Live updates active · Fallback refresh every 30s
         </p>
 
         {/* Bottom action button */}
@@ -332,6 +455,42 @@ export function CaptainSnapshotView({
           )}
         </div>
       </div>
+
+      {/* ── Floating Scan Mode button (shown when ≥3 guests) ── */}
+      {mergedGuests.length >= 3 && status !== 'completed' && !showStartFlow && !showEndFlow && (
+        <button
+          onClick={() => setShowScanner(true)}
+          className="
+            fixed bottom-6 right-6 z-50
+            w-[56px] h-[56px] rounded-full
+            bg-[#0C447C] text-white shadow-lg
+            flex items-center justify-center
+            hover:bg-[#093a6b] transition-colors
+            active:scale-95
+          "
+          title="Open QR boarding scanner"
+        >
+          <span className="text-[24px]">📱</span>
+        </button>
+      )}
+
+      {/* ── QR Boarding Scanner overlay ── */}
+      {showScanner && (
+        <QrBoardingScanner
+          tripSlug={liveSnapshot.slug}
+          guests={mergedGuests.map(g => ({ id: g.id, fullName: g.fullName, boardedAt: (g as Record<string, unknown>).checkedInAt as string ?? null }))}
+          onClose={() => setShowScanner(false)}
+          onBoarded={() => {
+            // Trigger a refresh of the snapshot
+            fetch(`/api/snapshot/${token}`).then(async res => {
+              if (res.ok) {
+                const json = await res.json()
+                setLiveSnapshot(json.data)
+              }
+            }).catch(() => null)
+          }}
+        />
+      )}
     </div>
   )
 }

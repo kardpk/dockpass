@@ -3,6 +3,10 @@
  *
  * These types are safe to import in BOTH client and server components.
  * The actual template DATA lives in `lib/wizard/boat-templates.ts` (server-only).
+ *
+ * NOTE: Boat-specific safety topics live in `BOAT_SPECIFIC_TOPICS` in
+ * `app/dashboard/boats/new/types.ts` — NOT here. That is the single
+ * canonical source for compliance-tagged safety card generation.
  */
 
 export interface BoatTemplate {
@@ -29,7 +33,6 @@ export interface BoatTemplate {
   standardDonts: string[];
   whatToBring: string[];
   whatNotToBring: string[];
-  safetyPoints: string[];
   waiverTemplate: string;
   suggestedAddons: {
     name: string;

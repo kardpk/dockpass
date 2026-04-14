@@ -17,8 +17,8 @@ export default async function LoginPage(props: {
   return (
     <>
       {errorMessage && (
-        <div className="mb-page p-standard bg-error-bg rounded-chip">
-          <p className="text-[13px] text-error-text">{errorMessage}</p>
+        <div className="mb-5 p-3 bg-[rgba(214,59,59,0.1)] border border-[rgba(214,59,59,0.3)] rounded-[4px]">
+          <p className="text-[13px] text-[#FF6B6B]">{errorMessage}</p>
         </div>
       )}
       <LoginForm />

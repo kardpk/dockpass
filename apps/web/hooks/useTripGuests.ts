@@ -110,8 +110,11 @@ function mapRawGuest(raw: Record<string, unknown>): DashboardGuest {
     id: raw.id as string,
     customerId: (raw.customer_id as string) ?? null,
     fullName: raw.full_name as string,
+    emergencyContactName: (raw.emergency_contact_name as string) ?? null,
+    emergencyContactPhone: (raw.emergency_contact_phone as string) ?? null,
     languagePreference: (raw.language_preference as string) ?? 'en',
     dietaryRequirements: (raw.dietary_requirements as string) ?? null,
+    dateOfBirth: (raw.date_of_birth as string) ?? null,
     isNonSwimmer: (raw.is_non_swimmer as boolean) ?? false,
     isSeaSicknessProne: (raw.is_seasickness_prone as boolean) ?? false,
     waiverSigned: (raw.waiver_signed as boolean) ?? false,
@@ -121,6 +124,9 @@ function mapRawGuest(raw: Record<string, unknown>): DashboardGuest {
     createdAt: raw.created_at as string,
     safetyAcknowledgments: (raw.safety_acknowledgments as { topic_key: string; acknowledgedAt: string }[]) ?? [],
     waiverTextHash: (raw.waiver_text_hash as string) ?? null,
+    fwcLicenseUrl: (raw.fwc_license_url as string) ?? null,
+    liveryBriefingVerifiedAt: (raw.livery_briefing_verified_at as string) ?? null,
+    liveryBriefingVerifiedBy: (raw.livery_briefing_verified_by as string) ?? null,
     addonOrders: [],  // Addons don't come from realtime — they're joined separately
   }
 }

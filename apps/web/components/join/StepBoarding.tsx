@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { Share } from 'lucide-react'
+import { Share, Lock, PartyPopper } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { formatTripDate, formatTime, formatDuration } from '@/lib/utils/format'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
+import { createClient } from '@/lib/supabase/client'
 import type { JoinFlowState } from '@/types'
 
 interface StepBoardingProps {
@@ -28,6 +30,47 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
   const [pwaInstalled, setPwaInstalled] = useState(false)
   const { isSupported, permission, isSubscribing, requestSubscription } = usePushNotifications()
 
+  // ── Realtime Livery Status Transition ────────────────────────────────────
+  // When the dockmaster verifies the livery briefing on the captain's iPad,
+  // Supabase fires a postgres_changes event that flips this state instantly.
+  const [approvalStatus, setApprovalStatus] = useState(
+    state.approvalStatus ?? 'auto_approved'
+  )
+  const [justApproved, setJustApproved] = useState(false)
+
+  const isLiveryPending = approvalStatus === 'pending_livery_briefing'
+
+  // Subscribe to approval_status changes on this guest's row
+  useEffect(() => {
+    if (!state.guestId || approvalStatus !== 'pending_livery_briefing') return
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`guest-approval-${state.guestId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'guests',
+          filter: `id=eq.${state.guestId}`,
+        },
+        (payload: { new: Record<string, unknown> }) => {
+          const newStatus = (payload.new as Record<string, unknown>).approval_status as string
+          if (newStatus === 'approved') {
+            setJustApproved(true)
+            // Small delay for the celebration animation to feel intentional
+            setTimeout(() => setApprovalStatus('approved'), 300)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [state.guestId, approvalStatus])
+
   // Capture PWA install prompt
   useEffect(() => {
     function handleBeforeInstall(e: Event) {
@@ -38,13 +81,13 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
   }, [])
 
-  async function installPwa() {
+  const installPwa = useCallback(async () => {
     if (!pwaPrompt) return
     await pwaPrompt.prompt()
     const { outcome } = await pwaPrompt.userChoice
     if (outcome === 'accepted') setPwaInstalled(true)
     setPwaPrompt(null)
-  }
+  }, [pwaPrompt])
 
   async function sharePass() {
     const url = `${window.location.origin}/trip/${tripSlug}`
@@ -64,14 +107,68 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
 
   return (
     <div className="pt-2">
-      {/* Success header */}
-      <div className="text-center mb-6">
-        <div className="text-[40px] mb-2">🎉</div>
-        <h2 className="text-[22px] font-bold text-[#0D1B2A] mb-1">You're checked in!</h2>
-        <p className="text-[14px] text-[#6B7C93]">Show this QR code when boarding</p>
-      </div>
+      {/* ── Header: 3 states — Amber (pending) → Celebration → Green (approved) ── */}
+      <AnimatePresence mode="wait">
+        {isLiveryPending ? (
+          <motion.div
+            key="amber"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="text-center mb-6"
+          >
+            <div className="text-[40px] mb-2">⚓</div>
+            <h2 className="text-[22px] font-bold text-[#92400E] mb-1">Instruction Required</h2>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FFF8E1] border border-[#FFD54F] rounded-full animate-pulse">
+              <span className="text-[14px] font-medium text-[#92400E]">
+                🟡 See Dockmaster for Vessel Instruction
+              </span>
+            </div>
+            <p className="text-[13px] text-[#6B7C93] mt-2 max-w-[280px] mx-auto">
+              Florida law (§327.54) requires an in-person vessel briefing before bareboat departure. 
+              Your boarding pass will activate once they sign off.
+            </p>
+          </motion.div>
+        ) : justApproved ? (
+          <motion.div
+            key="celebration"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className="text-center mb-6"
+            onAnimationComplete={() => setTimeout(() => setJustApproved(false), 2000)}
+          >
+            <motion.div
+              animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.6 }}
+              className="text-[48px] mb-2"
+            >
+              🎉
+            </motion.div>
+            <h2 className="text-[22px] font-bold text-[#1D9E75] mb-1">You&apos;re cleared!</h2>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E8F9F4] border border-[#6EE7B7] rounded-full">
+              <PartyPopper size={16} className="text-[#1D9E75]" />
+              <span className="text-[14px] font-medium text-[#065F46]">
+                Dockmaster has signed off — Welcome aboard!
+              </span>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="approved"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-6"
+          >
+            <div className="text-[40px] mb-2">🎉</div>
+            <h2 className="text-[22px] font-bold text-[#0D1B2A] mb-1">You&apos;re checked in!</h2>
+            <p className="text-[14px] text-[#6B7C93]">Show this QR code when boarding</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Boarding pass — Apple Wallet aesthetic */}
+      {/* ── Boarding Pass — Apple Wallet aesthetic ── */}
       <div className="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(12,68,124,0.12)] overflow-hidden mb-5">
         {/* Top half */}
         <div className="px-5 pt-5 pb-4">
@@ -102,17 +199,41 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
           <div className="flex-1 border-t-2 border-dashed border-[#D0E2F3]" />
         </div>
 
-        {/* Bottom half — QR */}
+        {/* Bottom half — QR (blurred when pending livery) */}
         <div className="px-5 pt-4 pb-5 flex flex-col items-center">
-          <div className="bg-[#0D1B2A] p-3 rounded-[16px] mb-3">
-            <QRCodeSVG
-              value={state.qrToken || `dp-guest-${tripSlug}`}
-              size={160}
-              fgColor="#FFFFFF"
-              bgColor="#0D1B2A"
-              level="M"
-            />
+          <div className="relative">
+            <div className={`bg-[#0D1B2A] p-3 rounded-[16px] mb-3 transition-all duration-500 ${
+              isLiveryPending ? 'blur-[8px] scale-95' : 'blur-0 scale-100'
+            }`}>
+              <QRCodeSVG
+                value={state.qrToken || `dp-guest-${tripSlug}`}
+                size={160}
+                fgColor="#FFFFFF"
+                bgColor="#0D1B2A"
+                level="M"
+              />
+            </div>
+
+            {/* Lock overlay when QR is blurred */}
+            <AnimatePresence>
+              {isLiveryPending && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 flex flex-col items-center justify-center"
+                >
+                  <div className="w-14 h-14 rounded-full bg-[#FFF8E1] border-2 border-[#FFD54F] flex items-center justify-center mb-2 shadow-lg">
+                    <Lock size={24} className="text-[#F59E0B]" />
+                  </div>
+                  <p className="text-[12px] font-semibold text-[#92400E] bg-[#FFF8E1] px-3 py-1 rounded-full">
+                    Awaiting sign-off
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
           <p className="text-[12px] text-[#6B7C93] mb-1">
             {tripData.slipNumber ? `Slip ${tripData.slipNumber} · ` : ''}
             {tripData.marinaName}
@@ -139,6 +260,11 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
         {state.requiresCourse && (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#FEF3DC] text-[#E5910A]">
             📋 Complete course before trip
+          </span>
+        )}
+        {isLiveryPending && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#FFF8E1] text-[#92400E] animate-pulse">
+            ⚓ Vessel instruction pending
           </span>
         )}
       </div>

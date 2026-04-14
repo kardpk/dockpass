@@ -36,7 +36,7 @@ export default async function SnapshotPage({
     .select(`
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, trip_code, status, started_at, charter_type, requires_approval,
-      special_notes,
+      special_notes, captain_token_version, trip_purpose, force_full_compliance,
       boats (
         id, boat_name, boat_type, marina_name, marina_address, slip_number,
         captain_name, lat, lng, waiver_text, safety_cards,
@@ -44,7 +44,7 @@ export default async function SnapshotPage({
       ),
       guests (
         id, full_name, language_preference,
-        dietary_requirements, is_non_swimmer,
+        dietary_requirements, date_of_birth, is_non_swimmer,
         is_seasickness_prone, waiver_signed,
         waiver_signed_at, checked_in_at, approval_status, created_at,
         safety_acknowledgments, waiver_text_hash,
@@ -76,18 +76,67 @@ export default async function SnapshotPage({
   const alerts = buildCaptainAlerts(trip.guests)
   const addonSummary = buildAddonSummary(trip.guests)
 
+  // ── Captain Resolution: trip_assignments → boat default ──
+  const { data: assignments } = await supabase
+    .from('trip_assignments')
+    .select(`
+      role,
+      captains (
+        full_name, photo_url, license_number, license_type,
+        phone, email
+      )
+    `)
+    .eq('trip_id', tripId)
+    .order('role')
+
+  const primaryCaptain = assignments?.find(a => a.role === 'captain')
+  const captainData = primaryCaptain?.captains as unknown as Record<string, unknown> | null
+
+  const resolvedCaptainName = (captainData?.full_name as string)
+    ?? trip.boat.captainName
+    ?? null
+  const resolvedCaptainPhoto = (captainData?.photo_url as string)
+    ?? (trip.boat as Record<string, unknown>).captainPhotoUrl as string
+    ?? null
+  const resolvedCaptainLicense = (captainData?.license_number as string)
+    ?? (trip.boat as Record<string, unknown>).captainLicense as string
+    ?? null
+  const resolvedCaptainRole = primaryCaptain?.role ?? 'captain'
+
+  const crewManifest = (assignments ?? []).map(a => ({
+    name: (a.captains as unknown as Record<string, unknown>)?.full_name as string ?? 'Unknown',
+    role: a.role as string,
+    license: (a.captains as unknown as Record<string, unknown>)?.license_number as string ?? null,
+  }))
+
   const snapshot: CaptainSnapshotData = {
     tripId,
     slug: trip.slug,
     boatName: trip.boat.boatName,
     maxGuests: trip.maxGuests,
-    requiredSafetyCards: trip.boat.safetyCards?.length ?? 0,
+    requiredSafetyCards: (() => {
+      const cards = (trip.boat.safetyCards ?? []) as { compliance_target?: string; max_length_ft?: number; min_length_ft?: number }[]
+      const charterType = trip.charterType ?? 'captained'
+      const lengthFt = (trip.boat as Record<string, unknown>).lengthFt as number | null ?? null
+      return cards.filter(c => {
+        const target = c.compliance_target ?? 'all'
+        if (target === 'bareboat_only' && charterType === 'captained') return false
+        if (target === 'passengers_only' && charterType !== 'captained') return false
+        if (c.max_length_ft && lengthFt != null && lengthFt >= c.max_length_ft) return false
+        if (c.min_length_ft && lengthFt != null && lengthFt < c.min_length_ft) return false
+        return true
+      }).length
+    })(),
     marinaName: trip.boat.marinaName,
     slipNumber: trip.boat.slipNumber,
     tripDate: trip.tripDate,
     departureTime: trip.departureTime,
     durationHours: trip.durationHours,
-    captainName: trip.boat.captainName,
+    captainName: resolvedCaptainName,
+    stateCode: (trip.boat as Record<string, unknown>).stateCode as string ?? '',
+    boatType: (trip.boat as Record<string, unknown>).boatType as string ?? 'other',
+    charterType: trip.charterType ?? 'captained',
+    lengthFt: (trip.boat as Record<string, unknown>).lengthFt as number | null ?? null,
     weather: weather ? {
       label: weather.label,
       temperature: weather.temperature,
@@ -97,15 +146,26 @@ export default async function SnapshotPage({
     guests: trip.guests.map(g => ({
       id: g.id,
       fullName: g.fullName,
+      dateOfBirth: g.dateOfBirth ?? null,
       waiverSigned: g.waiverSigned,
       waiverTextHash: g.waiverTextHash ?? null,
       safetyAckCount: g.safetyAcknowledgments?.length ?? 0,
       languageFlag: LANGUAGE_FLAGS[g.languagePreference as keyof typeof LANGUAGE_FLAGS] ?? '🌐',
       addonEmojis: g.addonOrders.map(o => o.emoji),
+      approvalStatus: g.approvalStatus ?? 'auto_approved',
+      fwcLicenseUrl: g.fwcLicenseUrl ?? null,
+      liveryBriefingVerifiedAt: g.liveryBriefingVerifiedAt ?? null,
+      liveryBriefingVerifiedBy: g.liveryBriefingVerifiedBy ?? null,
     })),
     addonSummary,
     generatedAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + 3600000).toISOString(),
+    captainPhotoUrl: resolvedCaptainPhoto,
+    captainLicense: resolvedCaptainLicense,
+    captainRole: resolvedCaptainRole,
+    crewManifest,
+    tripPurpose: (raw as any).trip_purpose ?? 'commercial',
+    forceFullCompliance: (raw as any).force_full_compliance ?? false,
   }
 
   return (

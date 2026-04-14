@@ -13,6 +13,8 @@ import { StepAddons } from './StepAddons'
 import { StepBoarding } from './StepBoarding'
 import type { JoinStep, JoinFlowState } from '@/types'
 import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
+import { getComplianceRules } from '@/lib/compliance/rules'
+import type { ComplianceRules } from '@/lib/compliance/rules'
 
 interface JoinFlowSheetProps {
   isOpen: boolean
@@ -27,6 +29,7 @@ interface JoinFlowSheetProps {
     departureTime: string
     durationHours: number
     charterType: 'captained' | 'bareboat' | 'both'
+    tripPurpose: string
     addons: {
       id: string
       name: string
@@ -42,6 +45,9 @@ interface JoinFlowSheetProps {
 
 // Ordered steps for the progress bar (insurance is conditional, excluded)
 const STEPS: JoinStep[] = ['code', 'details', 'safety', 'waiver', 'addons', 'boarding']
+const FAST_TRACK_STEPS: JoinStep[] = ['code', 'details', 'waiver', 'boarding']
+// Private/family trips: skip safety cards, make waiver optional
+const RELAXED_STEPS: JoinStep[] = ['code', 'details', 'waiver', 'addons', 'boarding']
 
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
@@ -54,11 +60,13 @@ const INITIAL_STATE: JoinFlowState = {
   isSeaSicknessProne: false,
   gdprConsent: false, marketingConsent: false,
   isEU: false,
+  fwcLicenseUrl: null, fwcLicenseUploading: false,
   safetyAcks: [], currentSafetyCard: 0,
   waiverScrolled: false, waiverAgreed: false,
   signatureText: '', waiverTextHash: '',
   addonQuantities: {},
   guestId: '', qrToken: '',
+  approvalStatus: null,
   requiresCourse: false,
   isSubmitting: false, submitError: '',
 }
@@ -77,7 +85,19 @@ export function JoinFlowSheet({
     waiverHash: string
     firmaTemplateId: string | null
     safetyCards: GuestSafetyCardData[]
+    lengthFt: number | null
+    boatType: string
+    stateCode: string
   } | null>(null)
+
+  // Compute compliance rules from validated trip data
+  const complianceRules: ComplianceRules | null = validatedTrip
+    ? getComplianceRules(
+        validatedTrip.stateCode,
+        validatedTrip.boatType,
+        tripData.charterType,
+      )
+    : null
 
   const updateState = useCallback((partial: Partial<JoinFlowState>) => {
     setState(prev => ({ ...prev, ...partial }))
@@ -89,8 +109,11 @@ export function JoinFlowSheet({
   }
 
   // Progress bar (excludes insurance step from count)
-  const stepIndex = STEPS.indexOf(state.step === 'insurance' ? 'waiver' : state.step)
-  const progressPercent = Math.max(0, (stepIndex / (STEPS.length - 1)) * 100)
+  const isFastTrack = complianceRules?.features?.fast_track_enabled ?? false
+  const isRelaxedTrip = ['private_party', 'family', 'fishing_social', 'training'].includes(tripData.tripPurpose)
+  const activeSteps = isFastTrack ? FAST_TRACK_STEPS : isRelaxedTrip ? RELAXED_STEPS : STEPS
+  const stepIndex = activeSteps.indexOf(state.step === 'insurance' ? 'waiver' : state.step)
+  const progressPercent = Math.max(0, (stepIndex / (activeSteps.length - 1)) * 100)
 
   // Only allow closing from entry/exit steps
   const canClose = state.step === 'code' || state.step === 'boarding'
@@ -139,7 +162,8 @@ export function JoinFlowSheet({
                 />
               </div>
               <p className="text-[11px] text-[#6B7C93] mt-1">
-                Step {Math.max(1, stepIndex + 1)} of {STEPS.length}
+                Step {Math.max(1, stepIndex + 1)} of {activeSteps.length}
+                {isFastTrack && ' · Fast-Track'}
               </p>
             </div>
           )}
@@ -160,8 +184,15 @@ export function JoinFlowSheet({
                   tripSlug={tripSlug}
                   state={state}
                   onUpdate={updateState}
-                  onValidated={(_waiverText, waiverHash, firmaTemplateId, safetyCards) => {
-                    setValidatedTrip({ waiverHash, firmaTemplateId: firmaTemplateId ?? null, safetyCards: (safetyCards ?? []) as GuestSafetyCardData[] })
+                  onValidated={(_waiverText, waiverHash, firmaTemplateId, safetyCards, lengthFt, boatType, stateCode) => {
+                    setValidatedTrip({
+                      waiverHash,
+                      firmaTemplateId: firmaTemplateId ?? null,
+                      safetyCards: (safetyCards ?? []) as GuestSafetyCardData[],
+                      lengthFt: lengthFt ?? null,
+                      boatType: boatType ?? 'other',
+                      stateCode: stateCode ?? 'FL',
+                    })
                     goToStep('details')
                   }}
                 />
@@ -171,14 +202,21 @@ export function JoinFlowSheet({
                 <StepDetails
                   state={state}
                   onUpdate={updateState}
-                  onNext={() => goToStep('safety')}
+                  onNext={() => goToStep(isFastTrack ? 'waiver' : isRelaxedTrip ? 'waiver' : 'safety')}
                   onBack={() => goToStep('code')}
+                  charterType={tripData.charterType}
+                  tripSlug={tripSlug}
+                  complianceRules={complianceRules}
+                  isRelaxedTrip={isRelaxedTrip}
                 />
               )}
 
               {state.step === 'safety' && (
                 <StepSafety
                   safetyCards={validatedTrip?.safetyCards ?? []}
+                  charterType={tripData.charterType}
+                  lengthFt={validatedTrip?.lengthFt ?? null}
+                  complianceRules={complianceRules}
                   state={state}
                   onUpdate={updateState}
                   onNext={() => goToStep('waiver')}
@@ -194,11 +232,16 @@ export function JoinFlowSheet({
                   state={state}
                   onUpdate={updateState}
                   tripSlug={tripSlug}
+                  isRelaxedTrip={isRelaxedTrip}
                   onNext={(requiresCourse) => {
                     updateState({ requiresCourse })
-                    goToStep(requiresCourse ? 'insurance' : 'addons')
+                    if (isFastTrack) {
+                      goToStep('boarding')
+                    } else {
+                      goToStep(requiresCourse ? 'insurance' : 'addons')
+                    }
                   }}
-                  onBack={() => goToStep('safety')}
+                  onBack={() => goToStep(isFastTrack || isRelaxedTrip ? 'details' : 'safety')}
                 />
               )}
 

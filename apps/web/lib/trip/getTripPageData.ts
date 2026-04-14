@@ -36,6 +36,7 @@ export interface TripPageData {
   maxGuests: number
   status: 'upcoming' | 'active' | 'completed' | 'cancelled'
   charterType: 'captained' | 'bareboat' | 'both'
+  tripPurpose: string
   specialNotes: string | null
   requiresApproval: boolean
   routeDescription: string | null
@@ -146,7 +147,7 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
     .from('trips')
     .select(`
       id, slug, trip_code, trip_date, departure_time,
-      duration_hours, max_guests, status, charter_type,
+      duration_hours, max_guests, status, charter_type, trip_purpose,
       special_notes, requires_approval, route_description,
       route_stops, started_at, ended_at,
       operators ( id, company_name ),
@@ -194,6 +195,7 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
     maxGuests: trip.max_guests,
     status: trip.status as TripPageData['status'],
     charterType: trip.charter_type as TripPageData['charterType'],
+    tripPurpose: (trip as Record<string, unknown>).trip_purpose as string ?? 'commercial',
     specialNotes: trip.special_notes,
     requiresApproval: trip.requires_approval,
     routeDescription: trip.route_description ?? null,
@@ -305,6 +307,12 @@ export interface GuestSafetyCardData {
   audio_url: string | null
   emoji: string
   sort_order: number
+  /** USCG/FWC compliance target — who sees this card */
+  compliance_target: 'bareboat_only' | 'passengers_only' | 'all'
+  /** Hide card if boat >= this length (e.g., ECOS < 26ft) */
+  max_length_ft?: number
+  /** Hide card if boat < this length */
+  min_length_ft?: number
 }
 
 interface SafetyCardRow {
@@ -314,6 +322,9 @@ interface SafetyCardRow {
   custom_title?: string
   instructions: string
   sort_order: number
+  compliance_target?: 'bareboat_only' | 'passengers_only' | 'all'
+  max_length_ft?: number
+  min_length_ft?: number
 }
 
 /**
@@ -407,6 +418,9 @@ export async function getGuestSafetyCards(
         audio_url: dict?.audio_url ?? null,
         emoji: dict?.emoji ?? '📋',
         sort_order: card.sort_order,
+        compliance_target: card.compliance_target ?? 'all',
+        max_length_ft: card.max_length_ft,
+        min_length_ft: card.min_length_ft,
       }
     })
 }

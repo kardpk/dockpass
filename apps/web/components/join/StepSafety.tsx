@@ -1,26 +1,90 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
 import { GuestSafetyCard } from '@/components/trip/GuestSafetyCard'
 import type { JoinFlowState, SafetyAck } from '@/types'
 import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
+import type { ComplianceRules } from '@/lib/compliance/rules'
+
+// ── USCG/FWC Dynamic Safety Card Filter ────────────────────────────────────────
+// Filters the full card set based on charter type (bareboat vs. captained)
+// and USCG vessel length thresholds (e.g., ECOS law < 26ft).
+// Then sorts injected compliance topics to the TOP of the deck.
+function filterAndPrioritizeSafetyCards(
+  cards: GuestSafetyCardData[],
+  charterType: string,
+  lengthFt: number | null,
+  injectedTopics: string[],
+): GuestSafetyCardData[] {
+  const filtered = cards.filter(card => {
+    const target = card.compliance_target ?? 'all'
+
+    // Charter type filter
+    if (target === 'bareboat_only' && charterType === 'captained') return false
+    if (target === 'passengers_only' && charterType !== 'captained') return false
+
+    // USCG vessel length filter (e.g., ECOS law applies only to boats < 26ft)
+    if (card.max_length_ft && lengthFt != null && lengthFt >= card.max_length_ft) return false
+    if (card.min_length_ft && lengthFt != null && lengthFt < card.min_length_ft) return false
+
+    return true
+  })
+
+  // Prioritize injected compliance topics (e.g., CA PWC: off_throttle_steering first)
+  if (injectedTopics.length === 0) return filtered
+
+  const prioritized: GuestSafetyCardData[] = []
+  const rest: GuestSafetyCardData[] = []
+
+  for (const card of filtered) {
+    if (injectedTopics.includes(card.topic_key)) {
+      prioritized.push(card)
+    } else {
+      rest.push(card)
+    }
+  }
+
+  // Sort prioritized cards in the same order as injectedTopics
+  prioritized.sort((a, b) =>
+    injectedTopics.indexOf(a.topic_key) - injectedTopics.indexOf(b.topic_key)
+  )
+
+  return [...prioritized, ...rest]
+}
 
 interface StepSafetyProps {
   /** Merged safety cards (Captain photos + dictionary text/audio) */
   safetyCards: GuestSafetyCardData[]
+  /** Charter type from the trip (for compliance filtering) */
+  charterType: string
+  /** Vessel length in feet (for USCG length-based filtering) */
+  lengthFt: number | null
+  /** State compliance rules (for injected safety topic prioritization) */
+  complianceRules?: ComplianceRules | null
   state: JoinFlowState
   onUpdate: (p: Partial<JoinFlowState>) => void
   onNext: () => void
   onBack: () => void
 }
 
-export function StepSafety({ safetyCards, state, onUpdate, onNext, onBack }: StepSafetyProps) {
+export function StepSafety({ safetyCards, charterType, lengthFt, complianceRules, state, onUpdate, onNext, onBack }: StepSafetyProps) {
+  // Apply USCG/FWC compliance filter + state-specific topic prioritization
+  const applicableCards = useMemo(
+    () => filterAndPrioritizeSafetyCards(
+      safetyCards,
+      charterType,
+      lengthFt,
+      complianceRules?.injected_safety_topics ?? [],
+    ),
+    [safetyCards, charterType, lengthFt, complianceRules]
+  )
+
   const current = state.currentSafetyCard
-  const total = safetyCards.length
-  const card = safetyCards[current]
+  const total = applicableCards.length
+  const card = applicableCards[current]
   const allAcknowledged = state.safetyAcks.length >= total
 
   // If no safety cards configured — skip step after mount
@@ -68,7 +132,7 @@ export function StepSafety({ safetyCards, state, onUpdate, onNext, onBack }: Ste
 
       {/* Progress dots */}
       <div className="flex items-center gap-1.5 mb-6">
-        {safetyCards.map((_, i) => (
+        {applicableCards.map((_, i) => (
           <div
             key={i}
             className={cn(

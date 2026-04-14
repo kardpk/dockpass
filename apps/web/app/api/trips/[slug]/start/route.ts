@@ -149,8 +149,17 @@ export async function POST(
     // has signed the waiver and completed all required safety cards.
     // This guard is the last line of defense even if the UI is bypassed.
     const boatData = trip.boats as unknown as Record<string, unknown>
-    const safetyCards = (boatData?.safety_cards as unknown[]) ?? []
-    const requiredSafetyCards = safetyCards.length
+    const safetyCards = (boatData?.safety_cards as { compliance_target?: string; max_length_ft?: number; min_length_ft?: number }[]) ?? []
+    const charterType = (trip as Record<string, unknown>).charter_type as string ?? 'captained'
+    const lengthFt = boatData?.length_ft as number | null ?? null
+    const requiredSafetyCards = safetyCards.filter(c => {
+      const target = c.compliance_target ?? 'all'
+      if (target === 'bareboat_only' && charterType === 'captained') return false
+      if (target === 'passengers_only' && charterType !== 'captained') return false
+      if (c.max_length_ft && lengthFt != null && lengthFt >= c.max_length_ft) return false
+      if (c.min_length_ft && lengthFt != null && lengthFt < c.min_length_ft) return false
+      return true
+    }).length
     const tripGuests = (trip.guests ?? []) as Record<string, unknown>[]
 
     const nonCompliantGuests = tripGuests.filter(g => {
@@ -175,6 +184,19 @@ export async function POST(
       )
     }
 
+    // ── Resolve assigned captain for accurate USCG logging ──
+    const { data: captainAssignment } = await supabase
+      .from('trip_assignments')
+      .select('captains ( full_name )')
+      .eq('trip_id', tripId)
+      .eq('role', 'captain')
+      .single()
+
+    const resolvedCaptainName = (captainAssignment?.captains as unknown as Record<string, unknown>)?.full_name as string
+      ?? data.captainName
+      ?? boat?.captain_name
+      ?? 'Captain'
+
     // ── STEP 1: Update trip status ───────────
     // This is the source of truth — do first
     const { error: updateErr } = await supabase
@@ -182,9 +204,7 @@ export async function POST(
       .update({
         status: 'active',
         started_at: startedAt,
-        started_by_captain: data.captainName
-          ?? boat?.captain_name
-          ?? 'Captain',
+        started_by_captain: resolvedCaptainName,
         guest_count_at_start: data.confirmedGuestCount,
       })
       .eq('id', tripId)

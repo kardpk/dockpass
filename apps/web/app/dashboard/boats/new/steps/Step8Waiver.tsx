@@ -9,9 +9,12 @@ import {
   File,
   X,
   RefreshCw,
+  ShieldCheck,
+  Download,
 } from "lucide-react";
 import { AnchorLoader } from "@/components/ui/AnchorLoader";
 import { ContinueButton } from "@/components/ui/ContinueButton";
+import type { BoatTemplate } from "@/lib/wizard/boat-template-types";
 import type { WizardData } from "../types";
 
 const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
@@ -21,9 +24,10 @@ const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
 interface Step8Props {
   data: WizardData;
   onNext: (partial: Partial<WizardData>) => void;
+  template: BoatTemplate | null;
 }
 
-export function Step8Waiver({ data, onNext }: Step8Props) {
+export function Step8Waiver({ data, onNext, template }: Step8Props) {
   // Track the File object locally (not persisted to localStorage — File is not serializable)
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfPreview, setPdfPreview] = useState(data.waiverPdfPreview);
@@ -182,6 +186,57 @@ export function Step8Waiver({ data, onNext }: Step8Props) {
           maritime attorney to ensure your waiver provides adequate legal
           protection for your jurisdiction and charter type.
         </p>
+      </div>
+
+      {/* Waiver Essentials Checklist */}
+      <div className="border border-border rounded-card overflow-hidden">
+        <div className="p-standard bg-off-white border-b border-border">
+          <p className="text-label text-dark-text flex items-center gap-micro">
+            <ShieldCheck size={14} className="text-navy" />
+            Essential clauses your waiver should include
+          </p>
+        </div>
+        <div className="p-standard space-y-tight">
+          {[
+            "Voluntary participation and assumption of risk",
+            "Release of liability for operator, captain, and crew",
+            "Captain\u2019s authority acknowledgement",
+            "USCG regulation compliance acknowledgement",
+            "Medical fitness confirmation",
+            "Alcohol and substance policy",
+            "Personal property disclaimer",
+            "Governing law (state jurisdiction)",
+          ].map((clause) => (
+            <p key={clause} className="text-[13px] text-dark-text flex items-center gap-tight">
+              <Check size={12} className="text-success-text shrink-0" />
+              {clause}
+            </p>
+          ))}
+        </div>
+        {/* Download starter waiver */}
+        {template?.waiverTemplate && (
+          <div className="p-standard border-t border-border bg-off-white">
+            <button
+              type="button"
+              onClick={() => {
+                const blob = new Blob([template.waiverTemplate], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${template.label.replace(/\s+/g, '_')}_Waiver_Template.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="text-[12px] text-navy hover:text-mid-blue transition-colors flex items-center gap-micro"
+            >
+              <Download size={12} />
+              Download starter waiver template (.txt)
+            </button>
+            <p className="text-[10px] text-grey-text mt-micro">
+              Pre-written for {template.label}. Edit in Word, save as PDF, then upload below.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* STATE A — No PDF uploaded */}

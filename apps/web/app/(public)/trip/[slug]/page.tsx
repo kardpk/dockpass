@@ -256,6 +256,7 @@ export default async function TripPage({
           departureTime: trip.departureTime,
           durationHours: trip.durationHours,
           charterType: trip.charterType as 'captained' | 'bareboat' | 'both',
+          tripPurpose: trip.tripPurpose ?? 'commercial',
           addons: trip.addons,
           isEU: false, // TODO: detect from Accept-Language or CF-IPCountry header
         }}

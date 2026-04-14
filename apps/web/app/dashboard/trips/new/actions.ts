@@ -106,6 +106,9 @@ export async function createTrip(
       requires_approval: data.requiresApproval,
       special_notes: data.specialNotes ? sanitiseText(data.specialNotes) : null,
       status: 'upcoming',
+      trip_purpose: data.tripPurpose ?? 'commercial',
+      force_full_compliance: data.forceFullCompliance ?? false,
+      fuel_share_disclaimer_accepted: data.fuelShareDisclaimerAccepted ?? false,
     })
     .select('id, slug, trip_code')
     .single()

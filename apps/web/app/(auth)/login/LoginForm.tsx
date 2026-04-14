@@ -60,15 +60,35 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <h1 className="text-h1 text-dark-text">Welcome back</h1>
-      <p className="text-body text-grey-text mt-tight">
-        Sign in to your BoatCheckin account
+      {/* Kicker */}
+      <div className="flex items-center gap-[10px] mb-3">
+        <span className="w-[24px] h-[1px] bg-[#B8882A]" />
+        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#B8882A]">
+          Operator sign in
+        </span>
+      </div>
+
+      {/* Heading */}
+      <h1
+        className="text-[clamp(28px,4vw,38px)] font-bold leading-[1.08] tracking-[-0.025em] text-white mb-2"
+        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+      >
+        Welcome back.
+      </h1>
+      <p
+        className="text-[15px] font-normal text-[#9AADC4] mb-8 leading-relaxed"
+        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic" }}
+      >
+        Sign in to manage your fleet, trips & compliance
       </p>
 
-      <div className="mt-section flex flex-col gap-page">
+      <div className="flex flex-col gap-5">
         {/* Email */}
         <div>
-          <label htmlFor="email" className="text-label text-dark-text block mb-micro">
+          <label
+            htmlFor="email"
+            className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[#5A7090] block mb-2"
+          >
             Email address
           </label>
           <input
@@ -78,19 +98,29 @@ export function LoginForm() {
             required
             autoComplete="email"
             placeholder="hello@yourboat.com"
-            className="w-full h-[44px] px-standard border border-border rounded-input text-body text-dark-text placeholder:text-grey-text/50 focus:border-border-dark focus:outline-none transition-colors"
+            className="
+              w-full h-[48px] px-4 rounded-[4px]
+              bg-white/[0.04] border border-white/[0.12]
+              text-[15px] font-normal text-white
+              placeholder:text-white/20
+              focus:border-[#B8882A] focus:outline-none
+              transition-colors
+            "
           />
         </div>
 
         {/* Password */}
         <div>
-          <div className="flex items-center justify-between mb-micro">
-            <label htmlFor="password" className="text-label text-dark-text">
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="password"
+              className="text-[12px] font-semibold tracking-[0.06em] uppercase text-[#5A7090]"
+            >
               Password
             </label>
             <Link
               href="/forgot-password"
-              className="text-micro text-navy hover:underline"
+              className="text-[12px] font-normal text-[#B8882A] hover:text-[#D4A84B] transition-colors no-underline tracking-[0.02em]"
             >
               Forgot password?
             </Link>
@@ -102,12 +132,19 @@ export function LoginForm() {
               type={showPassword ? "text" : "password"}
               required
               placeholder="Enter your password"
-              className="w-full h-[44px] px-standard pr-[44px] border border-border rounded-input text-body text-dark-text placeholder:text-grey-text/50 focus:border-border-dark focus:outline-none transition-colors"
+              className="
+                w-full h-[48px] px-4 pr-12 rounded-[4px]
+                bg-white/[0.04] border border-white/[0.12]
+                text-[15px] font-normal text-white
+                placeholder:text-white/20
+                focus:border-[#B8882A] focus:outline-none
+                transition-colors
+              "
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-grey-text hover:text-dark-text transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A7090] hover:text-[#9AADC4] transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -118,8 +155,8 @@ export function LoginForm() {
 
       {/* Error */}
       {error && (
-        <div className="mt-page p-standard bg-error-bg rounded-chip">
-          <p className="text-[13px] text-error-text">{error}</p>
+        <div className="mt-4 p-3 bg-[rgba(214,59,59,0.1)] border border-[rgba(214,59,59,0.3)] rounded-[4px]">
+          <p className="text-[13px] text-[#FF6B6B]">{error}</p>
         </div>
       )}
 
@@ -127,7 +164,16 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full h-[52px] mt-section bg-navy text-white font-medium rounded-btn hover:bg-mid-blue transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+        className="
+          w-full h-[52px] mt-8
+          bg-[#B8882A] text-[#07101C]
+          font-semibold text-[14px] tracking-[0.04em]
+          rounded-[3px] border-none cursor-pointer
+          hover:bg-[#D4A84B] transition-all duration-200
+          disabled:opacity-50 disabled:cursor-not-allowed
+          flex items-center justify-center
+          hover:translate-y-[-1px]
+        "
       >
         {loading ? (
           <AnchorLoader size="sm" color="white" />
@@ -136,13 +182,37 @@ export function LoginForm() {
         )}
       </button>
 
+      {/* Divider */}
+      <div className="flex items-center gap-4 my-6">
+        <div className="flex-1 h-[1px] bg-white/[0.07]" />
+        <span className="text-[11px] font-normal text-[#5A7090] tracking-[0.1em]">
+          OR
+        </span>
+        <div className="flex-1 h-[1px] bg-white/[0.07]" />
+      </div>
+
       {/* Footer link */}
-      <p className="text-label text-grey-text text-center mt-page">
+      <p className="text-[14px] text-[#9AADC4] text-center">
         New to BoatCheckin?{" "}
-        <Link href="/signup" className="text-navy hover:underline">
+        <Link
+          href="/signup"
+          className="text-[#B8882A] hover:text-[#D4A84B] transition-colors no-underline font-medium"
+        >
           Start free trial →
         </Link>
       </p>
+
+      {/* Trust badges */}
+      <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+        {["No credit card", "14-day trial", "Cancel anytime"].map((t) => (
+          <span
+            key={t}
+            className="text-[10px] font-normal tracking-[0.06em] text-[#5A7090]"
+          >
+            {t}{" "}
+          </span>
+        ))}
+      </div>
     </form>
   );
 }

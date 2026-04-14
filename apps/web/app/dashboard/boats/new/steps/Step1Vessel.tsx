@@ -14,12 +14,17 @@ import type { WizardData, BoatTypeKey, CharterType } from "../types";
 const BOAT_TYPES: { key: BoatTypeKey; emoji: string; label: string; desc: string }[] = [
   { key: "motor_yacht", emoji: "🛥️", label: "Motor Yacht", desc: "Luxury captained vessel" },
   { key: "fishing_charter", emoji: "🎣", label: "Fishing Charter", desc: "Sportfishing experiences" },
-  { key: "catamaran", emoji: "⛵", label: "Catamaran", desc: "Stable platform for groups" },
+  { key: "catamaran", emoji: "⛵", label: "Catamaran (Sailing)", desc: "Stable sailing multihull" },
+  { key: "power_catamaran", emoji: "🛥️", label: "Catamaran (Power)", desc: "Engine-powered multihull" },
   { key: "pontoon", emoji: "🎉", label: "Pontoon / Party", desc: "High-capacity leisure" },
   { key: "snorkel_dive", emoji: "🤿", label: "Snorkel / Dive", desc: "Reef & diving experiences" },
-  { key: "sailing_yacht", emoji: "⛵", label: "Sailing Yacht", desc: "Classic sailing experience" },
-  { key: "speedboat", emoji: "💨", label: "Speedboat", desc: "Speed & wake sports" },
+  { key: "sailing_yacht", emoji: "🌬️", label: "Sailing Yacht", desc: "Classic sailing experience" },
+  { key: "speedboat", emoji: "💨", label: "Speedboat", desc: "Speed & day trips" },
+  { key: "wake_sports", emoji: "🏄", label: "Wake Sports", desc: "Wakeboard & wakesurf" },
   { key: "sunset_cruise", emoji: "🌅", label: "Sunset Cruise", desc: "Tours & sightseeing" },
+  { key: "center_console", emoji: "🚤", label: "Center Console", desc: "Versatile fishing & cruising" },
+  { key: "houseboat", emoji: "🏠", label: "Houseboat", desc: "Live-aboard multi-day charter" },
+  { key: "pwc", emoji: "🏍️", label: "Jet Ski / PWC", desc: "Personal watercraft rentals" },
   { key: "other", emoji: "🚢", label: "Other", desc: "Custom vessel type" },
 ];
 

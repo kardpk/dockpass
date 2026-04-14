@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, X, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Check, X, Trash2, ChevronDown, ChevronUp, Anchor, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { LANGUAGE_FLAGS } from '@/lib/i18n/constants'
 import { useTripGuests } from '@/hooks/useTripGuests'
@@ -21,12 +21,36 @@ export function GuestManagementTable({
   const { guests, connectionStatus, lastUpdated } = useTripGuests(tripId, initialGuests)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [actioning, setActioning] = useState<string | null>(null)
+  const [liveryVerifyId, setLiveryVerifyId] = useState<string | null>(null)
+  const [liveryVerifierName, setLiveryVerifierName] = useState('')
 
   const total = guests.length
   const signed = guests.filter(g => g.waiverSigned).length
   const pendingApproval = guests.filter(
     g => g.approvalStatus === 'pending'
   ).length
+  const pendingLivery = guests.filter(
+    g => g.approvalStatus === 'pending_livery_briefing'
+  ).length
+
+  async function verifyLiveryBriefing(guestId: string) {
+    if (!liveryVerifierName.trim()) return
+    setActioning(guestId)
+    try {
+      await fetch(
+        `/api/dashboard/guests/${guestId}/verify-livery`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ verifierName: liveryVerifierName.trim() }),
+        }
+      )
+      setLiveryVerifyId(null)
+      setLiveryVerifierName('')
+    } finally {
+      setActioning(null)
+    }
+  }
 
   async function approve(guestId: string) {
     setActioning(guestId)
@@ -108,6 +132,14 @@ export function GuestManagementTable({
                 {pendingApproval} pending approval
               </span>
             )}
+            {pendingLivery > 0 && (
+              <span className="
+                text-[11px] font-semibold px-2 py-0.5
+                rounded-full bg-[#FFF8E1] text-[#92400E]
+              ">
+                ⚓ {pendingLivery} livery briefing
+              </span>
+            )}
           </div>
         </div>
 
@@ -147,7 +179,9 @@ export function GuestManagementTable({
               key={guest.id}
               className={cn(
                 'transition-colors',
-                guest.approvalStatus === 'pending'
+                guest.approvalStatus === 'pending_livery_briefing'
+                  ? 'bg-[#FFFBEB]'
+                  : guest.approvalStatus === 'pending'
                   ? 'bg-[#FEF9EE]'
                   : guest.approvalStatus === 'declined'
                   ? 'bg-[#FFF4F4]'
@@ -260,6 +294,35 @@ export function GuestManagementTable({
                       </>
                     )}
 
+                    {/* Livery briefing verify button */}
+                    {guest.approvalStatus === 'pending_livery_briefing' && (
+                      <button
+                        onClick={() => {
+                          setLiveryVerifyId(liveryVerifyId === guest.id ? null : guest.id)
+                          setLiveryVerifierName('')
+                        }}
+                        disabled={actioning === guest.id}
+                        className="
+                          flex items-center gap-1.5 px-3 py-1.5
+                          rounded-full bg-[#FFF8E1] border border-[#FFD54F]
+                          text-[12px] font-semibold text-[#92400E]
+                          hover:bg-[#FFECB3] transition-colors
+                          disabled:opacity-40
+                        "
+                        aria-label="Verify livery briefing"
+                      >
+                        <Anchor size={12} />
+                        Verify Briefing
+                      </button>
+                    )}
+
+                    {/* Show verified badge */}
+                    {guest.approvalStatus === 'approved' && guest.liveryBriefingVerifiedAt && (
+                      <span className="text-[11px] font-medium text-[#1D9E75] bg-[#E8F9F4] px-2 py-1 rounded-full">
+                        ✅ Briefed by {guest.liveryBriefingVerifiedBy}
+                      </span>
+                    )}
+
                     {/* Expand toggle */}
                     <button
                       onClick={() => setExpanded(
@@ -282,6 +345,7 @@ export function GuestManagementTable({
 
                 {/* Expanded detail */}
                 {expanded === guest.id && (
+                  <>
                   <div className="mt-3 pl-12 space-y-1.5">
                     {guest.dietaryRequirements && (
                       <p className="text-[12px] text-[#6B7C93]">
@@ -315,7 +379,54 @@ export function GuestManagementTable({
                       <Trash2 size={12} />
                       Remove from trip
                     </button>
+
+                    {/* FWC license link */}
+                    {guest.fwcLicenseUrl && (
+                      <a
+                        href={guest.fwcLicenseUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[12px] text-[#0C447C] hover:underline"
+                      >
+                        <ExternalLink size={10} />
+                        View FWC Boater Safety ID
+                      </a>
+                    )}
                   </div>
+
+                  {/* Livery verify inline confirmation */}
+                  {liveryVerifyId === guest.id && (
+                    <div className="mt-3 pl-12 p-3 bg-[#FFF8E1] border border-[#FFD54F] rounded-[10px] space-y-2">
+                      <p className="text-[12px] text-[#92400E] leading-relaxed">
+                        <strong>I confirm</strong> I have briefed <strong>{guest.fullName}</strong> on 
+                        vessel operation, safety equipment locations, and emergency procedures 
+                        for this specific hull.
+                      </p>
+                      <input
+                        type="text"
+                        placeholder="Your name (Dockmaster / Operator)"
+                        value={liveryVerifierName}
+                        onChange={e => setLiveryVerifierName(e.target.value)}
+                        className="w-full h-[40px] px-3 rounded-[8px] text-[13px] border border-[#FFD54F] bg-white text-[#0D1B2A] placeholder:text-[#6B7C93] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/30"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => verifyLiveryBriefing(guest.id)}
+                          disabled={!liveryVerifierName.trim() || actioning === guest.id}
+                          className="flex-1 h-[36px] rounded-[8px] bg-[#1D9E75] text-white text-[13px] font-semibold hover:bg-[#178a65] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          ✓ Confirm Vessel Briefing
+                        </button>
+                        <button
+                          onClick={() => setLiveryVerifyId(null)}
+                          className="h-[36px] px-4 rounded-[8px] bg-white border border-[#D0E2F3] text-[13px] text-[#6B7C93] hover:bg-[#F5F8FC]"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  </>
                 )}
               </div>
             </div>

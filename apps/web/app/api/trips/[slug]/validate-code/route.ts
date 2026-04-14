@@ -66,8 +66,8 @@ export async function POST(
       charter_type,
       boats (
         boat_name, marina_name, slip_number,
-        captain_name, waiver_text,
-        firma_template_id, safety_cards
+        captain_name, waiver_text, boat_type,
+        firma_template_id, safety_cards, length_ft, state_code
       )
     `)
     .eq('slug', slug)
@@ -138,8 +138,11 @@ export async function POST(
     slip_number: string | null
     captain_name: string | null
     waiver_text: string | null
+    boat_type: string
     firma_template_id: string | null
     safety_cards: unknown[] | null
+    length_ft: number | null
+    state_code: string | null
   } | null
 
   const waiverHash = boat?.waiver_text
@@ -157,9 +160,12 @@ export async function POST(
       departureTime: trip.departure_time,
       durationHours: trip.duration_hours,
       charterType: trip.charter_type,
+      boatType: boat?.boat_type ?? 'other',
+      stateCode: boat?.state_code ?? 'FL',
       waiverHash,
       firmaTemplateId: boat?.firma_template_id ?? null,
       safetyCards: boat?.safety_cards ?? [],
+      lengthFt: boat?.length_ft ?? null,
     },
   })
 }

@@ -199,7 +199,16 @@ export async function POST(
   const guestId = crypto.randomUUID()
   const tripDate = trip.trip_date ?? new Date().toISOString().split('T')[0]!
   const qrToken = generateQRToken(guestId, trip.id, tripDate)
-  const approvalStatus = trip.requires_approval ? 'pending' : 'auto_approved'
+
+  // ── Bareboat/Livery compliance (FWC Ch.327) ────────────────────────────────
+  // Bareboat renters ALWAYS require in-person vessel briefing from dockmaster,
+  // regardless of FWC license status. They cannot be auto-approved.
+  const isBareboat = trip.charter_type === 'bareboat' || trip.charter_type === 'both'
+  const approvalStatus = isBareboat
+    ? 'pending_livery_briefing'
+    : trip.requires_approval
+      ? 'pending'
+      : 'auto_approved'
 
   const { error: insertError } = await supabase
     .from('guests')
@@ -228,6 +237,7 @@ export async function POST(
       waiver_user_agent: req.headers.get('user-agent')?.slice(0, 500) ?? null,
       approval_status: approvalStatus,
       qr_token: qrToken,
+      fwc_license_url: data.fwcLicenseUrl ?? null,
     })
 
   if (insertError) {
@@ -284,6 +294,7 @@ export async function POST(
       guestId,
       qrToken,
       isDuplicate: false,
+      approvalStatus,
       requiresCourse: shouldRequireCourse(data.dateOfBirth, trip.charter_type as string),
     },
   })

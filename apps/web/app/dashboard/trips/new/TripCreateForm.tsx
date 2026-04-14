@@ -7,8 +7,9 @@ import { TripSuccessCard } from './TripSuccessCard'
 import { SplitBookingEditor } from './SplitBookingEditor'
 import { AnchorLoader } from '@/components/ui/AnchorLoader'
 import { cn } from '@/lib/utils/cn'
-import type { TripFormData, TripCreatedResult, SplitBookingEntry } from '@/types'
-import { DURATION_OPTIONS } from '@/types'
+import type { TripFormData, TripCreatedResult, SplitBookingEntry, TripPurpose } from '@/types'
+import { DURATION_OPTIONS, TRIP_PURPOSE_LABELS } from '@/types'
+import { shouldShowConsiderationWarning } from '@/lib/compliance/tripCompliance'
 
 interface Boat {
   id: string
@@ -49,6 +50,9 @@ export function TripCreateForm({ boats }: TripCreateFormProps) {
     charterType: (boats.length === 1 ? boats[0]!.charter_type : 'captained') as TripFormData['charterType'],
     specialNotes: '',
     splitBookings: [],
+    tripPurpose: 'commercial',
+    forceFullCompliance: false,
+    fuelShareDisclaimerAccepted: false,
   })
 
   function handleBoatChange(boatId: string) {
@@ -110,6 +114,101 @@ export function TripCreateForm({ boats }: TripCreateFormProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
+
+      {/* ── TRIP PURPOSE ──────────────────────────────────────────────── */}
+      <div>
+        <label className="block text-[13px] font-medium text-[#6B7C93] mb-2">
+          What kind of trip? <span className="text-[#D63B3B]">*</span>
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {(Object.entries(TRIP_PURPOSE_LABELS) as [TripPurpose, typeof TRIP_PURPOSE_LABELS[TripPurpose]][]).map(
+            ([value, meta]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setForm((p) => ({
+                    ...p,
+                    tripPurpose: value,
+                    fuelShareDisclaimerAccepted: value !== 'fishing_social' ? false : p.fuelShareDisclaimerAccepted,
+                  }))
+                }}
+                className={cn(
+                  'p-3 rounded-[14px] text-left border transition-all min-h-[72px]',
+                  form.tripPurpose === value
+                    ? 'border-2 border-[#0C447C] bg-[#E8F2FB]'
+                    : 'border border-[#D0E2F3] bg-white hover:border-[#A8C4E0]',
+                )}
+              >
+                <div className="text-[20px] mb-0.5">{meta.icon}</div>
+                <div className="text-[13px] font-semibold text-[#0D1B2A] leading-tight">{meta.label}</div>
+                <div className="text-[11px] text-[#6B7C93] mt-0.5 leading-tight">{meta.description}</div>
+              </button>
+            ),
+          )}
+        </div>
+
+        {/* USCG Consideration warning */}
+        {shouldShowConsiderationWarning(form.tripPurpose, form.charterType) && (
+          <div className="mt-3 p-3.5 rounded-[12px] bg-[#FEF3DC] border border-[#E5910A]/30">
+            <p className="text-[12px] text-[#92400E] leading-relaxed">
+              <strong>⚠️ USCG Notice:</strong> If you accept <strong>any payment or consideration</strong> for
+              this trip (cash, barter, fuel money from non-friends), you are legally operating
+              &quot;for-hire&quot; and must comply with commercial vessel requirements (OUPV license,
+              drug testing, enhanced equipment).
+            </p>
+          </div>
+        )}
+
+        {/* Fuel-sharing disclaimer for fishing trips */}
+        {form.tripPurpose === 'fishing_social' && (
+          <div className="mt-3 p-3.5 rounded-[12px] bg-[#F5F8FC] border border-[#D0E2F3]">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.fuelShareDisclaimerAccepted}
+                onChange={(e) => setForm((p) => ({ ...p, fuelShareDisclaimerAccepted: e.target.checked }))}
+                className="mt-0.5 w-4 h-4 rounded border-[#D0E2F3] text-[#0C447C] focus:ring-[#0C447C]"
+              />
+              <span className="text-[12px] text-[#0D1B2A] leading-relaxed">
+                I confirm that this trip involves <strong>only shared expenses</strong> among friends/acquaintances.
+                No passenger is paying me for transportation. I understand that accepting &quot;consideration&quot;
+                from passengers would require me to operate as a commercial vessel.
+              </span>
+            </label>
+          </div>
+        )}
+
+        {/* Force full compliance toggle for non-commercial trips */}
+        {!['commercial', 'corporate'].includes(form.tripPurpose) && (
+          <div className="mt-3 flex items-center justify-between p-3.5 rounded-[12px] bg-[#F5F8FC] border border-[#D0E2F3]">
+            <div>
+              <p className="text-[13px] font-medium text-[#0D1B2A]">Force full compliance</p>
+              <p className="text-[11px] text-[#6B7C93] mt-0.5">
+                Require waivers + safety briefing even for this trip type
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={form.forceFullCompliance}
+              onClick={() => setForm((p) => ({ ...p, forceFullCompliance: !p.forceFullCompliance }))}
+              className={cn(
+                'relative w-12 h-6 rounded-full transition-colors',
+                'focus-visible:ring-2 focus-visible:ring-[#0C447C]',
+                form.forceFullCompliance ? 'bg-[#0C447C]' : 'bg-[#D0E2F3]',
+              )}
+            >
+              <span
+                className={cn(
+                  'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform shadow-sm',
+                  form.forceFullCompliance ? 'translate-x-6' : 'translate-x-0',
+                )}
+              />
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* ── BOAT SELECTION ─────────────────────────────────────────────── */}
       <div>

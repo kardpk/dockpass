@@ -49,6 +49,12 @@ export const createTripSchema = z.object({
     .optional(),
   charterType: z.enum(['captained', 'bareboat', 'both']),
   specialNotes: z.string().max(500, 'Notes max 500 characters').optional(),
+  tripPurpose: z.enum([
+    'commercial', 'private_party', 'family',
+    'fishing_social', 'corporate', 'training', 'other'
+  ]).default('commercial'),
+  forceFullCompliance: z.boolean().optional().default(false),
+  fuelShareDisclaimerAccepted: z.boolean().optional().default(false),
 })
 
 // ─── Split booking schema ─────────────────────────────────────────────────────
@@ -152,6 +158,9 @@ export const guestRegistrationSchema = z.object({
   }),
   waiverTextHash: z.string()
     .regex(/^([a-f0-9]{64}|firma_template)$/, 'Invalid waiver hash'),
+
+  // FWC Boater Safety ID (bareboat/livery compliance — FWC Ch.327)
+  fwcLicenseUrl: z.string().url().optional().nullable().default(null),
 
   // Turnstile bot protection token (optional in dev when widget fails to load)
   turnstileToken: z.string().optional().default(''),

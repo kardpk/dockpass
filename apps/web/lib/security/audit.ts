@@ -22,8 +22,19 @@ type AuditAction =
   | "approval_granted"
   | "approval_denied"
   | "manifest_downloaded"
+  | "uscg_manifest_downloaded"
+  | "guest_boarded"
   | "review_submitted"
-  | "boat_created";
+  | "boat_created"
+  | "livery_briefing_verified"
+  | "captain_created"
+  | "captain_updated"
+  | "captain_deactivated"
+  | "crew_assigned"
+  | "crew_removed"
+  | "captain_notes_updated"
+  | "head_count_confirmed"
+  | "trip_reclassified";
 
 
 interface AuditParams {

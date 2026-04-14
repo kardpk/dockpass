@@ -8,7 +8,6 @@ import type { CaptainSnapshotData } from '@/types'
 
 interface CaptainChatPanelProps {
   snapshot: CaptainSnapshotData
-  token: string
 }
 
 export function CaptainChatPanel({

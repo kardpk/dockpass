@@ -322,7 +322,7 @@ export function BoatWizard() {
             {step === 5 && <Step5Rules data={data} onNext={goNext} />}
             {step === 6 && <Step6Packing data={data} onNext={goNext} />}
             {step === 7 && <Step7SafetyCards data={data} onNext={goNext} />}
-            {step === 8 && <Step8Waiver data={data} onNext={goNext} />}
+            {step === 8 && <Step8Waiver data={data} onNext={goNext} template={template} />}
             {step === 9 && <Step9Photos data={data} onNext={goNext} saving={saving} template={template} />}
           </motion.div>
         </AnimatePresence>

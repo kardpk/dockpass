@@ -12,11 +12,43 @@ export interface ApiResponse<T> {
 export type TripStatus = "upcoming" | "active" | "completed" | "cancelled";
 export type SubscriptionTier = "solo" | "captain" | "fleet" | "marina";
 export type CharterType = "captained" | "bareboat" | "both";
+export type TripPurpose =
+  | 'commercial'      // Paying customers — full USCG compliance
+  | 'private_party'   // Friends/social gathering
+  | 'family'          // Family day out
+  | 'fishing_social'  // Fishing with buddies, fuel-share
+  | 'corporate'       // Corporate event, client entertainment
+  | 'training'        // Crew training, delivery
+  | 'other';          // Catch-all
+
+export interface ComplianceProfile {
+  waiverRequired: boolean
+  safetyBriefingRequired: boolean
+  floatPlanRecommended: boolean
+  emergencyContactRequired: boolean
+  insuranceBindRequired: boolean
+  headCountRequired: boolean
+  preDepBlockOnNonCompliance: boolean
+}
+
+export const TRIP_PURPOSE_LABELS: Record<TripPurpose, {
+  label: string; icon: string; description: string
+}> = {
+  commercial:     { label: 'Commercial Charter',   icon: '💰', description: 'Paying customers aboard' },
+  private_party:  { label: 'Private Party',        icon: '🎉', description: 'Friends & social gathering' },
+  family:         { label: 'Family Day',            icon: '👨‍👩‍👧‍👦', description: 'Family outing, no guests' },
+  fishing_social: { label: 'Fishing Trip',          icon: '🎣', description: 'Buddies, fuel-share' },
+  corporate:      { label: 'Corporate Event',       icon: '🏢', description: 'Clients, team building' },
+  training:       { label: 'Training / Delivery',   icon: '🏫', description: 'Crew training or repositioning' },
+  other:          { label: 'Other',                  icon: '🛥️', description: 'Custom purpose' },
+}
+
 export type ApprovalStatus =
   | "pending"
   | "approved"
   | "declined"
-  | "auto_approved";
+  | "auto_approved"
+  | "pending_livery_briefing";
 export type BoatType =
   | "yacht"
   | "catamaran"
@@ -25,7 +57,25 @@ export type BoatType =
   | "pontoon"
   | "fishing"
   | "speedboat"
+  | "snorkel_dive"
+  | "pwc"
   | "other";
+
+// ── Dynamic Vessel Safety Matrix (USCG/FWC compliance) ──
+export type ComplianceTarget = "bareboat_only" | "passengers_only" | "all";
+
+export interface SafetyCardTemplate {
+  topic_key: string;
+  custom_title: string;
+  instructions: string;
+  image_url?: string;
+  /** Who sees this card — bareboat operators, captained passengers, or everyone */
+  compliance_target: ComplianceTarget;
+  /** USCG vessel length filter — hide card if boat >= this length (e.g., ECOS law < 26ft) */
+  max_length_ft?: number;
+  /** USCG vessel length filter — hide card if boat < this length */
+  min_length_ft?: number;
+}
 
 // ── Operator ──
 export interface Operator {
@@ -155,6 +205,9 @@ export interface TripFormData {
   charterType: 'captained' | 'bareboat' | 'both'
   specialNotes: string
   splitBookings: SplitBookingEntry[]
+  tripPurpose: TripPurpose                     // NEW — trip classification
+  forceFullCompliance: boolean                 // NEW — operator override
+  fuelShareDisclaimerAccepted: boolean         // NEW — fishing_social disclaimer
 }
 
 export interface SplitBookingEntry {
@@ -278,6 +331,10 @@ export interface JoinFlowState {
   marketingConsent: boolean
   isEU: boolean               // server-detected
 
+  // Step 2b — FWC compliance (bareboat only)
+  fwcLicenseUrl: string | null      // uploaded FWC Boater Safety ID photo
+  fwcLicenseUploading: boolean      // upload in progress
+
   // Step 3 — safety
   safetyAcks: SafetyAck[]
   currentSafetyCard: number
@@ -294,6 +351,7 @@ export interface JoinFlowState {
   // Result
   guestId: string
   qrToken: string
+  approvalStatus: ApprovalStatus | null  // returned from registration API
   requiresCourse: boolean
   isSubmitting: boolean
   submitError: string
@@ -308,8 +366,11 @@ export interface DashboardGuest {
   id: string
   customerId: string | null
   fullName: string
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
   languagePreference: string
   dietaryRequirements: string | null
+  dateOfBirth: string | null
   isNonSwimmer: boolean
   isSeaSicknessProne: boolean
   waiverSigned: boolean
@@ -319,6 +380,9 @@ export interface DashboardGuest {
   createdAt: string
   safetyAcknowledgments: { topic_key: string; acknowledgedAt: string }[]
   waiverTextHash: string | null   // 'firma_template' = Firma PDF, hex = legacy scroll
+  fwcLicenseUrl: string | null
+  liveryBriefingVerifiedAt: string | null
+  liveryBriefingVerifiedBy: string | null
   addonOrders: {
     addonName: string
     emoji: string
@@ -398,25 +462,91 @@ export interface CaptainSnapshotData {
   departureTime: string
   durationHours: number
   captainName: string | null
+  stateCode: string
+  boatType: string
+  charterType: string
+  lengthFt: number | null
   weather: { label: string; temperature: number; icon: string } | null
   alerts: {
     nonSwimmers: number
     children: number
+    childrenUnder6: number
     seasicknessProne: number
     dietary: { name: string; requirement: string }[]
   }
   guests: {
     id: string
     fullName: string
+    dateOfBirth: string | null
     waiverSigned: boolean
     waiverTextHash: string | null
     safetyAckCount: number
     languageFlag: string
     addonEmojis: string[]
+    approvalStatus: string
+    fwcLicenseUrl: string | null
+    liveryBriefingVerifiedAt: string | null
+    liveryBriefingVerifiedBy: string | null
   }[]
   addonSummary: AddonSummaryItem[]
   generatedAt: string
   expiresAt: string
+  captainPhotoUrl: string | null
+  captainLicense: string | null
+  captainRole: string
+  crewManifest: {
+    name: string
+    role: string
+    license: string | null
+  }[]
+  tripPurpose: TripPurpose
+  forceFullCompliance: boolean
+}
+
+// ═══════════════════════════════════════════
+// Captain Roster & Trip Assignment
+// ═══════════════════════════════════════════
+
+export type CrewRole = 'captain' | 'first_mate' | 'crew' | 'deckhand'
+
+export type LicenseType =
+  | 'OUPV'
+  | 'Master 25 Ton'
+  | 'Master 50 Ton'
+  | 'Master 100 Ton'
+  | 'Master 200 Ton'
+  | 'Master Unlimited'
+  | 'Able Seaman'
+  | 'Other'
+
+export interface CaptainProfile {
+  id: string
+  operatorId: string
+  fullName: string
+  photoUrl: string | null
+  bio: string | null
+  phone: string | null
+  email: string | null
+  licenseNumber: string | null
+  licenseType: LicenseType | null
+  licenseExpiry: string | null
+  languages: string[]
+  yearsExperience: number | null
+  certifications: string[]
+  isActive: boolean
+  isDefault: boolean
+  createdAt: string
+}
+
+export interface TripAssignment {
+  id: string
+  tripId: string
+  captainId: string
+  operatorId: string
+  role: CrewRole
+  assignedBy: string | null
+  assignedAt: string
+  captain: CaptainProfile  // joined from captains table
 }
 
 // ─── Phase 3F: Post-Trip Types ─────────────────
