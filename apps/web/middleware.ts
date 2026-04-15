@@ -51,118 +51,128 @@ const csp = [
 const AUTH_PATHS = ['/login', '/signup', '/forgot-password']
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const origin = request.headers.get('origin') ?? ''
-  const isWebhook = WEBHOOK_PATHS.some((p) => pathname.startsWith(p))
+  try {
+    const { pathname } = request.nextUrl
+    const origin = request.headers.get('origin') ?? ''
+    const isWebhook = WEBHOOK_PATHS.some((p) => pathname.startsWith(p))
 
-  // ─── HIGH 4: Reject requests over 10MB ──────────────────────────────────
-  const contentLength = request.headers.get('content-length')
-  if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) {
-    return new NextResponse('Request too large', { status: 413 })
-  }
+    // ─── HIGH 4: Reject requests over 10MB ──────────────────────────────────
+    const contentLength = request.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) {
+      return new NextResponse('Request too large', { status: 413 })
+    }
 
-  // ─── Preflight ──────────────────────────────────────────────────────────
-  if (request.method === 'OPTIONS') {
-    const preflightHeaders = new Headers()
-    preflightHeaders.set(
+    // ─── Preflight ──────────────────────────────────────────────────────────
+    if (request.method === 'OPTIONS') {
+      const preflightHeaders = new Headers()
+      preflightHeaders.set(
+        'Access-Control-Allow-Methods',
+        'GET,POST,PUT,DELETE,OPTIONS'
+      )
+      preflightHeaders.set(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization, stripe-signature'
+      )
+      if (isWebhook) {
+        preflightHeaders.set('Access-Control-Allow-Origin', '*')
+      } else if (ALLOWED_ORIGINS.includes(origin)) {
+        preflightHeaders.set('Access-Control-Allow-Origin', origin)
+      }
+      return new NextResponse(null, { status: 200, headers: preflightHeaders })
+    }
+
+    // ─── 1. Create mutable response for Supabase cookie refresh ─────────────
+    let response = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+
+    // Fail gracefully if ENV vars are purely missing on Vercel
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+
+    // ─── 2. Build Supabase client for edge (cookie-based, no DB) ────────────
+    const supabase = createServerClient(
+      supabaseUrl,
+      supabaseKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            // Must reassign response so refreshed cookie is sent back
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            )
+            response = NextResponse.next({
+              request,
+            })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+
+    // ─── 3. Refresh session (MUST call before auth check) ───────────────────
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // ─── 4. Dashboard auth guard ────────────────────────────────────────────
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
+      if (!user) {
+        const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('next', pathname)
+        return NextResponse.redirect(loginUrl)
+      }
+    }
+
+    // ─── 5. Redirect authenticated operators away from auth pages ───────────
+    if (user && AUTH_PATHS.includes(pathname)) {
+      const hasError = request.nextUrl.searchParams.has('error')
+      if (!hasError) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+
+    // ─── 6. Security headers ───────────────────────────────────────────────
+    response.headers.set('X-Frame-Options', 'DENY')
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+    response.headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=(self)'
+    )
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    )
+    response.headers.set('Content-Security-Policy', csp)
+
+    // ─── 7. CORS ───────────────────────────────────────────────────────────
+    if (isWebhook) {
+      response.headers.set('Access-Control-Allow-Origin', '*')
+    } else if (ALLOWED_ORIGINS.includes(origin)) {
+      response.headers.set('Access-Control-Allow-Origin', origin)
+      response.headers.set('Vary', 'Origin')
+    }
+    response.headers.set(
       'Access-Control-Allow-Methods',
       'GET,POST,PUT,DELETE,OPTIONS'
     )
-    preflightHeaders.set(
+    response.headers.set(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization, stripe-signature'
     )
-    if (isWebhook) {
-      preflightHeaders.set('Access-Control-Allow-Origin', '*')
-    } else if (ALLOWED_ORIGINS.includes(origin)) {
-      preflightHeaders.set('Access-Control-Allow-Origin', origin)
-    }
-    return new NextResponse(null, { status: 200, headers: preflightHeaders })
+
+    return response
+  } catch (error) {
+    // If anything fails in edge runtime, safely fallback to basic response
+    console.error('Middleware crash:', error)
+    return NextResponse.next()
   }
-
-  // ─── 1. Create mutable response for Supabase cookie refresh ─────────────
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  // ─── 2. Build Supabase client for edge (cookie-based, no DB) ────────────
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          // Must reassign response so refreshed cookie is sent back
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          response = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  // ─── 3. Refresh session (MUST call before auth check) ───────────────────
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // ─── 4. Dashboard auth guard ────────────────────────────────────────────
-  if (pathname.startsWith('/dashboard')) {
-    if (!user) {
-      const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('next', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-  }
-
-  // ─── 5. Redirect authenticated operators away from auth pages ───────────
-  if (user && AUTH_PATHS.includes(pathname)) {
-    const hasError = request.nextUrl.searchParams.has('error')
-    if (!hasError) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  }
-
-  // ─── 6. Security headers ───────────────────────────────────────────────
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(self)'
-  )
-  response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  )
-  response.headers.set('Content-Security-Policy', csp)
-
-  // ─── 7. CORS ───────────────────────────────────────────────────────────
-  if (isWebhook) {
-    response.headers.set('Access-Control-Allow-Origin', '*')
-  } else if (ALLOWED_ORIGINS.includes(origin)) {
-    response.headers.set('Access-Control-Allow-Origin', origin)
-    response.headers.set('Vary', 'Origin')
-  }
-  response.headers.set(
-    'Access-Control-Allow-Methods',
-    'GET,POST,PUT,DELETE,OPTIONS'
-  )
-  response.headers.set(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, stripe-signature'
-  )
-
-  return response
 }
 
 export const config = {
