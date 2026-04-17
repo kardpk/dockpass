@@ -9,7 +9,6 @@ interface TopBarProps {
 }
 
 export function TopBar({ operatorName, operatorId }: TopBarProps) {
-  // Extract initials from operator name
   const initials = operatorName
     .split(" ")
     .map((w) => w[0])
@@ -18,22 +17,60 @@ export function TopBar({ operatorName, operatorId }: TopBarProps) {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 bg-navy">
-      <div className="max-w-[768px] mx-auto flex items-center justify-between px-page py-[14px]">
-        {/* Brand */}
-        <div className="flex items-center gap-[10px]">
-          <div className="w-[30px] h-[30px] rounded-full border-[1.5px] border-gold flex items-center justify-center">
-            <Anchor size={16} className="text-gold" />
+    <header
+      className="sticky top-0 z-50"
+      style={{
+        background: "var(--color-ink)",
+        borderBottom: "1px solid rgba(244, 239, 230, 0.1)",
+      }}
+    >
+      <div
+        className="max-w-[768px] mx-auto flex items-center justify-between"
+        style={{ padding: "14px var(--s-4)" }}
+      >
+        {/* Brand — Anchor icon + Fraunces wordmark */}
+        <div className="flex items-center" style={{ gap: "var(--s-3)" }}>
+          <div
+            className="avatar avatar--sm flex items-center justify-center"
+            style={{
+              borderColor: "var(--color-brass)",
+              background: "transparent",
+              color: "var(--color-brass)",
+              width: "30px",
+              height: "30px",
+            }}
+          >
+            <Anchor size={14} strokeWidth={2} />
           </div>
-          <span className="text-[17px] font-bold text-white tracking-[-0.01em]">
-            BoatCheckin
+          <span
+            className="font-display"
+            style={{
+              fontSize: "var(--t-tile)",
+              fontWeight: 500,
+              color: "var(--color-bone)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Boatcheckin
           </span>
         </div>
 
         {/* Right side: notification bell + avatar */}
-        <div className="flex items-center gap-[12px]">
+        <div className="flex items-center" style={{ gap: "var(--s-3)" }}>
           <NotificationBell operatorId={operatorId} />
-          <div className="w-[32px] h-[32px] rounded-full bg-white/12 flex items-center justify-center text-white text-[14px] font-semibold">
+          {/* Operator initials avatar */}
+          <div
+            className="avatar avatar--sm"
+            style={{
+              background: "rgba(244, 239, 230, 0.12)",
+              borderColor: "rgba(244, 239, 230, 0.25)",
+              color: "var(--color-bone)",
+              fontSize: "var(--t-mono-sm)",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+            }}
+          >
             {initials}
           </div>
         </div>

@@ -43,7 +43,7 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="px-page py-[16px] space-y-[14px]">
+    <div style={{ padding: "var(--s-4)", display: "flex", flexDirection: "column", gap: "var(--s-3)" }}>
       {/* Greeting */}
       <DashboardGreeting
         operatorName={operator.full_name?.split(" ")[0] ?? ""}
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
       {data.todaysTrips.map((trip) => {
         const tripWeather = weatherMap.get(trip.id);
         return (
-          <div key={trip.id} className="space-y-[10px]">
+          <div key={trip.id} style={{ display: "flex", flexDirection: "column", gap: "var(--s-2)" }}>
             {tripWeather && (
               <TodayWeatherBar
                 weather={tripWeather}
@@ -75,23 +75,28 @@ export default async function DashboardPage() {
         <UpcomingTripsList trips={data.upcomingTrips} />
       )}
 
-      {/* No trips at all */}
+      {/* No trips at all — create nudge */}
       {!data.hasTrips && (
-        <div className="text-center py-[40px] px-page border border-dashed border-border rounded-[14px]">
-          <Anchor size={28} className="text-text-dim mx-auto mb-[10px]" />
-          <p className="text-[15px] text-text-mid mb-[16px]">
-            No trips created yet
+        <div
+          className="tile text-center"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "var(--s-10)",
+            gap: "var(--s-3)",
+            borderStyle: "dashed",
+          }}
+        >
+          <Anchor size={28} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)" }} aria-hidden="true" />
+          <p style={{ fontSize: "var(--t-body-md)", color: "var(--color-ink-muted)", margin: 0 }}>
+            No trips created yet.
           </p>
           <Link
             href="/dashboard/trips/new"
-            className="
-              inline-flex items-center justify-center
-              h-[48px] px-[24px] rounded-[10px]
-              bg-gold text-white font-semibold text-[15px]
-              hover:bg-gold-hi transition-colors
-            "
+            className="btn btn--rust"
           >
-            Create your first trip →
+            Create your first trip
           </Link>
         </div>
       )}

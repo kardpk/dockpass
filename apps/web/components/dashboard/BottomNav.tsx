@@ -19,19 +19,42 @@ export function BottomNav() {
 
   return (
     <>
-      {/* ── Floating action button (trips page only) ── */}
+      {/* ── FAB: create new trip (trips page only) ── */}
       {isTripsRoot && (
         <Link
           href="/dashboard/trips/new"
-          className="fixed bottom-[72px] right-5 z-50 w-[52px] h-[52px] rounded-full bg-gold text-white flex items-center justify-center shadow-[0_4px_16px_rgba(184,136,42,0.3)] hover:bg-gold-hi transition-colors"
+          className="fixed bottom-[72px] right-5 z-50 flex items-center justify-center"
+          style={{
+            width: "52px",
+            height: "52px",
+            background: "var(--color-rust)",
+            border: "var(--border-w) solid var(--color-rust)",
+            borderRadius: "var(--r-1)", /* sharp — not pill-shaped per R5 */
+            color: "var(--color-bone)",
+            boxShadow: "var(--shadow-float)",
+            transition: "background var(--dur-fast) var(--ease)",
+          }}
           aria-label="Create new trip"
         >
-          <Plus size={24} />
+          <Plus size={22} strokeWidth={2.5} />
         </Link>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border">
-        <div className="max-w-[768px] mx-auto flex h-[56px]" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+      {/* ── Bottom nav bar ── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          background: "var(--color-paper)",
+          borderTop: "var(--border-w) solid var(--color-line-soft)",
+        }}
+      >
+        <div
+          className="max-w-[768px] mx-auto flex"
+          style={{
+            height: "56px",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          }}
+        >
           {tabs.map((tab) => {
             const isActive =
               tab.href === "/dashboard"
@@ -43,20 +66,29 @@ export function BottomNav() {
                 key={tab.href}
                 href={tab.href}
                 className={cn(
-                  "flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors",
-                  isActive
-                    ? "text-gold"
-                    : "text-navy"
+                  "flex-1 flex flex-col items-center justify-center",
+                  "transition-colors"
                 )}
+                style={{
+                  gap: "3px",
+                  /* Active: rust color per §12.2 */
+                  color: isActive
+                    ? "var(--color-rust)"
+                    : "var(--color-ink-muted)",
+                  /* Active left-border is only practical for sidebar, not bottom nav
+                     — use color + font weight as the active signal here */
+                }}
               >
-                <tab.icon
-                  size={22}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
-                <span className={cn(
-                  "text-[10.5px]",
-                  isActive ? "font-bold" : "font-semibold"
-                )}>
+                <tab.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: "var(--t-mono-xs)",
+                    fontWeight: 600,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {tab.label}
                 </span>
               </Link>

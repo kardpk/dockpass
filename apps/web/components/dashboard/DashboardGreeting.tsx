@@ -10,17 +10,52 @@ export function DashboardGreeting({
   const { text, Icon } = getGreeting();
 
   return (
-    <div className="pt-[2px]">
-      <h1 className="text-[22px] font-bold text-navy flex items-center gap-[8px]">
-        {text}, {operatorName}
-        <Icon size={22} className="text-gold" />
+    <div style={{ paddingTop: "var(--s-1)" }}>
+      {/* Mono eyebrow */}
+      <span
+        className="mono"
+        style={{
+          fontSize: "var(--t-mono-sm)",
+          letterSpacing: "0.15em",
+          textTransform: "uppercase" as const,
+          color: "var(--color-ink-muted)",
+          display: "block",
+          marginBottom: "var(--s-1)",
+        }}
+      >
+        <Icon size={11} strokeWidth={2} style={{ display: "inline", marginRight: "4px", verticalAlign: "middle" }} />
+        {text}
+      </span>
+
+      {/* Fraunces display heading */}
+      <h1
+        className="font-display"
+        style={{
+          fontSize: "var(--t-card)",
+          fontWeight: 500,
+          letterSpacing: "-0.025em",
+          color: "var(--color-ink)",
+          lineHeight: 1.15,
+          margin: 0,
+        }}
+      >
+        {operatorName}
       </h1>
-      <p className="text-[15px] text-text-mid mt-[4px]">
+
+      {/* Sub-line */}
+      <p
+        style={{
+          marginTop: "var(--s-1)",
+          fontSize: "var(--t-body-md)",
+          color: "var(--color-ink-muted)",
+          fontFamily: "var(--font-body)",
+        }}
+      >
         {todayTripCount === 0
-          ? "No charters today"
+          ? "No charters today."
           : todayTripCount === 1
-          ? "You have 1 charter today"
-          : `You have ${todayTripCount} charters today`}
+          ? "1 charter today."
+          : `${todayTripCount} charters today.`}
       </p>
     </div>
   );

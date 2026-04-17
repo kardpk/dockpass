@@ -29,7 +29,7 @@ export default async function DashboardLayout({
   const showTrialBanner = trialDays !== null && trialDays <= 7;
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen" style={{ background: "var(--color-paper)" }}>
       {/* Navy top bar — all viewports */}
       <TopBar operatorName={operatorName} operatorId={operator.id} />
 
@@ -38,23 +38,24 @@ export default async function DashboardLayout({
         {/* Realtime notification toasts */}
         <DashboardNotifications operatorId={operator.id} />
 
-        {/* Trial expiry banner */}
+        {/* Trial expiry banner — .alert--warn pattern */}
         {showTrialBanner && (
-          <div className="mx-page mt-page">
-            <div className="relative overflow-hidden bg-warn-dim border border-warn/15 rounded-[14px] px-page py-[14px] flex items-start gap-[10px]">
-              {/* Warning top bar */}
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-warn" />
-              <AlertTriangle size={18} className="text-warn shrink-0 mt-[2px]" />
-              <div>
-                <p className="text-[13px] font-bold text-warn">Trial Ending</p>
-                <p className="text-[14px] text-text mt-[3px]">
+          <div style={{ padding: "var(--s-4) var(--s-4) 0" }}>
+            <div className="alert alert--warn">
+              <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
+              <div className="alert__body">
+                <strong style={{ fontSize: "var(--t-body-sm)" }}>Trial Ending</strong>
+                <p style={{ margin: "var(--s-1) 0 0", fontSize: "var(--t-body-md)", color: "var(--color-ink)" }}>
                   Your free trial ends in{" "}
-                  <strong>{trialDays <= 0 ? "less than a day" : `${trialDays} day${trialDays === 1 ? "" : "s"}`}</strong>.{" "}
+                  <strong>
+                    {trialDays <= 0 ? "less than a day" : `${trialDays} day${trialDays === 1 ? "" : "s"}`}
+                  </strong>.{" "}
                   <a
                     href="/dashboard/billing"
-                    className="text-gold font-semibold hover:underline"
+                    className="editorial-link"
+                    style={{ display: "inline-flex" }}
                   >
-                    Upgrade now →
+                    Upgrade now
                   </a>
                 </p>
               </div>

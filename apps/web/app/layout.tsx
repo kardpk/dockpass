@@ -1,22 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-
-const blMelody = localFont({
-  src: [
-    { path: "../public/fonts/BLMelody-ExtraLight.otf", weight: "200" },
-    { path: "../public/fonts/BLMelody-Light.otf", weight: "300" },
-    { path: "../public/fonts/BLMelody-Regular.otf", weight: "400" },
-    { path: "../public/fonts/BLMelody-Book.otf", weight: "450" },
-    { path: "../public/fonts/BLMelody-Medium.otf", weight: "500" },
-    { path: "../public/fonts/BLMelody-SemiBold.otf", weight: "600" },
-    { path: "../public/fonts/BLMelody-Bold.otf", weight: "700" },
-  ],
-  display: "swap",
-  variable: "--font-blmelody",
-});
 
 // MASTER_DESIGN.md fonts
 const fraunces = Fraunces({
@@ -50,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B1D3A",
+  themeColor: "#0B1E2D", // --ink
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -62,8 +47,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${blMelody.variable} ${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
-      <body className="font-sans antialiased">
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      {/* font-body = Inter, font-display = Fraunces, font-mono = JetBrains Mono */}
+      <body className="antialiased" style={{ fontFamily: "var(--font-body)" }}>
         {children}
         <Script
           id="sw-register"

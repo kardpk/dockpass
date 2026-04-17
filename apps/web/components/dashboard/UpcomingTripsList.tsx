@@ -1,64 +1,123 @@
 import Link from "next/link";
-import { Calendar, MapPin, ChevronRight } from "lucide-react";
+import { MapPin, ChevronRight } from "lucide-react";
 import { formatTripDate, formatTime } from "@/lib/utils/format";
 import type { OperatorTripDetail } from "@/types";
 
 export function UpcomingTripsList({ trips }: { trips: OperatorTripDetail[] }) {
   return (
     <div>
-      <div className="flex items-center gap-[8px] mb-[10px]">
-        <h2 className="text-[16px] font-bold text-navy">Coming up</h2>
-        <div className="w-[22px] h-[2px] bg-gold rounded-[1px]" />
+      {/* Section header */}
+      <div
+        className="flex items-center"
+        style={{
+          gap: "var(--s-3)",
+          marginBottom: "var(--s-3)",
+          paddingBottom: "var(--s-3)",
+          borderBottom: "1.5px solid var(--color-ink)",
+        }}
+      >
+        <span
+          className="mono"
+          style={{
+            fontSize: "var(--t-mono-sm)",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase" as const,
+            color: "var(--color-ink-muted)",
+            fontWeight: 600,
+          }}
+        >
+          Coming up
+        </span>
       </div>
-      <div className="space-y-[8px]">
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--s-2)" }}>
         {trips.map((trip) => {
           const guestCount = trip.guests.length;
           const signed = trip.guests.filter((g) => g.waiverSigned).length;
+          const dateObj = new Date(trip.tripDate + "T00:00:00");
+          const dayNum = dateObj.getDate();
+          const dayLabel = formatTripDate(trip.tripDate).split(",")[0];
+
           return (
             <Link
               key={trip.id}
               href={`/dashboard/trips/${trip.id}`}
-              className="
-                flex items-center gap-[12px] p-[14px]
-                bg-white rounded-[14px] border border-border
-                hover:border-gold/40 transition-colors
-              "
+              className="tile tile--hover"
+              style={{ textDecoration: "none" }}
             >
-              {/* Date block */}
-              <div className="
-                w-[46px] h-[46px] rounded-[10px] bg-gold-dim border border-gold-line
-                flex flex-col items-center justify-center flex-shrink-0
-              ">
-                <span className="text-[10px] text-text-dim leading-none font-semibold uppercase">
-                  {formatTripDate(trip.tripDate).split(",")[0]}
-                </span>
-                <span className="text-[16px] font-bold text-navy leading-tight">
-                  {new Date(trip.tripDate + "T00:00:00").getDate()}
-                </span>
-              </div>
+              <div className="flex items-center" style={{ gap: "var(--s-4)" }}>
+                {/* Date block — monospace */}
+                <div
+                  className="flex flex-col items-center justify-center flex-shrink-0"
+                  style={{
+                    width: "46px",
+                    height: "46px",
+                    border: "1.5px solid var(--color-line-soft)",
+                    borderRadius: "var(--r-1)",
+                    background: "var(--color-bone-warm)",
+                  }}
+                >
+                  <span
+                    className="mono"
+                    style={{
+                      fontSize: "var(--t-mono-xs)",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase" as const,
+                      color: "var(--color-ink-muted)",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {dayLabel}
+                  </span>
+                  <span
+                    className="font-display"
+                    style={{
+                      fontSize: "var(--t-tile)",
+                      fontWeight: 600,
+                      color: "var(--color-ink)",
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {dayNum}
+                  </span>
+                </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-semibold text-navy truncate">
-                  {trip.boat.boatName}
-                </p>
-                <p className="text-[12px] text-text-mid flex items-center gap-[4px] mt-[2px]">
-                  <MapPin size={11} />
-                  {formatTime(trip.departureTime)} · {trip.boat.marinaName}
-                </p>
-              </div>
+                {/* Trip info */}
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="font-display truncate"
+                    style={{ fontSize: "var(--t-tile)", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--color-ink)", margin: 0 }}
+                  >
+                    {trip.boat.boatName}
+                  </p>
+                  <p
+                    className="mono flex items-center"
+                    style={{ fontSize: "var(--t-mono-sm)", color: "var(--color-ink-muted)", margin: "3px 0 0", gap: "var(--s-1)" }}
+                  >
+                    <MapPin size={11} strokeWidth={2} aria-hidden="true" />
+                    {formatTime(trip.departureTime)} · {trip.boat.marinaName}
+                  </p>
+                </div>
 
-              {/* Guest progress */}
-              <div className="text-right flex-shrink-0">
-                <p className="text-[13px] font-bold text-navy">
-                  {guestCount}/{trip.maxGuests}
-                </p>
-                <p className="text-[11px] text-text-dim font-medium">
-                  {signed} signed
-                </p>
-              </div>
+                {/* Guest count */}
+                <div className="text-right flex-shrink-0">
+                  <p
+                    className="font-display"
+                    style={{ fontSize: "var(--t-tile)", fontWeight: 600, color: "var(--color-ink)", margin: 0 }}
+                  >
+                    {guestCount}
+                    <span className="unit">/{trip.maxGuests}</span>
+                  </p>
+                  <p
+                    className="mono"
+                    style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)", marginTop: "2px" }}
+                  >
+                    {signed} signed
+                  </p>
+                </div>
 
-              <ChevronRight size={16} className="text-text-dim shrink-0" />
+                <ChevronRight size={16} strokeWidth={2} aria-hidden="true" style={{ color: "var(--color-ink-muted)", flexShrink: 0 }} />
+              </div>
             </Link>
           );
         })}
