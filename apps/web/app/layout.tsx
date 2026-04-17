@@ -3,28 +3,29 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-// MASTER_DESIGN.md fonts
+// MASTER_DESIGN.md fonts — all three are variable fonts
 const fraunces = Fraunces({
   subsets: ["latin"],
-  axes: ["opsz"],
-  weight: ["400", "500", "600", "700", "900"],
+  axes: ["opsz"],       // optical size axis; only valid when weight is "variable"
+  weight: "variable",   // loads the full variable font (100–900)
   display: "swap",
   variable: "--font-fraunces",
 });
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "variable",
   display: "swap",
   variable: "--font-inter",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "variable",
   display: "swap",
   variable: "--font-jetbrains",
 });
+
 
 export const metadata: Metadata = {
   title: "BoatCheckin — Your charter trip, all in one link",
