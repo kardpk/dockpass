@@ -87,7 +87,7 @@ export default async function CrewPage() {
   })
 
   return (
-    <div className="px-page py-[16px]">
+    <div className="max-w-[640px] mx-auto px-5 pb-[100px] pt-4">
       <CrewRosterClient
         initialCaptains={profiles}
         expiringCaptains={expiringCaptains}

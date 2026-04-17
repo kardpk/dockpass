@@ -196,9 +196,9 @@ export async function saveBoatProfile(data: {
       }
     }
 
-    // 7. Sync captain to captains table + captain_boat_links (Option A)
+    // 7. Sync captain to captains table + captain_boat_links
+    // Defensive find-then-insert/update — works with or without migration 023 index.
     if (data.captainName && data.captainName.trim()) {
-      // Normalised license_type: only insert if it matches the CHECK constraint
       const validLicenseTypes = [
         'OUPV', 'Master 25 Ton', 'Master 50 Ton',
         'Master 100 Ton', 'Master 200 Ton', 'Master Unlimited',
@@ -208,54 +208,79 @@ export async function saveBoatProfile(data: {
         ? data.captainLicenseType
         : null;
 
-      // Upsert into captains — match on (operator_id, full_name) via DO UPDATE
-      // Uses service client (bypasses RLS) since this runs server-side
-      const { data: captainRow, error: captainError } = await supabase
-        .from('captains')
-        .upsert(
-          {
-            operator_id:      operator.id,
-            full_name:        data.captainName.trim(),
-            bio:              data.captainBio || null,
-            photo_url:        data.captainPhotoUrl || null,
-            license_number:   data.captainLicense || null,
-            license_type:     licenseType,
-            languages:        data.captainLanguages.length > 0 ? data.captainLanguages : ['en'],
-            years_experience: data.captainYearsExp ? parseInt(data.captainYearsExp) : null,
-            certifications:   data.captainCertifications,
-            default_role:     'captain',
-            is_active:        true,
-            updated_at:       new Date().toISOString(),
-          },
-          {
-            // Match on name per operator; update all fields on conflict
-            onConflict: 'operator_id,full_name',
-            ignoreDuplicates: false,
-          }
-        )
-        .select('id')
-        .single();
+      const captainPayload = {
+        operator_id:      operator.id,
+        full_name:        data.captainName.trim(),
+        bio:              data.captainBio || null,
+        photo_url:        data.captainPhotoUrl || null,
+        license_number:   data.captainLicense || null,
+        license_type:     licenseType,
+        languages:        data.captainLanguages.length > 0 ? data.captainLanguages : ['en'],
+        years_experience: data.captainYearsExp ? parseInt(data.captainYearsExp) : null,
+        certifications:   data.captainCertifications,
+        default_role:     'captain',
+        is_active:        true,
+        is_default:       false,
+        updated_at:       new Date().toISOString(),
+      };
 
-      if (captainError || !captainRow) {
-        // Non-fatal: captain sync failure shouldn't abort boat creation
-        console.error('[saveBoatProfile] captain upsert failed (non-fatal):', captainError);
+      // Step 1: look for an existing active captain with this name (case-insensitive)
+      const normalised = data.captainName.trim().toLowerCase();
+      const { data: existingCaptain } = await supabase
+        .from('captains')
+        .select('id')
+        .eq('operator_id', operator.id)
+        .eq('is_active', true)
+        .ilike('full_name', normalised)
+        .maybeSingle();
+
+      let captainId: string | null = null;
+
+      if (existingCaptain?.id) {
+        // Step 2a: UPDATE existing captain row
+        const { error: updateErr } = await supabase
+          .from('captains')
+          .update(captainPayload)
+          .eq('id', existingCaptain.id)
+          .eq('operator_id', operator.id);
+        if (updateErr) {
+          console.error('[saveBoatProfile] captain UPDATE failed (non-fatal):', updateErr);
+        } else {
+          captainId = existingCaptain.id;
+        }
       } else {
-        // Link captain to the newly created boat
+        // Step 2b: INSERT new captain row
+        const { data: newCaptain, error: insertErr } = await supabase
+          .from('captains')
+          .insert(captainPayload)
+          .select('id')
+          .single();
+        if (insertErr || !newCaptain) {
+          console.error('[saveBoatProfile] captain INSERT failed (non-fatal):', insertErr);
+        } else {
+          captainId = newCaptain.id;
+        }
+      }
+
+      if (captainId) {
+        // Link captain to boat (idempotent INSERT ignore duplicate)
         const { error: linkError } = await supabase
           .from('captain_boat_links')
           .upsert(
             {
-              captain_id:  captainRow.id,
+              captain_id:  captainId,
               boat_id:     boat.id,
               operator_id: operator.id,
+              role:        'captain',
             },
             { onConflict: 'captain_id,boat_id', ignoreDuplicates: true }
           );
         if (linkError) {
-          console.error('[saveBoatProfile] captain_boat_links INSERT failed (non-fatal):', linkError);
+          console.error('[saveBoatProfile] captain_boat_links upsert failed (non-fatal):', linkError);
         }
       }
     }
+
 
     // 7. Audit log
     auditLog({
