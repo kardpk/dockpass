@@ -139,7 +139,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
     <div className="max-w-[640px] mx-auto pb-[88px]">
 
       {/* ── HERO ── */}
-      <div style={{ position: "relative", height: 200, background: "var(--color-ink)", overflow: "hidden" }}>
+      <div style={{ position: "relative", height: 160, background: "var(--color-ink)", overflow: "hidden" }}>
         {firstPhoto?.url ? (
           <Image
             src={firstPhoto.url}
@@ -216,10 +216,11 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           <h1
             className="font-display"
             style={{
-              fontSize: "var(--t-display-sm)",
-              fontWeight: 500,
+              fontSize: "clamp(1.75rem, 5vw, 2.4rem)",
+              fontWeight: 600,
               color: "var(--color-paper)",
-              lineHeight: 1.1,
+              lineHeight: 1.05,
+              textShadow: "0 1px 8px rgba(0,0,0,0.35)",
             }}
           >
             {boat.boat_name}
@@ -240,37 +241,35 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
         <div
           style={{
             display: "flex",
-            gap: "var(--s-2)",
-            overflowX: "auto",
-            paddingBottom: "var(--s-1)",
+            flexWrap: "wrap",
+            gap: "var(--s-1)",
             marginBottom: "var(--s-5)",
-            scrollbarWidth: "none",
           }}
         >
           {[
-            { Icon: Users, value: boat.max_capacity, label: "Max guests" },
-            { Icon: Calendar, value: tripCount ?? 0, label: "Trips" },
-            { Icon: Anchor, value: boat.state_code ?? "—", label: "State" },
-            ...(boat.length_ft ? [{ Icon: Ship, value: `${boat.length_ft}ft`, label: "Length" }] : []),
+            { Icon: Users, value: boat.max_capacity, label: "guests" },
+            { Icon: Calendar, value: tripCount ?? 0, label: "trips" },
+            { Icon: Anchor, value: boat.state_code ?? "—", label: "state" },
+            ...(boat.length_ft ? [{ Icon: Ship, value: `${boat.length_ft}ft`, label: "length" }] : []),
           ].map(({ Icon, value, label }) => (
             <div
               key={label}
               style={{
                 flexShrink: 0,
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: "var(--s-2)",
-                padding: "var(--s-2) var(--s-3)",
+                gap: 4,
+                padding: "4px 10px",
                 borderRadius: 9999,
                 border: "1px solid var(--color-line)",
                 background: "var(--color-bone)",
               }}
             >
-              <Icon size={14} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)" }} />
-              <span style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>
+              <Icon size={12} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)" }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-ink)" }}>
                 {value}
               </span>
-              <span className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}>
+              <span className="mono" style={{ fontSize: 11, color: "var(--color-ink-muted)" }}>
                 {label}
               </span>
             </div>
@@ -478,11 +477,26 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
             <p className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "var(--s-2)" }}>
               What to Bring
             </p>
-            <div className="tile" style={{ padding: "var(--s-4)" }}>
+            <div className="tile" style={{ padding: "var(--s-4)", overflow: "hidden" }}>
               {bringItems.length > 0 && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--s-2)" }}>
                   {bringItems.map((item, i) => (
-                    <span key={i} className="pill" style={{ fontSize: "var(--t-body-sm)", background: "var(--color-bone)" }}>
+                    <span
+                      key={i}
+                      style={{
+                        display: "inline-block",
+                        padding: "4px 12px",
+                        borderRadius: 9999,
+                        fontSize: 13,
+                        lineHeight: 1.4,
+                        wordBreak: "break-word",
+                        maxWidth: "100%",
+                        // Alternate: even = bone/border, odd = ink/paper
+                        background: i % 2 === 0 ? "var(--color-bone)" : "var(--color-ink)",
+                        color: i % 2 === 0 ? "var(--color-ink)" : "var(--color-paper)",
+                        border: i % 2 === 0 ? "1px solid var(--color-line)" : "1px solid var(--color-ink)",
+                      }}
+                    >
                       {item}
                     </span>
                   ))}
@@ -495,7 +509,21 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
                   </p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--s-2)" }}>
                     {dontBringItems.map((item, i) => (
-                      <span key={i} className="pill pill--err" style={{ fontSize: "var(--t-body-sm)" }}>
+                      <span
+                        key={i}
+                        style={{
+                          display: "inline-block",
+                          padding: "4px 12px",
+                          borderRadius: 9999,
+                          fontSize: 13,
+                          lineHeight: 1.4,
+                          wordBreak: "break-word",
+                          maxWidth: "100%",
+                          background: "rgba(var(--color-status-err-rgb,180,60,60),0.08)",
+                          color: "var(--color-status-err)",
+                          border: "1px solid rgba(var(--color-status-err-rgb,180,60,60),0.2)",
+                        }}
+                      >
                         {item}
                       </span>
                     ))}

@@ -33,30 +33,24 @@ export function BoatDetailClient({ rules, dos, donts }: BoatDetailClientProps) {
                 borderBottom: i < visibleRules.length - 1 ? "1px solid var(--color-line-soft)" : "none",
               }}
             >
+              {/* Brass dot — clean, non-numbered */}
               <span
+                aria-hidden="true"
                 style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 3,
-                  background: "var(--color-ink)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "var(--color-brass)",
                   flexShrink: 0,
-                  marginTop: 2,
-                  fontSize: "var(--t-mono-xs)",
-                  color: "var(--color-paper)",
-                  fontWeight: 700,
-                  fontVariantNumeric: "tabular-nums",
+                  marginTop: 7,
                 }}
-              >
-                {i + 1}
-              </span>
+              />
               <p style={{ fontSize: "var(--t-body-sm)", color: "var(--color-ink)", lineHeight: 1.5, flex: 1 }}>
                 {rule}
               </p>
             </div>
           ))}
+
         </div>
       )}
 
