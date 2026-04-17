@@ -1,9 +1,25 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import {
+  Package, Utensils, Camera, Waves, Wine, Music, Fuel,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { AnchorLoader } from '@/components/ui/AnchorLoader'
 import { cn } from '@/lib/utils/cn'
 import type { JoinFlowState } from '@/types'
+
+// MASTER_DESIGN R1: no emojis — same category map as wizard Step9
+function addonCategoryIcon(name: string): LucideIcon {
+  const n = name.toLowerCase()
+  if (/chef|food|meal|cater|picnic|lunch|dinner/.test(n)) return Utensils
+  if (/photo|camera|photog/.test(n)) return Camera
+  if (/dive|snorkel|surf|wakeboard|wake|water.*sport|water.*toy|tube|towable/.test(n)) return Waves
+  if (/champagne|wine|bar|beverage|spirit|bottle|cocktail|drink/.test(n)) return Wine
+  if (/music|band|dj|entertain/.test(n)) return Music
+  if (/fuel|surcharge|extend/.test(n)) return Fuel
+  return Package
+}
 
 interface Addon {
   id: string
@@ -93,18 +109,40 @@ export function StepAddons({
       <div className="space-y-2">
         {addons.map(addon => {
           const qty = state.addonQuantities[addon.id] ?? 0
+          const AddonIcon = addonCategoryIcon(addon.name)
           return (
             <div
               key={addon.id}
-              className={cn(
-                'flex items-center gap-4 p-4 rounded-[14px]',
-                'border transition-colors',
-                qty > 0 ? 'border-gold bg-gold-dim' : 'border-border bg-white'
-              )}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--s-4)',
+                padding: 'var(--s-3) var(--s-4)',
+                borderRadius: 'var(--r-1)',
+                border: qty > 0
+                  ? '1.5px solid var(--color-brass)'
+                  : '1px solid var(--color-line)',
+                background: qty > 0 ? 'var(--color-bone)' : 'var(--color-paper)',
+                transition: 'border-color var(--dur-fast), background var(--dur-fast)',
+              }}
             >
-              {/* Emoji */}
-              <div className="w-12 h-12 rounded-[12px] bg-bg flex items-center justify-center text-[24px] flex-shrink-0">
-                {addon.emoji}
+              {/* Icon tile — no emoji */}
+              <div
+                style={{
+                  width: 40, height: 40, flexShrink: 0,
+                  borderRadius: 'var(--r-1)',
+                  background: qty > 0 ? 'rgba(184,136,42,0.08)' : 'var(--color-bone)',
+                  border: `1px solid ${qty > 0 ? 'var(--color-brass)' : 'var(--color-line-soft)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'border-color var(--dur-fast), background var(--dur-fast)',
+                }}
+              >
+                <AddonIcon
+                  size={18}
+                  strokeWidth={1.5}
+                  style={{ color: qty > 0 ? 'var(--color-brass)' : 'var(--color-ink-muted)' }}
+                  aria-hidden="true"
+                />
               </div>
 
               {/* Name + price */}

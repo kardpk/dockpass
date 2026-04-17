@@ -44,10 +44,16 @@ interface JoinFlowSheetProps {
 }
 
 // Ordered steps for the progress bar (insurance is conditional, excluded)
-const STEPS: JoinStep[] = ['code', 'details', 'safety', 'waiver', 'addons', 'boarding']
-const FAST_TRACK_STEPS: JoinStep[] = ['code', 'details', 'waiver', 'boarding']
-// Private/family trips: skip safety cards, make waiver optional
-const RELAXED_STEPS: JoinStep[] = ['code', 'details', 'waiver', 'addons', 'boarding']
+// ADDONS_ENABLED gates the add-on purchase step (beta: payments not yet live)
+const ADDONS_ENABLED = process.env.NEXT_PUBLIC_ADDONS_ENABLED === 'true'
+
+const STEPS: JoinStep[]             = ADDONS_ENABLED
+  ? ['code', 'details', 'safety', 'waiver', 'addons', 'boarding']
+  : ['code', 'details', 'safety', 'waiver', 'boarding']
+const FAST_TRACK_STEPS: JoinStep[]  = ['code', 'details', 'waiver', 'boarding']
+const RELAXED_STEPS: JoinStep[]     = ADDONS_ENABLED
+  ? ['code', 'details', 'waiver', 'addons', 'boarding']
+  : ['code', 'details', 'waiver', 'boarding']
 
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
@@ -243,9 +249,13 @@ export function JoinFlowSheet({
                   onNext={(requiresCourse) => {
                     updateState({ requiresCourse })
                     if (isFastTrack) {
+                      // Fast-track always skips addons
                       goToStep('boarding')
-                    } else {
+                    } else if (ADDONS_ENABLED) {
                       goToStep(requiresCourse ? 'insurance' : 'addons')
+                    } else {
+                      // Beta: payments not live yet — skip straight to boarding
+                      goToStep(requiresCourse ? 'insurance' : 'boarding')
                     }
                   }}
                   onBack={() => goToStep(isFastTrack || isRelaxedTrip ? 'details' : 'safety')}
@@ -259,7 +269,8 @@ export function JoinFlowSheet({
                 />
               )}
 
-              {state.step === 'addons' && (
+              {/* StepAddons: only shown when ADDONS_ENABLED (payments live) */}
+              {ADDONS_ENABLED && state.step === 'addons' && (
                 <StepAddons
                   addons={tripData.addons}
                   guestId={state.guestId}
