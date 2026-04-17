@@ -89,22 +89,41 @@ export function BoatDetailClient({ rules, dos, donts }: BoatDetailClientProps) {
         <>
           <div style={{ height: 1, background: "var(--color-line-soft)" }} />
           <div style={{ padding: "var(--s-3) var(--s-4)" }}>
-            <p
-              className="mono"
-              style={{
-                fontSize: "var(--t-mono-xs)",
-                color: "var(--color-status-ok)",
-                fontWeight: 600,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                marginBottom: "var(--s-2)",
-              }}
-            >
-              DOs
-            </p>
+            {/* Section label pill */}
+            <div style={{ marginBottom: "var(--s-2)" }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "2px 10px",
+                  borderRadius: 9999,
+                  background: "var(--color-ink)",
+                  color: "var(--color-paper)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                DOs
+              </span>
+            </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--s-2)" }}>
               {dos.map((item, i) => (
-                <span key={i} className="pill pill--ok" style={{ fontSize: "var(--t-body-sm)" }}>
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-block",
+                    padding: "4px 12px",
+                    borderRadius: 9999,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    lineHeight: 1.4,
+                    wordBreak: "break-word",
+                    background: "var(--color-ink)",
+                    color: "var(--color-paper)",
+                    border: "none",
+                  }}
+                >
                   {item}
                 </span>
               ))}
@@ -118,22 +137,41 @@ export function BoatDetailClient({ rules, dos, donts }: BoatDetailClientProps) {
         <>
           <div style={{ height: 1, background: "var(--color-line-soft)" }} />
           <div style={{ padding: "var(--s-3) var(--s-4)" }}>
-            <p
-              className="mono"
-              style={{
-                fontSize: "var(--t-mono-xs)",
-                color: "var(--color-status-err)",
-                fontWeight: 600,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                marginBottom: "var(--s-2)",
-              }}
-            >
-              DON&apos;Ts
-            </p>
+            {/* Section label pill */}
+            <div style={{ marginBottom: "var(--s-2)" }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "2px 10px",
+                  borderRadius: 9999,
+                  background: "var(--color-status-err)",
+                  color: "var(--color-paper)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                DON&apos;Ts
+              </span>
+            </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--s-2)" }}>
               {donts.map((item, i) => (
-                <span key={i} className="pill pill--err" style={{ fontSize: "var(--t-body-sm)" }}>
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-block",
+                    padding: "4px 12px",
+                    borderRadius: 9999,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    lineHeight: 1.4,
+                    wordBreak: "break-word",
+                    background: "var(--color-status-err)",
+                    color: "var(--color-paper)",
+                    border: "none",
+                  }}
+                >
                   {item}
                 </span>
               ))}

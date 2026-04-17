@@ -125,9 +125,17 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
   const readinessScore = readinessChecks.filter((c) => c.ok).length;
 
   // ── Parse structured rules ──
-  const standardRules: string[] = Array.isArray(boat.standard_rules) ? boat.standard_rules : [];
-  const dos: string[] = Array.isArray(boat.dos) ? boat.dos : [];
-  const donts: string[] = Array.isArray(boat.donts) ? boat.donts : [];
+  // ── Parse structured rules — stored in onboard_info JSONB ──
+  const onboardInfo = (boat.onboard_info as Record<string, unknown>) ?? {};
+  const standardRules: string[] = Array.isArray(onboardInfo.standardRules)
+    ? (onboardInfo.standardRules as string[])
+    : Array.isArray(boat.standard_rules) ? boat.standard_rules : [];
+  const dos: string[] = Array.isArray(onboardInfo.dos)
+    ? (onboardInfo.dos as string[])
+    : Array.isArray(boat.dos) ? boat.dos : [];
+  const donts: string[] = Array.isArray(onboardInfo.donts)
+    ? (onboardInfo.donts as string[])
+    : Array.isArray(boat.donts) ? boat.donts : [];
   // Fallback: parse house_rules text
   const rulesFromText = standardRules.length === 0 ? parseItems(boat.house_rules) : standardRules;
 
@@ -447,7 +455,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
               ) : (
                 <Link
                   key={check.label}
-                  href={`/dashboard/boats/new?edit=${boat.id}&step=${check.step}`}
+                  href={`/dashboard/boats/${boat.id}/edit?step=${check.step}`}
                   style={{ display: "block", textDecoration: "none" }}
                 >
                   {content}
@@ -578,7 +586,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           className="btn btn--ghost"
           style={{ height: 48, paddingInline: "var(--s-4)", fontSize: "var(--t-body-sm)" }}
         >
-          Edit
+          Edit boat setup
         </Link>
       </div>
     </div>

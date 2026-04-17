@@ -284,3 +284,141 @@ export async function saveBoatProfile(data: {
     };
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// updateBoatStep — targeted UPDATE for edit-mode wizard (single step at a time)
+// Called from /dashboard/boats/[id]/edit when captain edits one step and saves.
+// ─────────────────────────────────────────────────────────────────────────────
+export async function updateBoatStep(
+  boatId: string,
+  step: number,
+  data: Partial<Parameters<typeof saveBoatProfile>[0]>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { operator, supabase } = await requireOperator();
+
+    // Build the partial update payload based on which step is being saved
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const patch: Record<string, any> = {};
+
+    if (step === 1) {
+      if (data.boatName !== undefined) patch.boat_name = data.boatName;
+      if (data.boatType !== undefined) patch.boat_type = data.boatType;
+      if (data.charterType !== undefined) patch.charter_type = data.charterType;
+      if (data.yearBuilt !== undefined) patch.year_built = data.yearBuilt ? parseInt(data.yearBuilt) : null;
+      if (data.lengthFt !== undefined) patch.length_ft = data.lengthFt ? parseFloat(data.lengthFt) : null;
+      if (data.maxCapacity !== undefined) patch.max_capacity = parseInt(data.maxCapacity) || 1;
+    }
+
+    if (step === 2) {
+      if (data.marinaName !== undefined) patch.marina_name = data.marinaName;
+      if (data.marinaAddress !== undefined) patch.marina_address = data.marinaAddress;
+      if (data.slipNumber !== undefined) patch.slip_number = data.slipNumber || null;
+      if (data.parkingInstructions !== undefined) patch.parking_instructions = data.parkingInstructions || null;
+      if (data.lat !== undefined) patch.lat = data.lat;
+      if (data.lng !== undefined) patch.lng = data.lng;
+    }
+
+    if (step === 4) {
+      // Equipment, amenities, specificFields stored in onboard_info JSONB
+      const { data: existing } = await supabase
+        .from("boats")
+        .select("onboard_info")
+        .eq("id", boatId)
+        .eq("operator_id", operator.id)
+        .single();
+      const existingInfo = (existing?.onboard_info as Record<string, unknown>) ?? {};
+      patch.onboard_info = {
+        ...existingInfo,
+        equipment: data.selectedEquipment,
+        amenities: data.selectedAmenities,
+        specificFields: data.specificFieldValues,
+        customDetails: data.customDetails,
+      };
+    }
+
+    if (step === 5) {
+      const { data: existing } = await supabase
+        .from("boats")
+        .select("onboard_info")
+        .eq("id", boatId)
+        .eq("operator_id", operator.id)
+        .single();
+      const existingInfo = (existing?.onboard_info as Record<string, unknown>) ?? {};
+      const houseRulesText = [
+        "HOUSE RULES:",
+        ...(data.standardRules ?? []).map((r, i) => `${i + 1}. ${r}`),
+        "",
+        "DOs:",
+        ...(data.customDos ?? []).map((d) => `✓ ${d}`),
+        "",
+        "DON'Ts:",
+        ...(data.customDonts ?? []).map((d) => `✗ ${d}`),
+      ].join("\n");
+      patch.house_rules = houseRulesText;
+      patch.onboard_info = {
+        ...existingInfo,
+        standardRules: data.standardRules,
+        dos: data.customDos,
+        donts: data.customDonts,
+        customRuleSections: data.customRuleSections,
+      };
+    }
+
+    if (step === 6) {
+      if (data.whatToBring !== undefined) patch.what_to_bring = data.whatToBring || null;
+      const { data: existing } = await supabase
+        .from("boats")
+        .select("onboard_info")
+        .eq("id", boatId)
+        .eq("operator_id", operator.id)
+        .single();
+      const existingInfo = (existing?.onboard_info as Record<string, unknown>) ?? {};
+      patch.onboard_info = { ...existingInfo, whatNotToBring: data.whatNotToBring };
+    }
+
+    if (step === 7) {
+      if (data.safetyCards !== undefined) {
+        patch.safety_cards = data.safetyCards.map((card, i) => ({
+          id: card.id,
+          topic_key: card.topic_key,
+          custom_title: card.custom_title || null,
+          instructions: card.instructions,
+          sort_order: i,
+          url: card.image_url || null,
+        }));
+      }
+    }
+
+    if (Object.keys(patch).length === 0) {
+      return { success: true }; // nothing to update
+    }
+
+    const { error } = await supabase
+      .from("boats")
+      .update(patch)
+      .eq("id", boatId)
+      .eq("operator_id", operator.id);
+
+    if (error) {
+      console.error("[updateBoatStep] UPDATE failed:", error);
+      return { success: false, error: error.message };
+    }
+
+    auditLog({
+      action: "boat_updated",
+      operatorId: operator.id,
+      actorType: "operator",
+      actorIdentifier: operator.id,
+      entityType: "boat",
+      entityId: boatId,
+      changes: { step },
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error("[updateBoatStep] unexpected error:", err);
+    return { success: false, error: "An unexpected error occurred." };
+  }
+}
+
