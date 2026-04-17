@@ -136,7 +136,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
   const dontBringItems = parseItems(boat.what_not_to_bring);
 
   return (
-    <div className="max-w-[640px] mx-auto pb-[88px]">
+    <div className="max-w-[640px] mx-auto pb-[144px]">
 
       {/* ── HERO ── */}
       <div style={{ position: "relative", height: 160, background: "var(--color-ink)", overflow: "hidden" }}>
@@ -552,13 +552,13 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
       <div
         style={{
           position: "fixed",
-          bottom: 0,
+          bottom: 56,          /* sit above the 56px bottom nav bar */
           left: 0,
           right: 0,
           zIndex: 40,
           background: "var(--color-paper)",
           borderTop: "1px solid var(--color-line-soft)",
-          padding: "var(--s-3) var(--s-5) max(var(--s-3), env(safe-area-inset-bottom))",
+          padding: "var(--s-3) var(--s-5)",
           display: "flex",
           gap: "var(--s-2)",
           maxWidth: 640,
