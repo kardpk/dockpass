@@ -1,7 +1,6 @@
 'use client'
 
 import { Plus, Trash2 } from 'lucide-react'
-import { cn } from '@/lib/utils/cn'
 import type { SplitBookingEntry } from '@/types'
 
 interface SplitBookingEditorProps {
@@ -44,93 +43,113 @@ export function SplitBookingEditor({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] font-medium text-text-mid">Split bookings</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span
+          className="font-mono"
+          style={{ fontSize: 'var(--t-mono-xs)', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-ink-muted)' }}
+        >
+          Split bookings
+        </span>
         {totalAllocated > 0 && (
           <span
-            className={cn(
-              'text-[12px] font-medium px-2 py-0.5 rounded-[8px]',
-              remaining < 0
-                ? 'bg-error-dim text-error'
-                : 'bg-gold-dim text-navy',
-            )}
+            className="pill"
+            style={{
+              background: remaining < 0 ? 'var(--color-status-err-soft)' : 'var(--color-bone)',
+              color: remaining < 0 ? 'var(--color-status-err)' : 'var(--color-ink)',
+            }}
           >
             {totalAllocated} / {maxTotalGuests} allocated
           </span>
         )}
       </div>
 
+      {/* Entries */}
       {entries.map((entry, i) => (
         <div
           key={entry.id}
-          className="p-4 border border-border rounded-[12px] space-y-3"
+          className="tile"
+          style={{ padding: 'var(--s-4)', display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-text-mid">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span
+              className="font-mono"
+              style={{ fontSize: 'var(--t-mono-xs)', fontWeight: 600, color: 'var(--color-ink-muted)', letterSpacing: '0.08em' }}
+            >
               Group {i + 1}
             </span>
             <button
               type="button"
               onClick={() => removeEntry(entry.id)}
-              className="text-text-mid hover:text-error transition-colors p-1"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 28, height: 28,
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--color-ink-muted)',
+                borderRadius: 'var(--r-1)',
+                transition: 'color var(--dur-fast) var(--ease)',
+              }}
               aria-label="Remove booking"
             >
-              <Trash2 size={15} />
+              <Trash2 size={14} strokeWidth={2} />
             </button>
           </div>
 
           <input
             type="text"
-            placeholder="Organiser name *"
+            placeholder="Organiser name"
             value={entry.organiserName}
             onChange={(e) => updateEntry(entry.id, 'organiserName', e.target.value)}
-            className="w-full h-[48px] px-3 rounded-[10px] text-[14px] border border-border bg-white text-navy placeholder:text-text-mid focus:outline-none focus:ring-2 focus:ring-gold"
+            className="field-input"
           />
 
-          <div className="grid grid-cols-2 gap-2">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 'var(--s-2)' }}>
             <input
               type="email"
               placeholder="Email (optional)"
               value={entry.organiserEmail}
               onChange={(e) => updateEntry(entry.id, 'organiserEmail', e.target.value)}
-              className="h-[48px] px-3 rounded-[10px] text-[14px] border border-border bg-white text-navy placeholder:text-text-mid focus:outline-none focus:ring-2 focus:ring-gold"
+              className="field-input"
             />
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
               <input
                 type="number"
                 min={1}
                 max={maxTotalGuests}
                 value={entry.maxGuests}
-                onChange={(e) =>
-                  updateEntry(entry.id, 'maxGuests', Number(e.target.value))
-                }
-                className="w-20 h-[48px] px-3 rounded-[10px] text-[14px] text-center border border-border bg-white text-navy focus:outline-none focus:ring-2 focus:ring-gold"
+                onChange={(e) => updateEntry(entry.id, 'maxGuests', Number(e.target.value))}
+                className="field-input font-mono"
+                style={{ width: 64, textAlign: 'center' }}
               />
-              <span className="text-[13px] text-text-mid">guests</span>
+              <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>guests</span>
             </div>
           </div>
         </div>
       ))}
 
+      {/* Add group button */}
       <button
         type="button"
         onClick={addEntry}
         disabled={remaining <= 0}
-        className={cn(
-          'w-full h-[48px] rounded-[12px] border',
-          'flex items-center justify-center gap-2',
-          'text-[14px] font-medium transition-colors',
-          remaining <= 0
-            ? 'border-border text-border cursor-not-allowed'
-            : 'border-dashed border-[#A8C4E0] text-navy hover:bg-gold-dim',
-        )}
+        style={{
+          width: '100%', height: 44,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--s-2)',
+          borderRadius: 'var(--r-1)',
+          border: remaining <= 0 ? 'var(--border-w) solid var(--color-line-soft)' : 'var(--border-w) dashed var(--color-ink-muted)',
+          background: 'var(--color-paper)',
+          color: remaining <= 0 ? 'var(--color-line-soft)' : 'var(--color-ink)',
+          fontSize: 'var(--t-body-sm)', fontWeight: 600,
+          cursor: remaining <= 0 ? 'not-allowed' : 'pointer',
+          transition: 'background var(--dur-fast) var(--ease)',
+        }}
       >
-        <Plus size={16} />
+        <Plus size={14} strokeWidth={2.5} />
         Add group
         {remaining > 0 && (
-          <span className="text-[12px] text-text-mid">
-            ({remaining} guests remaining)
+          <span className="font-mono" style={{ fontSize: '11px', color: 'var(--color-ink-muted)', marginLeft: 'var(--s-1)' }}>
+            ({remaining} remaining)
           </span>
         )}
       </button>

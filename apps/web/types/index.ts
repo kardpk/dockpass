@@ -45,13 +45,13 @@ export interface ComplianceProfile {
 export const TRIP_PURPOSE_LABELS: Record<TripPurpose, {
   label: string; icon: string; description: string
 }> = {
-  commercial:     { label: 'Commercial Charter',   icon: '💰', description: 'Paying customers aboard' },
-  private_party:  { label: 'Private Party',        icon: '🎉', description: 'Friends & social gathering' },
-  family:         { label: 'Family Day',            icon: '👨‍👩‍👧‍👦', description: 'Family outing, no guests' },
-  fishing_social: { label: 'Fishing Trip',          icon: '🎣', description: 'Buddies, fuel-share' },
-  corporate:      { label: 'Corporate Event',       icon: '🏢', description: 'Clients, team building' },
-  training:       { label: 'Training / Delivery',   icon: '🏫', description: 'Crew training or repositioning' },
-  other:          { label: 'Other',                  icon: '🛥️', description: 'Custom purpose' },
+  commercial:     { label: 'Commercial Charter',   icon: 'Banknote',       description: 'Paying customers aboard' },
+  private_party:  { label: 'Private Party',        icon: 'Users',          description: 'Friends and social gathering' },
+  family:         { label: 'Family Day',            icon: 'Heart',          description: 'Family outing, no guests' },
+  fishing_social: { label: 'Fishing Trip',          icon: 'Fish',           description: 'Buddies, fuel-share' },
+  corporate:      { label: 'Corporate Event',       icon: 'Building2',      description: 'Clients, team building' },
+  training:       { label: 'Training / Delivery',   icon: 'GraduationCap',  description: 'Crew training or repositioning' },
+  other:          { label: 'Other',                  icon: 'Anchor',         description: 'Custom purpose' },
 }
 
 export type ApprovalStatus =

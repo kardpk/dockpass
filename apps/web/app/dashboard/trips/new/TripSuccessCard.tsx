@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, ExternalLink, MessageCircle } from 'lucide-react'
+import { Check, Copy, ExternalLink, MessageCircle, ArrowRight, Plus } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
-import { cn } from '@/lib/utils/cn'
 import type { TripCreatedResult } from '@/types'
 
 interface TripSuccessCardProps {
@@ -33,67 +32,111 @@ export function TripSuccessCard({ result, onCreateAnother, onViewTrip }: TripSuc
   }
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
       {/* ── Success header ─────────────────────────────────────────────── */}
-      <div className="p-6 rounded-[14px] bg-navy text-white text-center">
-        
-        <h2 className="text-[20px] font-bold mb-1">Your trip link is ready!</h2>
-        <p className="text-[14px] text-white/80">Share it with your guests</p>
+      <div
+        style={{
+          padding: 'var(--s-8)',
+          background: 'var(--color-ink)',
+          border: 'var(--border-w) solid var(--color-ink)',
+          borderRadius: 'var(--r-1)',
+          textAlign: 'center',
+        }}
+      >
+        <h2
+          className="font-display"
+          style={{ fontSize: '22px', fontWeight: 500, color: 'var(--color-bone)', letterSpacing: '-0.02em' }}
+        >
+          Your trip link is ready
+        </h2>
+        <p style={{ fontSize: 'var(--t-body-sm)', color: 'rgba(244,239,230,0.6)', marginTop: 'var(--s-1)' }}>
+          Share it with your guests
+        </p>
 
-        <div className="mt-4 inline-flex items-center gap-3 bg-white/10 rounded-[12px] px-6 py-3">
-          <span className="text-[13px] text-white/70">Code</span>
-          <span className="text-[28px] font-mono font-black tracking-[0.15em] text-white">
+        <div
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 'var(--s-3)',
+            background: 'rgba(244,239,230,0.08)',
+            borderRadius: 'var(--r-1)',
+            padding: 'var(--s-3) var(--s-6)',
+            marginTop: 'var(--s-5)',
+          }}
+        >
+          <span
+            className="font-mono"
+            style={{ fontSize: '11px', color: 'rgba(244,239,230,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+          >
+            Code
+          </span>
+          <span
+            className="font-mono"
+            style={{ fontSize: '28px', fontWeight: 900, letterSpacing: '0.15em', color: 'var(--color-bone)' }}
+          >
             {result.tripCode}
           </span>
         </div>
       </div>
 
       {/* ── Trip link ──────────────────────────────────────────────────── */}
-      <div className="border border-border rounded-[16px] overflow-hidden">
-        <div className="p-4">
-          <p className="text-[11px] font-semibold text-text-mid uppercase tracking-wider mb-2">
+      <div className="tile" style={{ overflow: 'hidden' }}>
+        <div style={{ padding: 'var(--s-4)' }}>
+          <span
+            className="font-mono"
+            style={{ fontSize: 'var(--t-mono-xs)', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-ink-muted)' }}
+          >
             Trip link
+          </span>
+          <p style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink)', wordBreak: 'break-all', fontWeight: 500, marginTop: 'var(--s-2)' }}>
+            {result.tripLink}
           </p>
-          <p className="text-[14px] text-navy break-all font-medium">{result.tripLink}</p>
         </div>
 
-        <div className="grid grid-cols-2 border-t border-border">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid var(--color-line-soft)' }}>
           <button
             onClick={() => copyToClipboard(result.tripLink, 'link')}
-            className={cn(
-              'flex items-center justify-center gap-2',
-              'h-[52px] text-[14px] font-medium transition-colors',
-              'border-r border-border',
-              copiedLink
-                ? 'bg-[#E8F9F4] text-teal'
-                : 'text-navy hover:bg-gold-dim',
-            )}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--s-2)',
+              height: 48, fontSize: 'var(--t-body-sm)', fontWeight: 600,
+              background: copiedLink ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
+              color: copiedLink ? 'var(--color-status-ok)' : 'var(--color-ink)',
+              border: 'none', borderRight: '1px solid var(--color-line-soft)',
+              cursor: 'pointer',
+              transition: 'background var(--dur-fast) var(--ease)',
+            }}
           >
-            {copiedLink ? <Check size={16} /> : <Copy size={16} />}
-            {copiedLink ? 'Copied!' : 'Copy link'}
+            {copiedLink ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} strokeWidth={2} />}
+            {copiedLink ? 'Copied' : 'Copy link'}
           </button>
           <a
             href={result.tripLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 h-[52px] text-[14px] font-medium text-text-mid hover:bg-bg transition-colors"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--s-2)',
+              height: 48, fontSize: 'var(--t-body-sm)', fontWeight: 500,
+              color: 'var(--color-ink-muted)',
+              textDecoration: 'none',
+            }}
           >
-            <ExternalLink size={16} />
+            <ExternalLink size={14} strokeWidth={2} />
             Preview
           </a>
         </div>
       </div>
 
       {/* ── QR Code ────────────────────────────────────────────────────── */}
-      <div className="border border-border rounded-[16px] p-4 flex flex-col items-center gap-3">
-        <p className="text-[12px] text-text-mid font-medium">
-          QR code — print and post at your marina
+      <div className="tile" style={{ padding: 'var(--s-5)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--s-3)' }}>
+        <p
+          className="font-mono"
+          style={{ fontSize: 'var(--t-mono-xs)', color: 'var(--color-ink-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}
+        >
+          Print and post at your marina
         </p>
-        <div className="bg-white p-3 rounded-[12px] border border-border">
+        <div style={{ background: 'white', padding: 'var(--s-3)', borderRadius: 'var(--r-2)', border: '1px solid var(--color-line-soft)' }}>
           <QRCodeSVG
             value={result.tripLink}
             size={160}
-            fgColor="#0C447C"
+            fgColor="#0B1E2D"
             bgColor="#FFFFFF"
             level="M"
           />
@@ -101,46 +144,55 @@ export function TripSuccessCard({ result, onCreateAnother, onViewTrip }: TripSuc
       </div>
 
       {/* ── WhatsApp message ───────────────────────────────────────────── */}
-      <div className="border border-border rounded-[16px] overflow-hidden">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <MessageCircle size={16} className="text-teal" />
-            <p className="text-[11px] font-semibold text-text-mid uppercase tracking-wider">
-              Ready-to-send WhatsApp message
-            </p>
+      <div className="tile" style={{ overflow: 'hidden' }}>
+        <div style={{ padding: 'var(--s-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
+            <MessageCircle size={14} strokeWidth={2} style={{ color: 'var(--color-sea)' }} />
+            <span
+              className="font-mono"
+              style={{ fontSize: 'var(--t-mono-xs)', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-ink-muted)' }}
+            >
+              Ready-to-send message
+            </span>
           </div>
-          <pre className="text-[14px] text-navy whitespace-pre-wrap font-sans leading-relaxed">
+          <pre style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink)', whiteSpace: 'pre-wrap', fontFamily: 'var(--font-body)', lineHeight: 1.6, margin: 0 }}>
             {result.whatsappMessage}
           </pre>
         </div>
         <button
           onClick={() => copyToClipboard(result.whatsappMessage, 'message')}
-          className={cn(
-            'w-full h-[52px] border-t border-border',
-            'flex items-center justify-center gap-2',
-            'text-[15px] font-semibold transition-colors',
-            copiedMessage
-              ? 'bg-[#E8F9F4] text-teal'
-              : 'bg-white text-navy hover:bg-gold-dim',
-          )}
+          style={{
+            width: '100%', height: 48,
+            borderTop: '1px solid var(--color-line-soft)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--s-2)',
+            fontSize: 'var(--t-body-sm)', fontWeight: 600,
+            background: copiedMessage ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
+            color: copiedMessage ? 'var(--color-status-ok)' : 'var(--color-ink)',
+            border: 'none', cursor: 'pointer',
+            transition: 'background var(--dur-fast) var(--ease)',
+          }}
         >
-          {copiedMessage ? <Check size={16} /> : <Copy size={16} />}
-          {copiedMessage ? 'Copied to clipboard!' : 'Copy WhatsApp message'}
+          {copiedMessage ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} strokeWidth={2} />}
+          {copiedMessage ? 'Copied to clipboard' : 'Copy message'}
         </button>
       </div>
 
       {/* ── Actions ────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 pt-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)', paddingTop: 'var(--s-2)' }}>
         <button
           onClick={onViewTrip}
-          className="w-full h-[52px] rounded-[12px] bg-navy text-white font-semibold text-[15px] hover:bg-navy/90 transition-colors"
+          className="btn btn--primary"
+          style={{ width: '100%', justifyContent: 'center', height: 48 }}
         >
-          View trip & guest list →
+          View trip and guest list
+          <ArrowRight size={14} strokeWidth={2.5} />
         </button>
         <button
           onClick={onCreateAnother}
-          className="w-full h-[52px] rounded-[12px] border border-border text-navy font-medium text-[15px] hover:bg-gold-dim transition-colors"
+          className="btn"
+          style={{ width: '100%', justifyContent: 'center', height: 48 }}
         >
+          <Plus size={14} strokeWidth={2.5} />
           Create another trip
         </button>
       </div>
@@ -166,45 +218,52 @@ function SplitSuccessCard({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="p-6 rounded-[14px] bg-navy text-white text-center">
-        
-        <h2 className="text-[20px] font-bold">
-          {result.bookings.length} booking links ready!
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
+      <div
+        style={{
+          padding: 'var(--s-8)',
+          background: 'var(--color-ink)',
+          borderRadius: 'var(--r-1)',
+          textAlign: 'center',
+        }}
+      >
+        <h2
+          className="font-display"
+          style={{ fontSize: '22px', fontWeight: 500, color: 'var(--color-bone)' }}
+        >
+          {result.bookings.length} booking links ready
         </h2>
-        <p className="text-[13px] text-white/80 mt-1">
+        <p style={{ fontSize: 'var(--t-body-sm)', color: 'rgba(244,239,230,0.6)', marginTop: 'var(--s-1)' }}>
           Send each organiser their personal link
         </p>
       </div>
 
       {result.bookings.map((booking) => (
-        <div
-          key={booking.bookingId}
-          className="border border-border rounded-[16px] overflow-hidden"
-        >
-          <div className="p-4 bg-bg border-b border-border">
-            <p className="text-[13px] font-semibold text-navy">
+        <div key={booking.bookingId} className="tile" style={{ overflow: 'hidden' }}>
+          <div style={{ padding: 'var(--s-4)', borderBottom: '1px solid var(--color-line-soft)', background: 'var(--color-bone)' }}>
+            <p style={{ fontSize: 'var(--t-body-sm)', fontWeight: 600, color: 'var(--color-ink)' }}>
               {booking.organiserName}
             </p>
-            <p className="text-[12px] text-text-mid">
+            <p className="font-mono" style={{ fontSize: 'var(--t-mono-xs)', color: 'var(--color-ink-muted)', letterSpacing: '0.04em' }}>
               Max {booking.maxGuests} guests · Code: {booking.bookingCode}
             </p>
           </div>
           <button
             onClick={() => copyMessage(booking.bookingId, booking.whatsappMessage)}
-            className={cn(
-              'w-full h-[48px]',
-              'flex items-center justify-center gap-2',
-              'text-[14px] font-medium transition-colors',
-              copiedId === booking.bookingId
-                ? 'bg-[#E8F9F4] text-teal'
-                : 'bg-white text-navy hover:bg-gold-dim',
-            )}
+            style={{
+              width: '100%', height: 44,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--s-2)',
+              fontSize: 'var(--t-body-sm)', fontWeight: 500,
+              background: copiedId === booking.bookingId ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
+              color: copiedId === booking.bookingId ? 'var(--color-status-ok)' : 'var(--color-ink)',
+              border: 'none', cursor: 'pointer',
+              transition: 'background var(--dur-fast) var(--ease)',
+            }}
           >
             {copiedId === booking.bookingId ? (
-              <><Check size={15} /> Copied!</>
+              <><Check size={14} strokeWidth={2.5} /> Copied</>
             ) : (
-              <><Copy size={15} /> Copy message for {booking.organiserName.split(' ')[0]}</>
+              <><Copy size={14} strokeWidth={2} /> Copy message for {booking.organiserName.split(' ')[0]}</>
             )}
           </button>
         </div>
@@ -212,8 +271,10 @@ function SplitSuccessCard({
 
       <button
         onClick={onCreateAnother}
-        className="w-full h-[52px] rounded-[12px] border border-border text-navy font-medium text-[15px] hover:bg-gold-dim transition-colors"
+        className="btn"
+        style={{ width: '100%', justifyContent: 'center', height: 48 }}
       >
+        <Plus size={14} strokeWidth={2.5} />
         Create another trip
       </button>
     </div>
