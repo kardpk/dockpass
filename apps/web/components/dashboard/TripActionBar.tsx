@@ -30,6 +30,8 @@ export function TripActionBar({
   const [generatingSnapshot, setGeneratingSnapshot] = useState(false)
   const [snapshotUrl, setSnapshotUrl] = useState<string | null>(initialSnapshotUrl || null)
   const [copiedSnapshot, setCopiedSnapshot] = useState(false)
+  const [snapshotError, setSnapshotError] = useState<string | null>(null)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
 
   const appUrl = typeof window !== 'undefined' ? window.location.origin : ''
   const tripLink = `${appUrl}/trip/${tripSlug}`
@@ -48,9 +50,10 @@ export function TripActionBar({
 
   async function downloadPdf() {
     setDownloadingPdf(true)
+    setDownloadError(null)
     try {
       const res = await fetch(`/api/dashboard/manifest/${tripId}`)
-      if (!res.ok) throw new Error()
+      if (!res.ok) throw new Error('Manifest generation failed')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -60,8 +63,8 @@ export function TripActionBar({
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-    } catch {
-      alert('Download failed. Please try again.')
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : 'Download failed. Please try again.')
     } finally {
       setDownloadingPdf(false)
     }
@@ -69,9 +72,10 @@ export function TripActionBar({
 
   async function downloadUscgCsv() {
     setDownloadingCsv(true)
+    setDownloadError(null)
     try {
       const res = await fetch(`/api/dashboard/uscg-manifest/${tripId}`)
-      if (!res.ok) throw new Error()
+      if (!res.ok) throw new Error('USCG CSV generation failed')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -81,8 +85,8 @@ export function TripActionBar({
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-    } catch {
-      alert('Download failed. Please try again.')
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : 'Download failed. Please try again.')
     } finally {
       setDownloadingCsv(false)
     }
@@ -91,16 +95,20 @@ export function TripActionBar({
   async function generateSnapshot() {
     if (!window.confirm(snapshotUrl ? 'Revoke the current link and generate a new one?' : 'Generate a captain link for this trip?')) return
     setGeneratingSnapshot(true)
+    setSnapshotError(null)
     try {
       const res = await fetch(
         `/api/dashboard/trips/${tripId}/regenerate-captain-token`,
         { method: 'POST' },
       )
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        throw new Error(json.error || 'Failed to generate captain link')
+      }
       const json = await res.json()
       setSnapshotUrl(`${appUrl}/snapshot/${json.token}`)
-    } catch {
-      alert('Failed to generate captain link.')
+    } catch (err) {
+      setSnapshotError(err instanceof Error ? err.message : 'Failed to generate captain link. Check that CAPTAIN_TOKEN_SECRET is set in your environment variables.')
     } finally {
       setGeneratingSnapshot(false)
     }
@@ -257,6 +265,31 @@ export function TripActionBar({
               <Share2 size={14} strokeWidth={2.5} />
               {generatingSnapshot ? 'Generating...' : 'Share to captain'}
             </button>
+          )}
+          {/* Snapshot error */}
+          {snapshotError && (
+            <div
+              style={{
+                marginTop: 'var(--s-3)',
+                padding: 'var(--s-3) var(--s-4)',
+                borderRadius: 'var(--r-1)',
+                background: 'rgba(180,60,60,0.06)',
+                border: '1px solid rgba(180,60,60,0.2)',
+                color: 'var(--color-status-err)',
+                fontSize: 13,
+                display: 'flex',
+                gap: 'var(--s-2)',
+                alignItems: 'flex-start',
+              }}
+            >
+              <span style={{ flex: 1 }}>{snapshotError}</span>
+              <button
+                onClick={() => setSnapshotError(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-status-err)', fontWeight: 700, flexShrink: 0, padding: 0 }}
+              >
+                ✕
+              </button>
+            </div>
           )}
         </div>
       </section>

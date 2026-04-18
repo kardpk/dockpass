@@ -36,6 +36,7 @@ export function TripStatusBar({
   const [showStartConfirm, setShowStartConfirm] = useState(false)
   const [briefingConfirmed, setBriefingConfirmed] = useState(false)
   const [captainBriefedAll, setCaptainBriefedAll] = useState(false)
+  const [showEndConfirm, setShowEndConfirm] = useState(false)
 
   // ── USCG compliance check ────────────────────────────────
   const isReadyToDepart = useMemo(() => {
@@ -100,27 +101,21 @@ export function TripStatusBar({
     }
   }
 
-  // ── End trip ─────────────────────────────────────────────
+  // ── End trip — calls operator-auth endpoint (no token required) ────────────
   async function handleEndTrip() {
-    if (!window.confirm('End this trip? This will mark it as completed and trigger review requests.')) return
     setLoading(true)
     setError(null)
     try {
-      const tokenRes = await fetch(`/api/dashboard/trips/${tripId}/snapshot`, { method: 'POST' })
-      if (!tokenRes.ok) throw new Error('Failed to generate token')
-      const tokenJson = await tokenRes.json()
-      const snapshotToken = tokenJson.data?.token
-
-      const endRes = await fetch(`/api/trips/${tripSlug}/end`, {
+      const endRes = await fetch(`/api/dashboard/trips/${tripId}/end`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ snapshotToken }),
       })
 
       if (!endRes.ok) {
         const body = await endRes.json().catch(() => ({ error: 'Unknown error' }))
         throw new Error(body.error || 'Failed to end trip')
       }
+
+      setShowEndConfirm(false)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to end trip')
     } finally {
@@ -318,15 +313,98 @@ export function TripStatusBar({
           </button>
         )}
 
-        {/* ── End Trip button ───────────────────────────── */}
-        {status === 'active' && (
+        {/* ── End Trip confirmation panel ───────────────── */}
+        {status === 'active' && showEndConfirm && (
+          <div
+            className="tile"
+            style={{ overflow: 'hidden', padding: 0 }}
+          >
+            {/* Panel header */}
+            <div
+              style={{
+                background: 'var(--color-status-err)',
+                padding: 'var(--s-3) var(--s-5)',
+              }}
+            >
+              <span
+                className="font-mono"
+                style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#fff' }}
+              >
+                Confirm — End Trip
+              </span>
+            </div>
+
+            <div style={{ padding: 'var(--s-5)', display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
+              {/* Summary */}
+              <div className="meta-stack">
+                <div className="meta-row">
+                  <span className="label">Passengers aboard</span>
+                  <span className="value" style={{ fontSize: 'var(--t-body-md)' }}>{guests.length}</span>
+                </div>
+                {startedAt && (
+                  <div className="meta-row">
+                    <span className="label">Started at</span>
+                    <span className="value" style={{ fontSize: 'var(--t-body-md)' }}>
+                      {new Date(startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Warning */}
+              <div
+                style={{
+                  padding: 'var(--s-3) var(--s-4)',
+                  background: 'rgba(180,60,60,0.06)',
+                  border: '1px solid rgba(180,60,60,0.2)',
+                  borderRadius: 'var(--r-1)',
+                  fontSize: 'var(--t-body-sm)',
+                  color: 'var(--color-status-err)',
+                  lineHeight: 1.5,
+                }}
+              >
+                This will mark the trip as <strong>completed</strong> and cannot be undone. Guests will receive a review request.
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', gap: 'var(--s-3)' }}>
+                <button
+                  onClick={() => setShowEndConfirm(false)}
+                  disabled={loading}
+                  className="btn"
+                  style={{ flex: 1 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEndTrip}
+                  disabled={loading}
+                  className="btn"
+                  style={{
+                    flex: 1,
+                    background: 'var(--color-status-err)',
+                    borderColor: 'var(--color-status-err)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    opacity: loading ? 0.6 : 1,
+                  }}
+                >
+                  {loading ? 'Ending...' : 'End Trip'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── End Trip button (opens confirmation) ───────── */}
+        {status === 'active' && !showEndConfirm && (
           <button
-            onClick={handleEndTrip}
+            onClick={() => setShowEndConfirm(true)}
             disabled={loading}
             className="btn btn--danger"
             style={{ width: '100%', height: 52, justifyContent: 'center', fontSize: 'var(--t-body-md)', fontWeight: 700 }}
           >
-            {loading ? 'Ending...' : 'End trip'}
+            End trip
           </button>
         )}
 
