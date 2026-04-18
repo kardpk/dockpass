@@ -1,4 +1,4 @@
-import { MapPin, ExternalLink, Car } from 'lucide-react'
+import { MapPin, ExternalLink } from 'lucide-react'
 import { ParkingCollapsible } from './ParkingCollapsible'
 import type { TripT } from '@/lib/i18n/tripTranslations'
 
@@ -18,7 +18,6 @@ export function FindDockSection({
   marinaAddress,
   slipNumber,
   parkingInstructions,
-  operatingArea,
   lat,
   lng,
   tr,
@@ -30,77 +29,59 @@ export function FindDockSection({
   return (
     <div
       className="tile"
-      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)', padding: 'var(--s-3) var(--s-4)' }}
     >
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
-        <MapPin size={16} strokeWidth={2} style={{ color: 'var(--color-rust)' }} />
-        <span
-          className="font-mono"
-          style={{
-            fontSize: '11px', fontWeight: 700,
-            letterSpacing: '0.12em', textTransform: 'uppercase' as const,
-            color: 'var(--color-ink-muted)',
-          }}
-        >
-          {tr.findDock}
-        </span>
+      {/* Single dense row: icon + marina + slip + maps link */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--s-2)' }}>
+        <MapPin size={16} strokeWidth={2} style={{ color: 'var(--color-rust)', flexShrink: 0, marginTop: 2 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--s-2)', flexWrap: 'wrap' }}>
+            <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+              {marinaName}
+            </p>
+            {slipNumber && (
+              <span className="badge badge--ok" style={{ fontSize: '10px' }}>
+                Slip {slipNumber}
+              </span>
+            )}
+          </div>
+          {marinaAddress && (
+            <p style={{ fontSize: '13px', color: 'var(--color-ink-muted)', margin: '2px 0 0' }}>
+              {marinaAddress}
+            </p>
+          )}
+
+          {/* Maps link inline */}
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              marginTop: 6,
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--color-rust)',
+              textDecoration: 'none',
+            }}
+          >
+            <ExternalLink size={12} strokeWidth={2} />
+            {tr.openMaps}
+          </a>
+        </div>
       </div>
 
-      {/* Marina info */}
-      <p style={{ fontSize: 'var(--t-body-md)', fontWeight: 700, color: 'var(--color-ink)' }}>
-        {marinaName}
-      </p>
-      {marinaAddress && (
-        <p style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)', marginTop: 'var(--s-1)' }}>
-          {marinaAddress}
-        </p>
-      )}
-
-      {/* Slip badge */}
-      {slipNumber && (
-        <span className="badge badge--ok" style={{ marginTop: 'var(--s-2)', display: 'inline-flex' }}>
-          {tr.slip} {slipNumber}
-        </span>
-      )}
-
-      {/* Open in Maps */}
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          marginTop: 'var(--s-3)',
-          display: 'flex', alignItems: 'center', gap: 'var(--s-2)',
-          minHeight: 44,
-          fontSize: 'var(--t-body-sm)',
-          fontWeight: 600,
-          color: 'var(--color-ink)',
-          textDecoration: 'none',
-        }}
-      >
-        <ExternalLink size={14} strokeWidth={2} />
-        {tr.openMaps}
-      </a>
-
-      {/* Parking collapsible */}
+      {/* Parking if available */}
       {parkingInstructions && (
         <div
           style={{
-            marginTop: 'var(--s-3)',
-            paddingTop: 'var(--s-3)',
+            marginTop: 'var(--s-2)',
+            paddingTop: 'var(--s-2)',
             borderTop: '1px dashed var(--color-line-soft)',
           }}
         >
           <ParkingCollapsible text={parkingInstructions} label={tr.parkingNote} />
         </div>
-      )}
-
-      {/* Operating area */}
-      {operatingArea && (
-        <p style={{ marginTop: 'var(--s-3)', fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>
-          Operating area: {operatingArea}
-        </p>
       )}
     </div>
   )

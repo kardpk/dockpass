@@ -35,44 +35,31 @@ export function CaptainSection({
   return (
     <div
       className="tile"
-      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)', padding: 'var(--s-3) var(--s-4)' }}
     >
-      {/* Kicker */}
-      <span
-        className="font-mono"
-        style={{
-          fontSize: '11px', fontWeight: 700,
-          letterSpacing: '0.12em', textTransform: 'uppercase' as const,
-          color: 'var(--color-ink-muted)',
-          display: 'block',
-          marginBottom: 'var(--s-3)',
-        }}
-      >
-        {tr.captain}
-      </span>
-
-      {/* Profile row */}
+      {/* Single dense row: photo + name + badges + meta */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)' }}>
-        {/* Photo / initials */}
+        {/* Photo / initials — compact */}
         {captainPhotoUrl ? (
           <Image
             src={captainPhotoUrl}
             alt={captainName}
-            width={56}
-            height={56}
+            width={44}
+            height={44}
             className="object-cover"
-            style={{ width: 56, height: 56, borderRadius: 'var(--r-1)' }}
+            style={{ width: 44, height: 44, borderRadius: 'var(--r-1)', flexShrink: 0 }}
           />
         ) : (
           <div
             style={{
-              width: 56, height: 56,
+              width: 44, height: 44,
               borderRadius: 'var(--r-1)',
               background: 'var(--color-bone)',
               border: '1px solid var(--color-line-soft)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '18px', fontWeight: 700,
+              fontSize: '15px', fontWeight: 700,
               color: 'var(--color-ink)',
+              flexShrink: 0,
             }}
           >
             {initials}
@@ -80,50 +67,46 @@ export function CaptainSection({
         )}
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 'var(--t-body-md)', fontWeight: 700, color: 'var(--color-ink)' }}>
-            {captainName}
-          </p>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginTop: 'var(--s-1)', flexWrap: 'wrap' }}>
+          {/* Name row */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--s-2)', flexWrap: 'wrap' }}>
+            <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ink)', margin: 0 }}>
+              {captainName}
+            </p>
             {captainLicense && (
-              <span className="badge">
-                <Shield size={10} strokeWidth={2.5} />
+              <span className="badge" style={{ fontSize: '10px' }}>
+                <Shield size={9} strokeWidth={2.5} />
                 {tr.uscgLicensed}
               </span>
             )}
+          </div>
+
+          {/* Compact meta line */}
+          <div
+            className="font-mono"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--s-2)',
+              marginTop: 3,
+              fontSize: '11px',
+              color: 'var(--color-ink-muted)',
+              flexWrap: 'wrap',
+            }}
+          >
             {captainTripCount != null && (
-              <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-ink-muted)' }}>
-                {captainTripCount} {tr.trips}
+              <span>{captainTripCount} {tr.trips}</span>
+            )}
+            {captainYearsExp != null && (
+              <span>{captainYearsExp} {tr.yearsExp}</span>
+            )}
+            {captainLanguages.length > 0 && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Globe size={10} strokeWidth={2} />
+                {captainLanguages.map(lang =>
+                  LANGUAGE_FLAGS[lang as keyof typeof LANGUAGE_FLAGS] ?? lang
+                ).join(' ')}
               </span>
             )}
           </div>
         </div>
-      </div>
-
-      {/* Compact meta row */}
-      <div
-        className="font-mono"
-        style={{
-          display: 'flex', alignItems: 'center', gap: 'var(--s-3)',
-          marginTop: 'var(--s-3)',
-          paddingTop: 'var(--s-3)',
-          borderTop: '1px dashed var(--color-line-soft)',
-          fontSize: '12px',
-          color: 'var(--color-ink-muted)',
-          flexWrap: 'wrap',
-        }}
-      >
-        {captainYearsExp != null && (
-          <span>{captainYearsExp} {tr.yearsExp}</span>
-        )}
-        {captainLanguages.length > 0 && (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Globe size={11} strokeWidth={2} />
-            {captainLanguages.map(lang =>
-              LANGUAGE_FLAGS[lang as keyof typeof LANGUAGE_FLAGS] ?? lang
-            ).join(' ')}
-          </span>
-        )}
       </div>
     </div>
   )

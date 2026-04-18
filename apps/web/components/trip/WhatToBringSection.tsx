@@ -28,13 +28,10 @@ export function WhatToBringSection({
     ? whatNotToBring.split('\n').map((s) => s.trim()).filter(Boolean)
     : []
 
-  // Load saved ticks from versioned storage
   useEffect(() => {
     try {
       const saved = storage.get('guest_checklist', slug)
-      if (saved) {
-        setChecked(new Set(saved.checked))
-      }
+      if (saved) setChecked(new Set(saved.checked))
     } catch { /* Unavailable */ }
   }, [slug])
 
@@ -51,94 +48,126 @@ export function WhatToBringSection({
   return (
     <div
       className="tile"
-      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)', padding: 'var(--s-3) var(--s-4)' }}
     >
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
-        <Backpack size={16} strokeWidth={2} style={{ color: 'var(--color-ink)' }} />
+      {/* Header + tabs inline */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-2)' }}>
+        <Backpack size={14} strokeWidth={2} style={{ color: 'var(--color-ink)' }} />
         <span
           className="font-mono"
           style={{
-            fontSize: '11px', fontWeight: 700,
+            fontSize: '10px', fontWeight: 700,
             letterSpacing: '0.12em', textTransform: 'uppercase' as const,
             color: 'var(--color-ink)',
           }}
         >
-          Packing list
+          Packing
         </span>
+
+        {/* Tab pills — right aligned */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+          <button
+            onClick={() => setActiveTab('bring')}
+            className="font-mono"
+            style={{
+              fontSize: '10px', fontWeight: 700,
+              letterSpacing: '0.06em', textTransform: 'uppercase' as const,
+              padding: '3px 8px',
+              borderRadius: 'var(--r-1)',
+              border: 'var(--border-w) solid',
+              borderColor: activeTab === 'bring' ? 'var(--color-ink)' : 'var(--color-line)',
+              background: activeTab === 'bring' ? 'var(--color-ink)' : 'transparent',
+              color: activeTab === 'bring' ? '#fff' : 'var(--color-ink-muted)',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+          >
+            Bring
+          </button>
+          <button
+            onClick={() => setActiveTab('avoid')}
+            className="font-mono"
+            style={{
+              fontSize: '10px', fontWeight: 700,
+              letterSpacing: '0.06em', textTransform: 'uppercase' as const,
+              padding: '3px 8px',
+              borderRadius: 'var(--r-1)',
+              border: 'var(--border-w) solid',
+              borderColor: activeTab === 'avoid' ? 'var(--color-status-err)' : 'var(--color-line)',
+              background: activeTab === 'avoid' ? 'var(--color-status-err)' : 'transparent',
+              color: activeTab === 'avoid' ? '#fff' : 'var(--color-ink-muted)',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+          >
+            Avoid
+          </button>
+        </div>
       </div>
 
-      {/* Tab switcher */}
-      <div style={{ display: 'flex', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
-        <button
-          onClick={() => setActiveTab('bring')}
-          className={activeTab === 'bring' ? 'btn btn--ink btn--sm' : 'btn btn--ghost btn--sm'}
-          style={{ flex: 1, justifyContent: 'center' }}
-        >
-          <Check size={13} strokeWidth={2.5} />
-          {tr.whatToBring}
-        </button>
-        <button
-          onClick={() => setActiveTab('avoid')}
-          className={activeTab === 'avoid' ? 'btn btn--danger btn--sm' : 'btn btn--ghost btn--sm'}
-          style={{ flex: 1, justifyContent: 'center' }}
-        >
-          <X size={13} strokeWidth={2.5} />
-          {tr.whatNotToBring}
-        </button>
-      </div>
-
-      {/* Bring checklist */}
+      {/* Bring checklist — compact */}
       {activeTab === 'bring' && (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-1)' }}>
           {bringItems.length === 0 && (
-            <li style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>No items listed.</li>
+            <p style={{ fontSize: '13px', color: 'var(--color-ink-muted)' }}>No items listed.</p>
           )}
           {bringItems.map((item, idx) => (
-            <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
+            <label
+              key={idx}
+              htmlFor={`bring-${idx}`}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 'var(--s-2)',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
               <input
                 type="checkbox"
                 id={`bring-${idx}`}
                 checked={checked.has(idx)}
                 onChange={() => toggleItem(idx)}
                 style={{
-                  width: 20, height: 20, flexShrink: 0, cursor: 'pointer',
+                  width: 16, height: 16, flexShrink: 0,
                   accentColor: 'var(--color-ink)',
-                  borderRadius: 'var(--r-1)',
+                  cursor: 'pointer',
                 }}
               />
-              <label
-                htmlFor={`bring-${idx}`}
+              <span
                 style={{
-                  fontSize: 'var(--t-body-sm)',
-                  cursor: 'pointer',
-                  userSelect: 'none',
+                  fontSize: '13px',
+                  lineHeight: 1.45,
                   color: checked.has(idx) ? 'var(--color-ink-muted)' : 'var(--color-ink)',
                   textDecoration: checked.has(idx) ? 'line-through' : 'none',
                 }}
               >
                 {item}
-              </label>
-            </li>
+              </span>
+            </label>
           ))}
-        </ul>
+        </div>
       )}
 
-      {/* Avoid list */}
+      {/* Avoid list — compact */}
       {activeTab === 'avoid' && (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
+        <div
+          style={{
+            borderLeft: '3px solid var(--color-status-err)',
+            paddingLeft: 'var(--s-3)',
+            display: 'flex', flexDirection: 'column', gap: 'var(--s-1)',
+          }}
+        >
           {avoidItems.length === 0 && (
-            <li style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>No items listed.</li>
+            <p style={{ fontSize: '13px', color: 'var(--color-ink-muted)' }}>No items listed.</p>
           )}
           {avoidItems.map((item, idx) => (
-            <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--s-2)' }}>
-              <X size={14} strokeWidth={2.5} style={{ color: 'var(--color-status-err)', flexShrink: 0, marginTop: 2 }} />
-              <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-status-err)' }}>
+            <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <X size={12} strokeWidth={3} style={{ color: 'var(--color-status-err)', flexShrink: 0, marginTop: 2 }} />
+              <span style={{ fontSize: '13px', color: 'var(--color-ink)', lineHeight: 1.45 }}>
                 {item}
               </span>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )
