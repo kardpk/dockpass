@@ -204,8 +204,8 @@
 }
 
 .pill--brass {
-  background: transparent;
-  color: var(--color-brass);
+  background: rgba(200, 161, 74, 0.12);
+  color: var(--color-brass-deep);
   border-color: var(--color-brass);
 }
 

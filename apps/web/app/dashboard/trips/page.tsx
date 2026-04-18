@@ -139,13 +139,13 @@ export default async function TripsPage() {
               <div
                 className="font-mono"
                 style={{
-                  fontSize: 'var(--t-mono-xs)',
-                  fontWeight: 600,
-                  letterSpacing: '0.12em',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
                   textTransform: 'uppercase',
-                  color: 'var(--color-ink-muted)',
+                  color: 'var(--color-ink)',
                   paddingBottom: 'var(--s-3)',
-                  borderBottom: '1px solid var(--color-line-soft)',
+                  borderBottom: 'var(--border-w) solid var(--color-ink)',
                   marginBottom: 'var(--s-3)',
                 }}
               >
