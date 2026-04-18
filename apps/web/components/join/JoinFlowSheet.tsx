@@ -42,9 +42,10 @@ interface JoinFlowSheetProps {
 }
 
 // Beta: simplified flow — no insurance, no addons
+// Safety is ALWAYS required (legal) — only fast-track may skip
 const STEPS: JoinStep[]             = ['code', 'details', 'safety', 'waiver', 'boarding']
 const FAST_TRACK_STEPS: JoinStep[]  = ['code', 'details', 'waiver', 'boarding']
-const RELAXED_STEPS: JoinStep[]     = ['code', 'details', 'waiver', 'boarding']
+const RELAXED_STEPS: JoinStep[]     = ['code', 'details', 'safety', 'waiver', 'boarding']
 
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
@@ -206,7 +207,7 @@ export function JoinFlowSheet({
                 <StepDetails
                   state={state}
                   onUpdate={updateState}
-                  onNext={() => goToStep(isFastTrack ? 'waiver' : isRelaxedTrip ? 'waiver' : 'safety')}
+                  onNext={() => goToStep(isFastTrack ? 'waiver' : 'safety')}
                   onBack={() => goToStep('code')}
                   charterType={tripData.charterType}
                   tripSlug={tripSlug}
