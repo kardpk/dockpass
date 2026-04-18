@@ -10,6 +10,13 @@ interface BoatRulesSectionProps {
   tr: TripT
 }
 
+/** Filter out raw section headers that captains sometimes embed in the text */
+const HEADER_NOISE = /^(house\s*rules|dos?|don'?ts?)\s*:?\s*$/i
+
+function cleanItems(items: string[]): string[] {
+  return items.filter(item => !HEADER_NOISE.test(item.trim()))
+}
+
 export function BoatRulesSection({
   houseRules,
   customDos,
@@ -17,13 +24,15 @@ export function BoatRulesSection({
   customRuleSections,
   tr,
 }: BoatRulesSectionProps) {
-  const houseRuleLines = houseRules
-    ? houseRules.split('\n').map((s) => s.trim()).filter(Boolean)
-    : []
+  const houseRuleLines = cleanItems(
+    houseRules ? houseRules.split('\n').map(s => s.trim()).filter(Boolean) : []
+  )
+  const doItems = cleanItems(customDos)
+  const dontItems = cleanItems(customDonts)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)', margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}>
-      {/* ── HOUSE RULES tile ── */}
+      {/* ── HOUSE RULES ── */}
       {houseRuleLines.length > 0 && (
         <RulesCard
           heading={tr.rules}
@@ -32,6 +41,7 @@ export function BoatRulesSection({
           pillClass="pill pill--err"
           PillIcon={AlertCircle}
           stripeColor="var(--color-status-err)"
+          bgTint="var(--color-paper)"
         >
           {houseRuleLines.map((rule, idx) => (
             <RuleItem key={idx} text={rule} stripeColor="var(--color-status-err)" />
@@ -39,8 +49,8 @@ export function BoatRulesSection({
         </RulesCard>
       )}
 
-      {/* ── DOs tile ── */}
-      {customDos.length > 0 && (
+      {/* ── DOs — light green tint ── */}
+      {doItems.length > 0 && (
         <RulesCard
           heading={tr.dos}
           subheading="Positive guidance for your trip"
@@ -48,25 +58,27 @@ export function BoatRulesSection({
           pillClass="pill pill--ok"
           PillIcon={CheckCircle2}
           stripeColor="var(--color-status-ok)"
+          bgTint="var(--color-status-ok-soft)"
         >
-          {customDos.map((item, idx) => (
+          {doItems.map((item, idx) => (
             <RuleItem key={idx} text={item} stripeColor="var(--color-status-ok)" icon={<Check size={12} strokeWidth={3} style={{ color: 'var(--color-status-ok)' }} />} />
           ))}
         </RulesCard>
       )}
 
-      {/* ── DON'Ts tile ── */}
-      {customDonts.length > 0 && (
+      {/* ── DON'Ts — light rusty-red tint ── */}
+      {dontItems.length > 0 && (
         <RulesCard
           heading={tr.donts}
           subheading="Prohibited on this vessel"
           pillLabel="Prohibited"
           pillClass="pill pill--warn"
           PillIcon={AlertTriangle}
-          stripeColor="var(--color-status-warn)"
+          stripeColor="var(--color-status-err)"
+          bgTint="var(--color-status-err-soft)"
         >
-          {customDonts.map((item, idx) => (
-            <RuleItem key={idx} text={item} stripeColor="var(--color-status-warn)" icon={<X size={12} strokeWidth={3} style={{ color: 'var(--color-status-warn)' }} />} />
+          {dontItems.map((item, idx) => (
+            <RuleItem key={idx} text={item} stripeColor="var(--color-status-err)" icon={<X size={12} strokeWidth={3} style={{ color: 'var(--color-status-err)' }} />} />
           ))}
         </RulesCard>
       )}
@@ -80,6 +92,7 @@ export function BoatRulesSection({
           pillClass="pill pill--ghost"
           PillIcon={AlertCircle}
           stripeColor="var(--color-line)"
+          bgTint="var(--color-paper)"
         >
           {section.items.map((item, idx) => (
             <RuleItem
@@ -101,7 +114,7 @@ export function BoatRulesSection({
   )
 }
 
-/* ── Card wrapper — mirrors Boat Wizard's DraggableList tile ── */
+/* ── Card wrapper ── */
 
 function RulesCard({
   heading,
@@ -110,6 +123,7 @@ function RulesCard({
   pillClass,
   PillIcon,
   stripeColor,
+  bgTint,
   children,
 }: {
   heading: string
@@ -118,14 +132,19 @@ function RulesCard({
   pillClass: string
   PillIcon: typeof AlertCircle
   stripeColor: string
+  bgTint: string
   children: React.ReactNode
 }) {
   return (
     <div
       className="tile"
-      style={{ padding: 0, overflow: 'hidden' }}
+      style={{
+        padding: 0, overflow: 'hidden',
+        background: bgTint,
+        borderLeft: `4px solid ${stripeColor}`,
+      }}
     >
-      {/* Header — Fraunces heading + status pill */}
+      {/* Header */}
       <div
         style={{
           padding: 'var(--s-3) var(--s-4)',
@@ -140,7 +159,7 @@ function RulesCard({
             className="font-display"
             style={{
               fontSize: 'var(--t-body-lg)',
-              fontWeight: 500,
+              fontWeight: 600,
               color: 'var(--color-ink)',
               letterSpacing: '-0.01em',
               margin: 0,
@@ -151,7 +170,7 @@ function RulesCard({
           {subheading && (
             <p
               className="font-mono"
-              style={{ fontSize: '11px', color: 'var(--color-ink-muted)', marginTop: 2, margin: '2px 0 0' }}
+              style={{ fontSize: '11px', color: 'var(--color-ink-muted)', margin: '2px 0 0' }}
             >
               {subheading}
             </p>
@@ -177,7 +196,7 @@ function RulesCard({
   )
 }
 
-/* ── Single rule item — left stripe card matching wizard ── */
+/* ── Single rule item ── */
 
 function RuleItem({
   text,
