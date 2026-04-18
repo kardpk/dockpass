@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { ChatWidget } from './ChatWidget'
 import { useTripStatus } from '@/hooks/useTripStatus'
+import { storage } from '@/lib/storage'
 import type { GuestSession, TripStatus } from '@/types'
 
 interface TripPageChatProps {
@@ -20,12 +21,7 @@ export function TripPageChat({
     if (typeof window === 'undefined') return null
     const slug = window.location.pathname.split('/trip/')[1]?.split('/')[0]
     if (!slug) return null
-    try {
-      const raw = localStorage.getItem(`dp-guest-${slug}`)
-      return raw ? JSON.parse(raw) : null
-    } catch {
-      return null
-    }
+    return storage.get('guest_session', slug)
   }, [])
 
   const { status } = useTripStatus(

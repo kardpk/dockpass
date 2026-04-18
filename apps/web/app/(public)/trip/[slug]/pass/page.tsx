@@ -2,6 +2,7 @@
 
 import { use, useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { storage } from '@/lib/storage'
 import type { GuestSession } from '@/types'
 
 // Separate hook so localStorage is not accessed during SSR
@@ -10,12 +11,7 @@ function useGuestSession(slug: string): { session: GuestSession | null; loaded: 
   const [session, setSession] = useState<GuestSession | null>(null)
 
   useEffect(() => {
-    let parsed: GuestSession | null = null
-    try {
-      const raw = localStorage.getItem(`dp-guest-${slug}`)
-      if (raw) parsed = JSON.parse(raw) as GuestSession
-    } catch { /* Corrupt data */ }
-    setSession(parsed)
+    setSession(storage.get('guest_session', slug))
     setLoaded(true)
   }, [slug])
 

@@ -2,6 +2,7 @@ import { requireOperator } from "@/lib/security/auth";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { DashboardNotifications } from "@/components/dashboard/DashboardNotifications";
+import { StorageBootstrap } from "@/components/StorageBootstrap";
 import { AlertTriangle } from "lucide-react";
 
 function getTrialDaysRemaining(trialEndsAt: string | null): number | null {
@@ -35,6 +36,8 @@ export default async function DashboardLayout({
 
       {/* Main content — centered, max-width for iPhone/iPad */}
       <main className="max-w-[768px] mx-auto pb-[72px]">
+        {/* One-shot legacy localStorage migration */}
+        <StorageBootstrap />
         {/* Realtime notification toasts */}
         <DashboardNotifications operatorId={operator.id} />
 

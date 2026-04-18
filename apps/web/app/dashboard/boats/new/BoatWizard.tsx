@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-
+import { storage } from "@/lib/storage";
 import {
   INITIAL_WIZARD_DATA,
   STEP_TITLES,
@@ -43,10 +43,7 @@ const variants = {
   }),
 };
 
-const DRAFT_KEY = "boatcheckin_boat_wizard_draft";
-const DRAFT_STEP_KEY = "boatcheckin_boat_wizard_step";
-const DRAFT_VERSION_KEY = "boatcheckin_boat_wizard_version";
-const CURRENT_DRAFT_VERSION = 2; // Bump when wizard schema changes (v2 = captain detached)
+
 
 export function BoatWizard() {
   const [step, setStep] = useState(1);
@@ -60,82 +57,44 @@ export function BoatWizard() {
   const [templateLoadError, setTemplateLoadError] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Hydrate draft from LocalStorage (with version check + migration)
+  // Hydrate draft from versioned storage
   useEffect(() => {
     try {
-      // Check draft version — if outdated, clear everything and start fresh
-      const savedVersion = localStorage.getItem(DRAFT_VERSION_KEY);
-      if (savedVersion !== String(CURRENT_DRAFT_VERSION)) {
-        localStorage.removeItem(DRAFT_KEY);
-        localStorage.removeItem(DRAFT_STEP_KEY);
-        localStorage.setItem(DRAFT_VERSION_KEY, String(CURRENT_DRAFT_VERSION));
-        setIsHydrated(true);
-        return; // fresh start at step 1
-      }
+      const savedData = storage.get('boat_wizard_draft');
+      const savedStep = storage.get('boat_wizard_step');
 
-      const savedData = localStorage.getItem(DRAFT_KEY);
-      const savedStep = localStorage.getItem(DRAFT_STEP_KEY);
       if (savedData) {
-        const parsed = JSON.parse(savedData);
+        // Strip any non-serializable fields that might have leaked
+        const cleaned = { ...savedData } as Record<string, unknown>;
+        if ('safetyVideoAcknowledged' in cleaned) delete cleaned.safetyVideoAcknowledged;
+        if ('waiverPdfFile' in cleaned) delete cleaned.waiverPdfFile;
 
-        // ── Draft migration: 10-step → 9-step schema ──
-        if ("safetyVideoAcknowledged" in parsed) {
-          delete parsed.safetyVideoAcknowledged;
-        }
-        if (parsed.safetyImages && !parsed.safetyCards) {
-          parsed.safetyCards = parsed.safetyImages.map(
-            (img: { id: string; preview: string; title: string; instructions: string }, i: number) => ({
-              id: img.id,
-              topic_key: "custom",
-              image_url: null,
-              file: null,
-              preview: img.preview || "",
-              custom_title: img.title || "",
-              instructions: img.instructions || "",
-              sort_order: i,
-            })
-          );
-          delete parsed.safetyImages;
-        }
-        if ("waiverPdfFile" in parsed) {
-          delete parsed.waiverPdfFile;
-        }
-
-        setData({ ...INITIAL_WIZARD_DATA, ...parsed });
+        setData({ ...INITIAL_WIZARD_DATA, ...cleaned });
       }
-      if (savedStep) {
-        let parsed = parseInt(savedStep, 10);
-        if (!isNaN(parsed) && parsed >= 1) {
-          parsed = Math.min(parsed, TOTAL_STEPS);
-          setStep(parsed);
-        }
+      if (savedStep && typeof savedStep === 'number' && savedStep >= 1) {
+        setStep(Math.min(savedStep, TOTAL_STEPS));
       }
     } catch (e) {
-      console.warn("Failed to hydrate boat draft:", e);
+      console.warn('Failed to hydrate boat draft:', e);
     } finally {
       setIsHydrated(true);
     }
   }, []);
 
-  // Auto-save draft to LocalStorage
+  // Auto-save draft to versioned storage
   useEffect(() => {
     if (!isHydrated) return;
-    try {
-      const serializable = {
-        ...data,
-        captainPhotoFile: null,
-        boatPhotos: [],
-        safetyCards: data.safetyCards.map((card) => ({
-          ...card,
-          file: null,
-        })),
-      };
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(serializable));
-      localStorage.setItem(DRAFT_STEP_KEY, step.toString());
-      localStorage.setItem(DRAFT_VERSION_KEY, String(CURRENT_DRAFT_VERSION));
-    } catch (e) {
-      console.warn("Failed to save boat draft:", e);
-    }
+    const serializable = {
+      ...data,
+      captainPhotoFile: null,
+      boatPhotos: [],
+      safetyCards: data.safetyCards.map((card) => ({
+        ...card,
+        file: null,
+      })),
+    };
+    storage.set('boat_wizard_draft', serializable as any);
+    storage.set('boat_wizard_step', step);
   }, [data, step, isHydrated]);
 
   const goNext = useCallback(async (newData: Partial<WizardData>) => {
@@ -192,8 +151,8 @@ export function BoatWizard() {
         });
 
         if (result.success) {
-          localStorage.removeItem(DRAFT_KEY);
-          localStorage.removeItem(DRAFT_STEP_KEY);
+          storage.remove('boat_wizard_draft');
+          storage.remove('boat_wizard_step');
           setCompleted(true);
         } else {
           setSaveError(result.error ?? "Failed to save. Please try again.");
@@ -274,8 +233,8 @@ export function BoatWizard() {
               <button
                 onClick={() => {
                   if (window.confirm("Are you sure you want to discard your draft and start over?")) {
-                    localStorage.removeItem(DRAFT_KEY);
-                    localStorage.removeItem(DRAFT_STEP_KEY);
+                    storage.remove('boat_wizard_draft');
+                    storage.remove('boat_wizard_step');
                     setData(INITIAL_WIZARD_DATA);
                     setStep(1);
                     setDirection(-1);

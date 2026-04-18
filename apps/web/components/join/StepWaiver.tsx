@@ -101,14 +101,15 @@ export function StepWaiver({
       const { guestId, qrToken, requiresCourse, approvalStatus } = json.data
 
       try {
-        localStorage.setItem(`dp-guest-${tripSlug}`, JSON.stringify({
+        const { storage } = await import('@/lib/storage')
+        storage.set('guest_session', {
           guestId,
           tripSlug,
           qrToken,
           guestName: s.fullName,
           checkedInAt: new Date().toISOString(),
           addonOrderIds: [],
-        }))
+        }, tripSlug)
       } catch { /* Private mode ignore */ }
 
       onUpdate({ isSubmitting: false, guestId, qrToken, requiresCourse, approvalStatus: approvalStatus ?? null, waiverTextHash: waiverHash })

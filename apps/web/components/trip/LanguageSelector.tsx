@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { LANGUAGE_FLAGS, LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '@/lib/i18n/constants'
 import { cn } from '@/lib/utils/cn'
+import { storage } from '@/lib/storage'
 import type { SupportedLang } from '@/lib/i18n/constants'
 
 interface LanguageSelectorProps {
@@ -13,12 +14,7 @@ export function LanguageSelector({ currentLang }: LanguageSelectorProps) {
   const [showSheet, setShowSheet] = useState(false)
 
   function selectLang(lang: SupportedLang) {
-    // Persist choice
-    try {
-      localStorage.setItem('dp-lang', lang)
-    } catch {
-      // Storage unavailable
-    }
+    storage.set('lang_preference', { lang })
     // Reload with URL param so server picks it up
     const url = new URL(window.location.href)
     url.searchParams.set('lang', lang)

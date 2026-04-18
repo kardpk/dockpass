@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PostTripPageData, GuestSession, GUEST_SESSION_KEY } from '@/types'
+import { PostTripPageData, GuestSession } from '@/types'
+import { storage } from '@/lib/storage'
 import { PostTripHero } from './PostTripHero'
 import { ReviewGate } from './ReviewGate'
 import { PostcardSection } from './PostcardSection'
@@ -13,12 +14,8 @@ export function PostTripView({ data }: { data: PostTripPageData }) {
   const [rating, setRating] = useState<number>(data.existingRating || 0)
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(GUEST_SESSION_KEY(data.slug))
-      if (stored) {
-        setSession(JSON.parse(stored))
-      }
-    } catch {}
+    const saved = storage.get('guest_session', data.slug)
+    if (saved) setSession(saved)
   }, [data.slug])
 
   // Unlock postcard if they've rated OR if they already have an existing rating from server

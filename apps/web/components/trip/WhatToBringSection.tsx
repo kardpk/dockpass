@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils/cn'
+import { storage } from '@/lib/storage'
 import type { TripT } from '@/lib/i18n/tripTranslations'
 
 interface WhatToBringSectionProps {
@@ -27,26 +28,22 @@ export function WhatToBringSection({
     ? whatNotToBring.split('\n').map((s) => s.trim()).filter(Boolean)
     : []
 
-  const storageKey = `dp-checklist-${slug}`
-
-  // Load saved ticks from localStorage
+  // Load saved ticks from versioned storage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(storageKey)
+      const saved = storage.get('guest_checklist', slug)
       if (saved) {
-        setChecked(new Set(JSON.parse(saved) as number[]))
+        setChecked(new Set(saved.checked))
       }
     } catch { /* Unavailable */ }
-  }, [storageKey])
+  }, [slug])
 
   function toggleItem(idx: number) {
     setChecked((prev) => {
       const next = new Set(prev)
       if (next.has(idx)) next.delete(idx)
       else next.add(idx)
-      try {
-        localStorage.setItem(storageKey, JSON.stringify([...next]))
-      } catch { /* Unavailable */ }
+      storage.set('guest_checklist', { checked: [...next] }, slug)
       return next
     })
   }
