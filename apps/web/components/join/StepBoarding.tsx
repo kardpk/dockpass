@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { Share, Lock, PartyPopper } from 'lucide-react'
+import { Share, Lock, PartyPopper, Anchor, Shield, Check, Bell } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatTripDate, formatTime, formatDuration } from '@/lib/utils/format'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
@@ -31,16 +31,12 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
   const { isSupported, permission, isSubscribing, requestSubscription } = usePushNotifications()
 
   // ── Realtime Livery Status Transition ────────────────────────────────────
-  // When the dockmaster verifies the livery briefing on the captain's iPad,
-  // Supabase fires a postgres_changes event that flips this state instantly.
   const [approvalStatus, setApprovalStatus] = useState(
     state.approvalStatus ?? 'auto_approved'
   )
   const [justApproved, setJustApproved] = useState(false)
-
   const isLiveryPending = approvalStatus === 'pending_livery_briefing'
 
-  // Subscribe to approval_status changes on this guest's row
   useEffect(() => {
     if (!state.guestId || approvalStatus !== 'pending_livery_briefing') return
 
@@ -59,7 +55,6 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
           const newStatus = (payload.new as Record<string, unknown>).approval_status as string
           if (newStatus === 'approved') {
             setJustApproved(true)
-            // Small delay for the celebration animation to feel intentional
             setTimeout(() => setApprovalStatus('approved'), 300)
           }
         }
@@ -102,12 +97,9 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
     }
   }
 
-  const hasAddons = Object.values(state.addonQuantities).some(q => q > 0)
-  const addonCount = Object.values(state.addonQuantities).reduce((s, q) => s + q, 0)
-
   return (
-    <div className="pt-2">
-      {/* ── Header: 3 states — Amber (pending) → Celebration → Green (approved) ── */}
+    <div style={{ paddingTop: 'var(--s-2)' }}>
+      {/* ── Header States ── */}
       <AnimatePresence mode="wait">
         {isLiveryPending ? (
           <motion.div
@@ -115,18 +107,14 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="text-center mb-6"
+            style={{ textAlign: 'center', marginBottom: 'var(--s-5)' }}
           >
-            <div className="text-gold mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg></div>
-            <h2 className="text-[22px] font-bold text-warn mb-1">Instruction Required</h2>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FFF8E1] border border-[#FFD54F] rounded-full animate-pulse">
-              <span className="text-[14px] font-medium text-warn">
-                🟡 See Dockmaster for Vessel Instruction
-              </span>
-            </div>
-            <p className="text-[13px] text-text-mid mt-2 max-w-[280px] mx-auto">
-              Florida law (§327.54) requires an in-person vessel briefing before bareboat departure. 
-              Your boarding pass will activate once they sign off.
+            <Lock size={28} strokeWidth={2} style={{ color: 'var(--color-status-warn)', margin: '0 auto var(--s-2)' }} />
+            <h2 className="font-display" style={{ fontSize: '22px', fontWeight: 400, color: 'var(--color-status-warn)', marginBottom: 'var(--s-2)' }}>
+              Instruction required
+            </h2>
+            <p className="font-mono" style={{ fontSize: '12px', color: 'var(--color-ink-muted)', maxWidth: 280, margin: '0 auto', lineHeight: 1.5 }}>
+              Florida law (§327.54) requires an in-person vessel briefing before bareboat departure.
             </p>
           </motion.div>
         ) : justApproved ? (
@@ -136,182 +124,355 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="text-center mb-6"
+            style={{ textAlign: 'center', marginBottom: 'var(--s-5)' }}
             onAnimationComplete={() => setTimeout(() => setJustApproved(false), 2000)}
           >
             <motion.div
               animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.2, 1] }}
               transition={{ duration: 0.6 }}
-              className="text-[48px] mb-2"
             >
-
+              <PartyPopper size={36} strokeWidth={1.5} style={{ color: 'var(--color-status-ok)', margin: '0 auto' }} />
             </motion.div>
-            <h2 className="text-[22px] font-bold text-teal mb-1">You&apos;re cleared!</h2>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E8F9F4] border border-teal rounded-full">
-              <PartyPopper size={16} className="text-teal" />
-              <span className="text-[14px] font-medium text-teal">
-                Dockmaster has signed off — Welcome aboard!
-              </span>
-            </div>
+            <h2 className="font-display" style={{ fontSize: '22px', fontWeight: 400, color: 'var(--color-status-ok)', marginTop: 'var(--s-2)' }}>
+              You&apos;re cleared!
+            </h2>
           </motion.div>
         ) : (
           <motion.div
             key="approved"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-6"
+            style={{ textAlign: 'center', marginBottom: 'var(--s-4)' }}
           >
-            <div className="text-gold mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.63-.68 1.07-1.32 1.07H17c-.88 0-1.6.72-1.6 1.6v.04"/></svg></div>
-            <h2 className="text-[22px] font-bold text-navy mb-1">You&apos;re checked in!</h2>
-            <p className="text-[14px] text-text-mid">Show this QR code when boarding</p>
+            <Anchor size={28} strokeWidth={1.5} style={{ color: 'var(--color-rust)', margin: '0 auto var(--s-2)' }} />
+            <h2 className="font-display" style={{ fontSize: '22px', fontWeight: 400, color: 'var(--color-ink)', marginBottom: 4 }}>
+              You&apos;re checked in
+            </h2>
+            <p className="font-mono" style={{ fontSize: '12px', color: 'var(--color-ink-muted)', letterSpacing: '0.04em' }}>
+              Show this pass when boarding
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Boarding Pass — Apple Wallet aesthetic ── */}
-      <div className="bg-white rounded-[14px] shadow-[0_4px_24px_rgba(12,68,124,0.12)] overflow-hidden mb-5">
-        {/* Top half */}
-        <div className="px-5 pt-5 pb-4">
-          <p className="text-[11px] font-semibold text-text-mid tracking-[0.15em] uppercase mb-2">
-            BOATCHECKIN
-          </p>
-          <h3 className="text-[20px] font-bold text-navy mb-4">{tripData.boatName}</h3>
+      {/* ══════════════════════════════════════════════════════════════════════
+          BOARDING PASS CARD — Apple Wallet / Airline boarding pass aesthetic
+          ══════════════════════════════════════════════════════════════════════ */}
+      <div
+        style={{
+          borderRadius: 'var(--r-2)',
+          overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(11,29,58,0.18), 0 2px 8px rgba(11,29,58,0.08)',
+          marginBottom: 'var(--s-4)',
+        }}
+      >
+        {/* ── Top section: INK header ── */}
+        <div
+          style={{
+            background: 'var(--color-ink)',
+            padding: 'var(--s-5) var(--s-5) var(--s-4)',
+            position: 'relative',
+          }}
+        >
+          {/* Brand line */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--s-3)' }}>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: '10px', fontWeight: 700,
+                letterSpacing: '0.2em', textTransform: 'uppercase' as const,
+                color: 'rgba(255,255,255,0.5)',
+              }}
+            >
+              Boatcheckin
+            </span>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: '10px', fontWeight: 600,
+                letterSpacing: '0.1em', textTransform: 'uppercase' as const,
+                color: 'var(--color-rust)',
+              }}
+            >
+              Boarding pass
+            </span>
+          </div>
+
+          {/* Boat name — large display */}
+          <h3
+            className="font-display"
+            style={{
+              fontSize: 'clamp(22px, 5vw, 28px)',
+              fontWeight: 400,
+              color: '#fff',
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              marginBottom: 'var(--s-4)',
+            }}
+          >
+            {tripData.boatName}
+          </h3>
 
           {/* 3-column trip meta */}
-          <div className="grid grid-cols-3 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--s-3)' }}>
             {[
               { label: 'Date', value: formatTripDate(tripData.tripDate) },
-              { label: 'Time', value: formatTime(tripData.departureTime) },
+              { label: 'Departs', value: formatTime(tripData.departureTime) },
               { label: 'Duration', value: formatDuration(tripData.durationHours) },
             ].map(({ label, value }) => (
               <div key={label}>
-                <p className="text-[11px] text-text-mid">{label}</p>
-                <p className="text-[13px] font-semibold text-navy leading-tight">{value}</p>
+                <p
+                  className="font-mono"
+                  style={{ fontSize: '10px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: 2 }}
+                >
+                  {label}
+                </p>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>
+                  {value}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Dashed divider */}
-        <div className="flex items-center px-4 my-1">
-          <div className="flex-1 border-t-2 border-dashed border-border" />
-          <span className="px-2 text-border text-[18px]">✂</span>
-          <div className="flex-1 border-t-2 border-dashed border-border" />
+        {/* ── Tear line with side notches ── */}
+        <div
+          style={{
+            position: 'relative',
+            height: 24,
+            background: 'var(--color-ink)',
+          }}
+        >
+          {/* Left notch */}
+          <div
+            style={{
+              position: 'absolute',
+              left: -12, top: '50%', transform: 'translateY(-50%)',
+              width: 24, height: 24,
+              borderRadius: '50%',
+              background: 'var(--color-paper)',
+            }}
+          />
+          {/* Right notch */}
+          <div
+            style={{
+              position: 'absolute',
+              right: -12, top: '50%', transform: 'translateY(-50%)',
+              width: 24, height: 24,
+              borderRadius: '50%',
+              background: 'var(--color-paper)',
+            }}
+          />
+          {/* Dashed line */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 20, right: 20, top: '50%',
+              borderTop: '2px dashed rgba(255,255,255,0.15)',
+            }}
+          />
         </div>
 
-        {/* Bottom half — QR (blurred when pending livery) */}
-        <div className="px-5 pt-4 pb-5 flex flex-col items-center">
-          <div className="relative">
-            <div className={`bg-navy p-3 rounded-[14px] mb-3 transition-all duration-500 ${
-              isLiveryPending ? 'blur-[8px] scale-95' : 'blur-0 scale-100'
-            }`}>
+        {/* ── Bottom section: QR + Guest ── */}
+        <div
+          style={{
+            background: 'var(--color-ink)',
+            padding: 'var(--s-4) var(--s-5) var(--s-5)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          {/* QR Code */}
+          <div style={{ position: 'relative', marginBottom: 'var(--s-3)' }}>
+            <div
+              style={{
+                background: '#fff',
+                padding: 12,
+                borderRadius: 'var(--r-1)',
+                transition: 'all 500ms ease',
+                filter: isLiveryPending ? 'blur(8px)' : 'none',
+                transform: isLiveryPending ? 'scale(0.95)' : 'scale(1)',
+              }}
+            >
               <QRCodeSVG
                 value={state.qrToken || `dp-guest-${tripSlug}`}
-                size={160}
-                fgColor="#FFFFFF"
-                bgColor="#0B1D3A"
+                size={140}
+                fgColor="var(--color-ink)"
+                bgColor="#FFFFFF"
                 level="M"
               />
             </div>
 
-            {/* Lock overlay when QR is blurred */}
+            {/* Lock overlay */}
             <AnimatePresence>
               {isLiveryPending && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex flex-col items-center justify-center"
+                  style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}
                 >
-                  <div className="w-14 h-14 rounded-full bg-[#FFF8E1] border-2 border-[#FFD54F] flex items-center justify-center mb-2 shadow-lg">
-                    <Lock size={24} className="text-[#F59E0B]" />
+                  <div
+                    style={{
+                      width: 48, height: 48,
+                      borderRadius: '50%',
+                      background: 'var(--color-status-warn)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      marginBottom: 'var(--s-2)',
+                    }}
+                  >
+                    <Lock size={20} strokeWidth={2.5} style={{ color: '#fff' }} />
                   </div>
-                  <p className="text-[12px] font-semibold text-warn bg-[#FFF8E1] px-3 py-1 rounded-full">
+                  <span
+                    className="font-mono"
+                    style={{ fontSize: '11px', fontWeight: 700, color: '#fff', letterSpacing: '0.06em' }}
+                  >
                     Awaiting sign-off
-                  </p>
+                  </span>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          <p className="text-[12px] text-text-mid mb-1">
-            {tripData.slipNumber ? `Slip ${tripData.slipNumber} · ` : ''}
+          {/* Dock info */}
+          <p
+            className="font-mono"
+            style={{
+              fontSize: '11px', color: 'rgba(255,255,255,0.5)',
+              letterSpacing: '0.06em',
+              marginBottom: 4,
+            }}
+          >
+            {tripData.slipNumber ? `Slip ${tripData.slipNumber}  ·  ` : ''}
             {tripData.marinaName}
           </p>
-          <p className="text-[17px] font-bold text-navy">{state.fullName}</p>
+
+          {/* Guest name — hero treatment */}
+          <p
+            className="font-display"
+            style={{
+              fontSize: '20px',
+              fontWeight: 400,
+              color: '#fff',
+              letterSpacing: '-0.01em',
+              marginBottom: 'var(--s-3)',
+            }}
+          >
+            {state.fullName}
+          </p>
+
+          {/* Status pills inside the card */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--s-2)', justifyContent: 'center' }}>
+            <span
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '3px 10px',
+                borderRadius: 'var(--r-1)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                fontSize: '11px', fontWeight: 600,
+                color: 'rgba(255,255,255,0.7)',
+              }}
+            >
+              <Shield size={10} strokeWidth={2.5} />
+              Waiver signed
+            </span>
+            {state.safetyAcks.length > 0 && (
+              <span
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '3px 10px',
+                  borderRadius: 'var(--r-1)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  fontSize: '11px', fontWeight: 600,
+                  color: 'rgba(255,255,255,0.7)',
+                }}
+              >
+                <Check size={10} strokeWidth={2.5} />
+                {state.safetyAcks.length} safety
+              </span>
+            )}
+            {isLiveryPending && (
+              <span
+                className="font-mono"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '3px 10px',
+                  borderRadius: 'var(--r-1)',
+                  background: 'var(--color-status-warn)',
+                  fontSize: '11px', fontWeight: 700,
+                  color: '#fff',
+                  animation: 'pulse 2s infinite',
+                }}
+              >
+                Vessel instruction pending
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Summary pills */}
-      <div className="flex flex-wrap gap-2 mb-5 justify-center">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#E8F9F4] text-teal">
-          ✓ Waiver signed
-        </span>
-        {state.safetyAcks.length > 0 && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#E8F9F4] text-teal">
-            ✓ {state.safetyAcks.length} safety point{state.safetyAcks.length !== 1 ? 's' : ''}
-          </span>
-        )}
-        {hasAddons && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-gold-dim text-navy">
-            🛒 {addonCount} add-on{addonCount !== 1 ? 's' : ''} ordered
-          </span>
-        )}
-        {state.requiresCourse && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#FEF3DC] text-[#E5910A]">
-            Complete course before trip
-          </span>
-        )}
-        {isLiveryPending && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#FFF8E1] text-warn animate-pulse">
-            Vessel instruction pending
-          </span>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="space-y-3">
+      {/* ── Actions ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
         <button
           onClick={sharePass}
-          className="w-full h-[52px] rounded-[12px] border-2 border-gold text-navy font-semibold text-[15px] flex items-center justify-center gap-2 hover:bg-gold-dim transition-colors"
+          className="btn btn--rust"
+          style={{ width: '100%', height: 48, justifyContent: 'center', fontSize: '15px' }}
         >
-          <Share size={18} />
+          <Share size={16} strokeWidth={2} />
           Save boarding pass
         </button>
 
-        {/* PWA install banner */}
+        {/* PWA install */}
         {pwaPrompt && !pwaInstalled && (
-          <div className="bg-navy rounded-[14px] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-[10px] flex items-center justify-center text-[20px] flex-shrink-0">
-              ▸
+          <div
+            className="tile"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--s-3)',
+              padding: 'var(--s-3) var(--s-4)',
+            }}
+          >
+            <Anchor size={18} strokeWidth={2} style={{ color: 'var(--color-ink)', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 'var(--t-body-sm)', fontWeight: 700, color: 'var(--color-ink)' }}>
+                Add to home screen
+              </p>
+              <p className="font-mono" style={{ fontSize: '11px', color: 'var(--color-ink-muted)' }}>
+                Dock alerts + weather updates
+              </p>
             </div>
-            <div className="flex-1">
-              <p className="text-white font-medium text-[14px]">Add BoatCheckin to your home screen</p>
-              <p className="text-white/70 text-[12px]">Get weather updates and dock alerts</p>
-            </div>
-            <button
-              onClick={installPwa}
-              className="bg-white text-navy text-[13px] font-semibold px-3 py-1.5 rounded-[8px] flex-shrink-0"
-            >
+            <button className="btn btn--ink btn--sm" onClick={installPwa}>
               Add
             </button>
           </div>
         )}
 
-        {/* Push Notification prompt */}
+        {/* Push notifications */}
         {isSupported && permission === 'default' && (
-          <div className="bg-gold-dim rounded-[14px] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-[10px] flex items-center justify-center text-[20px] flex-shrink-0">
-              ▸
-            </div>
-            <div className="flex-1">
-              <p className="text-navy font-medium text-[14px]">Push Notifications</p>
-              <p className="text-text-mid text-[12px]">Get weather alerts directly</p>
+          <div
+            className="tile"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--s-3)',
+              padding: 'var(--s-3) var(--s-4)',
+            }}
+          >
+            <Bell size={18} strokeWidth={2} style={{ color: 'var(--color-ink)', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 'var(--t-body-sm)', fontWeight: 700, color: 'var(--color-ink)' }}>
+                Push notifications
+              </p>
+              <p className="font-mono" style={{ fontSize: '11px', color: 'var(--color-ink-muted)' }}>
+                Get weather alerts directly
+              </p>
             </div>
             <button
+              className="btn btn--ink btn--sm"
               onClick={() => requestSubscription('guest', state.guestId)}
               disabled={isSubscribing}
-              className="bg-navy text-white text-[13px] font-semibold px-3 py-1.5 rounded-[8px] flex-shrink-0 disabled:opacity-50"
             >
               {isSubscribing ? 'Wait' : 'Enable'}
             </button>
@@ -320,7 +481,14 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
 
         <button
           onClick={onClose}
-          className="w-full text-[14px] text-text-mid underline py-2 min-h-[44px]"
+          style={{
+            width: '100%', minHeight: 44,
+            fontSize: 'var(--t-body-sm)',
+            color: 'var(--color-ink-muted)',
+            textDecoration: 'underline',
+            background: 'none', border: 'none',
+            cursor: 'pointer',
+          }}
         >
           Back to trip info
         </button>
