@@ -1,8 +1,8 @@
 import 'server-only'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { requireOperator } from '@/lib/security/auth'
 import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 import { endBuoyPolicy } from '@/lib/buoy/client'
 import { auditLog } from '@/lib/security/audit'
 import { rateLimit } from '@/lib/security/rate-limit'
@@ -11,11 +11,13 @@ import { rateLimit } from '@/lib/security/rate-limit'
  * POST /api/dashboard/trips/[id]/end
  *
  * Operator-authenticated end-trip endpoint.
- * Uses requireOperator() (cookie session) — no snapshot token required.
+ * Uses Supabase auth via cookie session — no snapshot token required.
  * This is the correct path for the operator dashboard "End Trip" button.
  *
- * The captain-facing /api/trips/[slug]/end endpoint uses snapshot tokens
- * and is reserved for captains ending trips from their link.
+ * NOTE: Does NOT use requireOperator() because that function uses React.cache()
+ * and calls redirect() on auth failure, which throws NEXT_REDIRECT in Route
+ * Handlers and causes silent failures. Instead we read auth directly from the
+ * Supabase session cookie, matching the pattern used by all other guards.
  */
 export async function POST(
   req: NextRequest,
@@ -23,7 +25,7 @@ export async function POST(
 ) {
   const { id } = await params
 
-  // Rate limit: max 10 ends per hour per operator (idempotent-safe)
+  // Rate limit
   const limited = await rateLimit(req, {
     max: 10, window: 3600,
     key: `dashboard:trip:end:${id}`,
@@ -32,11 +34,30 @@ export async function POST(
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 
-  const { operator } = await requireOperator()
+  // Authenticate via cookie session — read auth user directly
+  const supabaseCookie = await createClient()
+  const { data: { user }, error: authError } = await supabaseCookie.auth.getUser()
+
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+  }
+
+  // Service client for privileged writes
   const supabase = createServiceClient()
 
-  // Fetch trip — verify operator ownership
-  const { data: trip } = await supabase
+  // Verify the user has an operator record
+  const { data: operator } = await supabase
+    .from('operators')
+    .select('id, is_active')
+    .eq('id', user.id)
+    .single()
+
+  if (!operator || !operator.is_active) {
+    return NextResponse.json({ error: 'Operator not found' }, { status: 403 })
+  }
+
+  // Fetch trip + verify operator ownership
+  const { data: trip, error: tripErr } = await supabase
     .from('trips')
     .select(`
       id, slug, status, started_at, duration_hours,
@@ -44,14 +65,19 @@ export async function POST(
       boats ( boat_name )
     `)
     .eq('id', id)
-    .eq('operator_id', operator.id)  // ownership check
+    .eq('operator_id', operator.id)
     .single()
 
-  if (!trip) {
+  if (tripErr || !trip) {
+    console.error('[dashboard/end-trip] Trip lookup failed', {
+      tripId: id,
+      operatorId: operator.id,
+      error: tripErr?.message,
+    })
     return NextResponse.json({ error: 'Trip not found' }, { status: 404 })
   }
 
-  // Idempotent: already completed
+  // Idempotent — already completed
   if (trip.status === 'completed') {
     return NextResponse.json({ data: { alreadyEnded: true } })
   }
@@ -78,7 +104,7 @@ export async function POST(
     .update({ status: 'completed', ended_at: endedAt })
     .eq('id', id)
     .eq('operator_id', operator.id)
-    .eq('status', 'active')  // optimistic concurrency
+    .eq('status', 'active') // optimistic concurrency
 
   if (updateErr) {
     console.error('[dashboard/end-trip] UPDATE failed:', updateErr)
