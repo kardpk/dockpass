@@ -42,16 +42,8 @@ export async function saveBoatProfile(data: {
   lat: number | null;
   lng: number | null;
 
-  captainName: string;
-  captainBio: string;
-  captainLicense: string;
-  captainLicenseType: string;
-  captainLanguages: string[];
-  captainYearsExp: string;
-  captainTripCount: string;
-  captainRating: string;
-  captainCertifications: string[];
-  captainPhotoUrl: string; // pre-uploaded URL from client (empty string if none)
+  // Step 3 — Crew linking (captain IDs selected from existing roster)
+  linkedCaptainIds: string[];
 
   selectedEquipment: string[];
   selectedAmenities: Record<string, boolean>;

@@ -39,3 +39,4 @@ COMMENT ON COLUMN public.boats.safety_cards IS
 
 COMMENT ON COLUMN public.boats.firma_template_id IS
   'Firma.dev template ID for the digital liability waiver PDF with signature field placement';
+

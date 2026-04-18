@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-import { createBrowserClient } from "@supabase/ssr";
+
 import {
   INITIAL_WIZARD_DATA,
   STEP_TITLES,
@@ -139,33 +139,6 @@ export function BoatWizard() {
       setSaving(true);
       setSaveError(null);
       try {
-        // ── Photo upload (client-side, before server action) ──
-        // Server actions can't receive File objects (not serialisable).
-        // We upload captain photo directly from the browser using the public anon key
-        // (storage bucket must allow authenticated uploads).
-        let captainPhotoUrl = "";
-        if (merged.captainPhotoFile instanceof File) {
-          try {
-            const supabaseBrowser = createBrowserClient(
-              process.env.NEXT_PUBLIC_SUPABASE_URL!,
-              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
-            const ext = merged.captainPhotoFile.name.split(".").pop() ?? "webp";
-            const path = `captain-photos/${Date.now()}.${ext}`;
-            const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
-              .from("captain-photos")
-              .upload(path, merged.captainPhotoFile, { upsert: true, contentType: merged.captainPhotoFile.type });
-            if (!uploadError && uploadData) {
-              const { data: urlData } = supabaseBrowser.storage
-                .from("captain-photos")
-                .getPublicUrl(uploadData.path);
-              captainPhotoUrl = urlData.publicUrl;
-            }
-          } catch (photoErr) {
-            // Non-fatal — proceed without photo
-            console.warn("[BoatWizard] captain photo upload failed:", photoErr);
-          }
-        }
         const result = await saveBoatProfile({
           boatName: merged.boatName,
           boatType: merged.boatType as string,
@@ -182,16 +155,7 @@ export function BoatWizard() {
           operatingArea: merged.operatingArea,
           lat: merged.lat,
           lng: merged.lng,
-          captainName: merged.captainName,
-          captainBio: merged.captainBio,
-          captainLicense: merged.captainLicense,
-          captainLicenseType: merged.captainLicenseType,
-          captainLanguages: merged.captainLanguages,
-          captainYearsExp: merged.captainYearsExp,
-          captainTripCount: merged.captainTripCount,
-          captainRating: merged.captainRating,
-          captainCertifications: merged.captainCertifications,
-          captainPhotoUrl,  // uploaded above (empty string if no photo or upload failed)
+          linkedCaptainIds: merged.linkedCaptainIds ?? [],
           selectedEquipment: merged.selectedEquipment,
           selectedAmenities: merged.selectedAmenities,
           specificFieldValues: merged.specificFieldValues,
