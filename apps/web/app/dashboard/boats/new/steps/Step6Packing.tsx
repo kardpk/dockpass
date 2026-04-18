@@ -8,6 +8,7 @@ import type { WizardData } from "../types";
 interface Step6Props {
   data: WizardData;
   onNext: (partial: Partial<WizardData>) => void;
+  saveLabel?: string;
 }
 
 // ── Preset suggestions ──────────────────────────────────────────────────────
@@ -262,7 +263,7 @@ function TagPanel({ id, label, sublabel, items, suggestions, variant, onChange }
 }
 
 // ── Main step component ──────────────────────────────────────────────────────
-export function Step6Packing({ data, onNext }: Step6Props) {
+export function Step6Packing({ data, onNext, saveLabel }: Step6Props) {
   const [bringItems, setBringItems] = useState<string[]>(parseToItems(data.whatToBring));
   const [avoidItems, setAvoidItems] = useState<string[]>(parseToItems(data.whatNotToBring));
   const [showPreview, setShowPreview] = useState(false);
@@ -434,7 +435,7 @@ export function Step6Packing({ data, onNext }: Step6Props) {
         Optional — you can update this anytime from the boat settings
       </p>
 
-      <ContinueButton onClick={handleContinue} />
+      <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>
     </div>
   );
 }

@@ -132,6 +132,7 @@ export function BoatEditStepClient({ boatId, step, boatType, prefill }: BoatEdit
     data,
     update,
     onNext: handleSave, // treat "Continue" as "Save" in edit mode
+    saveLabel: isPending ? "Saving…" : saved ? "Saved ✓" : "Save changes →",
   };
 
   return (
@@ -199,46 +200,25 @@ export function BoatEditStepClient({ boatId, step, boatType, prefill }: BoatEdit
         </div>
       )}
 
-      {/* Sticky save footer */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 56,
-          left: 0,
-          right: 0,
-          zIndex: 40,
-          background: "var(--color-paper)",
-          borderTop: "1px solid var(--color-line-soft)",
-          padding: "var(--s-3) var(--s-5)",
-          display: "flex",
-          gap: "var(--s-2)",
-          maxWidth: 640,
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <button
-          onClick={() => handleSave()}
-          disabled={isPending || saved}
-          className="btn btn--ink"
+      {/* Saved indicator (inline, replaces removed sticky footer) */}
+      {saved && (
+        <div
           style={{
-            flex: 1,
-            justifyContent: "center",
-            height: 48,
-            fontSize: 14,
-            fontWeight: 500,
-            gap: "var(--s-2)",
+            padding: "var(--s-3) var(--s-4)",
+            borderRadius: "var(--r-1)",
+            background: "rgba(31,107,82,0.06)",
+            border: "1px solid rgba(31,107,82,0.2)",
+            color: "var(--color-status-ok)",
+            fontSize: 13,
+            fontWeight: 600,
+            textAlign: "center",
           }}
         >
-          {isPending ? (
-            <><Loader2 size={16} className="animate-spin" /> Saving…</>
-          ) : saved ? (
-            <><Check size={16} strokeWidth={2.5} /> Saved — going back</>
-          ) : (
-            "Save changes →"
-          )}
-        </button>
-      </div>
+          <Check size={14} strokeWidth={2.5} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
+          Saved — redirecting…
+        </div>
+      )}
     </div>
   );
 }
+

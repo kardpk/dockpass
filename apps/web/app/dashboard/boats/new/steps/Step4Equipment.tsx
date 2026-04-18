@@ -15,6 +15,7 @@ interface Step4Props {
   loading?: boolean;
   loadError?: boolean;
   onRetry?: () => void;
+  saveLabel?: string;
 }
 
 // ─── Skeleton shimmer row ───
@@ -210,6 +211,7 @@ export function Step4Equipment({
   loading = false,
   loadError = false,
   onRetry,
+  saveLabel,
 }: Step4Props) {
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(data.selectedEquipment);
   const [selectedAmenities, setSelectedAmenities] = useState<Record<string, boolean>>(
@@ -623,7 +625,7 @@ export function Step4Equipment({
         </div>
       </SectionTile>
 
-      <ContinueButton onClick={handleContinue} />
+      <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>
     </div>
   );
 }

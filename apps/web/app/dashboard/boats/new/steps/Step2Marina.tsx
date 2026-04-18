@@ -52,9 +52,10 @@ interface Step2Props {
   data: WizardData;
   onNext: (partial: Partial<WizardData>) => void;
   template: BoatTemplate | null;
+  saveLabel?: string;
 }
 
-export function Step2Marina({ data, onNext }: Step2Props) {
+export function Step2Marina({ data, onNext, saveLabel }: Step2Props) {
   const [marinaName, setMarinaName] = useState(data.marinaName);
   const [marinaAddress, setMarinaAddress] = useState(data.marinaAddress);
   const [slipNumber, setSlipNumber] = useState(data.slipNumber);
@@ -173,7 +174,7 @@ export function Step2Marina({ data, onNext }: Step2Props) {
         )}
       </div>
 
-      <ContinueButton onClick={handleContinue} />
+      <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>
     </div>
   );
 }

@@ -71,9 +71,10 @@ interface Step1Props {
   onNext: (partial: Partial<WizardData>) => void;
   onBoatTypeSelected: (type: BoatTypeKey) => void;
   templateLoading?: boolean;
+  saveLabel?: string;
 }
 
-export function Step1Vessel({ data, onNext, onBoatTypeSelected, templateLoading }: Step1Props) {
+export function Step1Vessel({ data, onNext, onBoatTypeSelected, templateLoading, saveLabel }: Step1Props) {
   const [boatType, setBoatType] = useState<BoatTypeKey | "">(data.boatType);
   const [loading, setLoading] = useState(false);
   const [boatName, setBoatName] = useState(data.boatName);
@@ -373,7 +374,7 @@ export function Step1Vessel({ data, onNext, onBoatTypeSelected, templateLoading 
                 </div>
               )}
 
-              <ContinueButton onClick={handleContinue} />
+              <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>
             </div>
           </motion.div>
         )}

@@ -386,9 +386,10 @@ function DraggableList({
 interface Step5Props {
   data: WizardData;
   onNext: (partial: Partial<WizardData>) => void;
+  saveLabel?: string;
 }
 
-export function Step5Rules({ data, onNext }: Step5Props) {
+export function Step5Rules({ data, onNext, saveLabel }: Step5Props) {
   const [standardRules, setStandardRules] = useState(data.standardRules);
   const [customDos, setCustomDos] = useState(data.customDos);
   const [customDonts, setCustomDonts] = useState(data.customDonts);
@@ -577,7 +578,7 @@ export function Step5Rules({ data, onNext }: Step5Props) {
         )}
       </div>
 
-      <ContinueButton onClick={handleContinue} />
+      <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>
     </div>
   );
 }

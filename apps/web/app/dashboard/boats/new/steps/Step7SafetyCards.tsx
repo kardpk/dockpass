@@ -366,9 +366,10 @@ function SortableCardRow({
 interface Step7Props {
   data: WizardData;
   onNext: (partial: Partial<WizardData>) => void;
+  saveLabel?: string;
 }
 
-export function Step7SafetyCards({ data, onNext }: Step7Props) {
+export function Step7SafetyCards({ data, onNext, saveLabel }: Step7Props) {
   const boatType = data.boatType as BoatTypeKey;
 
   // Compute required topics based on boat type
@@ -631,7 +632,7 @@ export function Step7SafetyCards({ data, onNext }: Step7Props) {
         Skip for now — I&apos;ll add photos later
       </button>
 
-      <ContinueButton onClick={handleContinue} />
+      <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>
     </div>
   );
 }
