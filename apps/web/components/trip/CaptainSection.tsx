@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ReadMoreBio } from './ReadMoreBio'
+import { Shield, Globe } from 'lucide-react'
 import { LANGUAGE_FLAGS } from '@/lib/i18n/detect'
 import type { TripT } from '@/lib/i18n/tripTranslations'
 
@@ -19,13 +19,10 @@ interface CaptainSectionProps {
 export function CaptainSection({
   captainName,
   captainPhotoUrl,
-  captainBio,
   captainLicense,
   captainLanguages,
   captainYearsExp,
   captainTripCount,
-  captainRating,
-  captainCertifications,
   tr,
 }: CaptainSectionProps) {
   const initials = captainName
@@ -35,111 +32,99 @@ export function CaptainSection({
     .join('')
     .toUpperCase()
 
-  const stats = [
-    captainYearsExp != null && { value: captainYearsExp, label: tr.yearsExp },
-    captainTripCount != null && { value: captainTripCount, label: tr.trips },
-    captainRating != null && { value: captainRating.toFixed(1), label: tr.rating },
-  ].filter(Boolean) as { value: number | string; label: string }[]
-
   return (
-    <div className="mx-4 mt-3 bg-white rounded-[16px] border border-border p-5">
-      <p className="text-[11px] font-semibold text-text-mid uppercase tracking-wider mb-4">
+    <div
+      className="tile"
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+    >
+      {/* Kicker */}
+      <span
+        className="font-mono"
+        style={{
+          fontSize: '11px', fontWeight: 700,
+          letterSpacing: '0.12em', textTransform: 'uppercase' as const,
+          color: 'var(--color-ink-muted)',
+          display: 'block',
+          marginBottom: 'var(--s-3)',
+        }}
+      >
         {tr.captain}
-      </p>
+      </span>
 
       {/* Profile row */}
-      <div className="flex items-start gap-4 mb-4">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)' }}>
         {/* Photo / initials */}
-        <div className="shrink-0">
-          {captainPhotoUrl ? (
-            <Image
-              src={captainPhotoUrl}
-              alt={captainName}
-              width={72}
-              height={72}
-              className="w-[72px] h-[72px] rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-[72px] h-[72px] rounded-full bg-gold-dim flex items-center justify-center text-[22px] font-bold text-navy">
-              {initials}
-            </div>
-          )}
-        </div>
+        {captainPhotoUrl ? (
+          <Image
+            src={captainPhotoUrl}
+            alt={captainName}
+            width={56}
+            height={56}
+            className="object-cover"
+            style={{ width: 56, height: 56, borderRadius: 'var(--r-1)' }}
+          />
+        ) : (
+          <div
+            style={{
+              width: 56, height: 56,
+              borderRadius: 'var(--r-1)',
+              background: 'var(--color-bone)',
+              border: '1px solid var(--color-line-soft)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '18px', fontWeight: 700,
+              color: 'var(--color-ink)',
+            }}
+          >
+            {initials}
+          </div>
+        )}
 
-        {/* Name + badges */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[17px] font-semibold text-navy truncate">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 'var(--t-body-md)', fontWeight: 700, color: 'var(--color-ink)' }}>
             {captainName}
           </p>
-          <div className="flex flex-wrap items-center gap-2 mt-1.5">
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginTop: 'var(--s-1)', flexWrap: 'wrap' }}>
             {captainLicense && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gold-dim text-navy text-[11px] font-medium">
+              <span className="badge">
+                <Shield size={10} strokeWidth={2.5} />
                 {tr.uscgLicensed}
               </span>
             )}
             {captainTripCount != null && (
-              <span className="text-[12px] text-text-mid">
+              <span className="font-mono" style={{ fontSize: '12px', color: 'var(--color-ink-muted)' }}>
                 {captainTripCount} {tr.trips}
-              </span>
-            )}
-            {captainRating != null && (
-              <span className="text-[12px] text-amber-500 font-medium">
-                ★ {captainRating.toFixed(1)}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Stats row */}
-      {stats.length > 0 && (
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col items-center bg-bg rounded-[10px] py-2.5 px-2"
-            >
-              <span className="text-[17px] font-bold text-navy">
-                {stat.value}
-              </span>
-              <span className="text-[11px] text-text-mid text-center mt-0.5">
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Languages */}
-      {captainLanguages.length > 0 && (
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-[12px] text-text-mid">{tr.languages}:</span>
-          <div className="flex gap-1.5">
-            {captainLanguages.map((lang) => (
-              <span key={lang} className="text-[18px]">
-                {LANGUAGE_FLAGS[lang as keyof typeof LANGUAGE_FLAGS] ?? lang}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Bio */}
-      {captainBio && <ReadMoreBio bio={captainBio} />}
-
-      {/* Certifications */}
-      {captainCertifications.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {captainCertifications.map((cert) => (
-            <span
-              key={cert}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-bg text-text-mid text-[12px]"
-            >
-              ✓ {cert}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Compact meta row */}
+      <div
+        className="font-mono"
+        style={{
+          display: 'flex', alignItems: 'center', gap: 'var(--s-3)',
+          marginTop: 'var(--s-3)',
+          paddingTop: 'var(--s-3)',
+          borderTop: '1px dashed var(--color-line-soft)',
+          fontSize: '12px',
+          color: 'var(--color-ink-muted)',
+          flexWrap: 'wrap',
+        }}
+      >
+        {captainYearsExp != null && (
+          <span>{captainYearsExp} {tr.yearsExp}</span>
+        )}
+        {captainLanguages.length > 0 && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Globe size={11} strokeWidth={2} />
+            {captainLanguages.map(lang =>
+              LANGUAGE_FLAGS[lang as keyof typeof LANGUAGE_FLAGS] ?? lang
+            ).join(' ')}
+          </span>
+        )}
+      </div>
     </div>
   )
 }

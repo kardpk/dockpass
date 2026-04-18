@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { cn } from '@/lib/utils/cn'
+import { Check, X, Backpack } from 'lucide-react'
 import { storage } from '@/lib/storage'
 import type { TripT } from '@/lib/i18n/tripTranslations'
 
@@ -49,56 +49,73 @@ export function WhatToBringSection({
   }
 
   return (
-    <div className="mx-4 mt-3 bg-white rounded-[16px] border border-border p-5">
+    <div
+      className="tile"
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+    >
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
+        <Backpack size={16} strokeWidth={2} style={{ color: 'var(--color-ink)' }} />
+        <span
+          className="font-mono"
+          style={{
+            fontSize: '11px', fontWeight: 700,
+            letterSpacing: '0.12em', textTransform: 'uppercase' as const,
+            color: 'var(--color-ink)',
+          }}
+        >
+          Packing list
+        </span>
+      </div>
+
       {/* Tab switcher */}
-      <div className="flex gap-2 mb-4">
+      <div style={{ display: 'flex', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
         <button
           onClick={() => setActiveTab('bring')}
-          className={cn(
-            'flex-1 h-[40px] rounded-[10px] text-[14px] font-medium border transition-colors',
-            activeTab === 'bring'
-              ? 'bg-navy text-white border-[#0C447C]'
-              : 'bg-white text-text-mid border-border',
-          )}
+          className={activeTab === 'bring' ? 'btn btn--ink btn--sm' : 'btn btn--ghost btn--sm'}
+          style={{ flex: 1, justifyContent: 'center' }}
         >
-          ✓ {tr.whatToBring}
+          <Check size={13} strokeWidth={2.5} />
+          {tr.whatToBring}
         </button>
         <button
           onClick={() => setActiveTab('avoid')}
-          className={cn(
-            'flex-1 h-[40px] rounded-[10px] text-[14px] font-medium border transition-colors',
-            activeTab === 'avoid'
-              ? 'bg-[#D63B3B] text-white border-[#D63B3B]'
-              : 'bg-white text-text-mid border-border',
-          )}
+          className={activeTab === 'avoid' ? 'btn btn--danger btn--sm' : 'btn btn--ghost btn--sm'}
+          style={{ flex: 1, justifyContent: 'center' }}
         >
-          ✗ {tr.whatNotToBring}
+          <X size={13} strokeWidth={2.5} />
+          {tr.whatNotToBring}
         </button>
       </div>
 
       {/* Bring checklist */}
       {activeTab === 'bring' && (
-        <ul className="space-y-2">
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
           {bringItems.length === 0 && (
-            <li className="text-[14px] text-text-mid">No items listed.</li>
+            <li style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>No items listed.</li>
           )}
           {bringItems.map((item, idx) => (
-            <li key={idx} className="flex items-center gap-3">
+            <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
               <input
                 type="checkbox"
                 id={`bring-${idx}`}
                 checked={checked.has(idx)}
                 onChange={() => toggleItem(idx)}
-                className="w-[22px] h-[22px] accent-gold shrink-0 cursor-pointer"
+                style={{
+                  width: 20, height: 20, flexShrink: 0, cursor: 'pointer',
+                  accentColor: 'var(--color-ink)',
+                  borderRadius: 'var(--r-1)',
+                }}
               />
               <label
                 htmlFor={`bring-${idx}`}
-                className={cn(
-                  'text-[14px] cursor-pointer select-none',
-                  checked.has(idx)
-                    ? 'line-through text-text-mid'
-                    : 'text-navy',
-                )}
+                style={{
+                  fontSize: 'var(--t-body-sm)',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  color: checked.has(idx) ? 'var(--color-ink-muted)' : 'var(--color-ink)',
+                  textDecoration: checked.has(idx) ? 'line-through' : 'none',
+                }}
               >
                 {item}
               </label>
@@ -109,14 +126,16 @@ export function WhatToBringSection({
 
       {/* Avoid list */}
       {activeTab === 'avoid' && (
-        <ul className="space-y-2">
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
           {avoidItems.length === 0 && (
-            <li className="text-[14px] text-text-mid">No items listed.</li>
+            <li style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>No items listed.</li>
           )}
           {avoidItems.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-2">
-              <span className="text-error font-bold text-[14px] mt-0.5">✗</span>
-              <span className="text-[14px] text-[#E8593C]">{item}</span>
+            <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--s-2)' }}>
+              <X size={14} strokeWidth={2.5} style={{ color: 'var(--color-status-err)', flexShrink: 0, marginTop: 2 }} />
+              <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-status-err)' }}>
+                {item}
+              </span>
             </li>
           ))}
         </ul>

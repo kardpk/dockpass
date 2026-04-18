@@ -8,8 +8,6 @@ import { StepCode } from './StepCode'
 import { StepDetails } from './StepDetails'
 import { StepSafety } from './StepSafety'
 import { StepWaiver } from './StepWaiver'
-import { StepInsurance } from './StepInsurance'
-import { StepAddons } from './StepAddons'
 import { StepBoarding } from './StepBoarding'
 import type { JoinStep, JoinFlowState } from '@/types'
 import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
@@ -43,17 +41,10 @@ interface JoinFlowSheetProps {
   currentLang: string
 }
 
-// Ordered steps for the progress bar (insurance is conditional, excluded)
-// ADDONS_ENABLED gates the add-on purchase step (beta: payments not yet live)
-const ADDONS_ENABLED = process.env.NEXT_PUBLIC_ADDONS_ENABLED === 'true'
-
-const STEPS: JoinStep[]             = ADDONS_ENABLED
-  ? ['code', 'details', 'safety', 'waiver', 'addons', 'boarding']
-  : ['code', 'details', 'safety', 'waiver', 'boarding']
+// Beta: simplified flow — no insurance, no addons
+const STEPS: JoinStep[]             = ['code', 'details', 'safety', 'waiver', 'boarding']
 const FAST_TRACK_STEPS: JoinStep[]  = ['code', 'details', 'waiver', 'boarding']
-const RELAXED_STEPS: JoinStep[]     = ADDONS_ENABLED
-  ? ['code', 'details', 'waiver', 'addons', 'boarding']
-  : ['code', 'details', 'waiver', 'boarding']
+const RELAXED_STEPS: JoinStep[]     = ['code', 'details', 'waiver', 'boarding']
 
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
@@ -248,39 +239,14 @@ export function JoinFlowSheet({
                   isRelaxedTrip={isRelaxedTrip}
                   onNext={(requiresCourse) => {
                     updateState({ requiresCourse })
-                    if (isFastTrack) {
-                      // Fast-track always skips addons
-                      goToStep('boarding')
-                    } else if (ADDONS_ENABLED) {
-                      goToStep(requiresCourse ? 'insurance' : 'addons')
-                    } else {
-                      // Beta: payments not live yet — skip straight to boarding
-                      goToStep(requiresCourse ? 'insurance' : 'boarding')
-                    }
+                    // Beta: always go straight to boarding
+                    goToStep('boarding')
                   }}
                   onBack={() => goToStep(isFastTrack || isRelaxedTrip ? 'details' : 'safety')}
                 />
               )}
 
-              {state.step === 'insurance' && (
-                <StepInsurance
-                  charterType={tripData.charterType}
-                  onNext={() => goToStep('addons')}
-                />
-              )}
-
-              {/* StepAddons: only shown when ADDONS_ENABLED (payments live) */}
-              {ADDONS_ENABLED && state.step === 'addons' && (
-                <StepAddons
-                  addons={tripData.addons}
-                  guestId={state.guestId}
-                  tripSlug={tripSlug}
-                  state={state}
-                  onUpdate={updateState}
-                  onComplete={() => goToStep('boarding')}
-                  onSkip={() => goToStep('boarding')}
-                />
-              )}
+              {/* Insurance and Addons removed for Beta */}
 
               {state.step === 'boarding' && (
                 <StepBoarding

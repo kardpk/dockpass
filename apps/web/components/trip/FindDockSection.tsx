@@ -1,4 +1,4 @@
-import { MapPin, ExternalLink } from 'lucide-react'
+import { MapPin, ExternalLink, Car } from 'lucide-react'
 import { ParkingCollapsible } from './ParkingCollapsible'
 import type { TripT } from '@/lib/i18n/tripTranslations'
 
@@ -28,24 +28,38 @@ export function FindDockSection({
     : `https://maps.google.com/?q=${encodeURIComponent(marinaAddress || marinaName)}`
 
   return (
-    <div className="mx-4 mt-3 bg-white rounded-[16px] border border-border p-5">
+    <div
+      className="tile"
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+    >
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-gold-dim flex items-center justify-center">
-          <MapPin size={16} className="text-navy" />
-        </div>
-        <p className="text-[17px] font-semibold text-navy">{tr.findDock}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
+        <MapPin size={16} strokeWidth={2} style={{ color: 'var(--color-rust)' }} />
+        <span
+          className="font-mono"
+          style={{
+            fontSize: '11px', fontWeight: 700,
+            letterSpacing: '0.12em', textTransform: 'uppercase' as const,
+            color: 'var(--color-ink-muted)',
+          }}
+        >
+          {tr.findDock}
+        </span>
       </div>
 
       {/* Marina info */}
-      <p className="text-[15px] font-semibold text-navy">{marinaName}</p>
+      <p style={{ fontSize: 'var(--t-body-md)', fontWeight: 700, color: 'var(--color-ink)' }}>
+        {marinaName}
+      </p>
       {marinaAddress && (
-        <p className="text-[14px] text-text-mid mt-1">{marinaAddress}</p>
+        <p style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)', marginTop: 'var(--s-1)' }}>
+          {marinaAddress}
+        </p>
       )}
 
       {/* Slip badge */}
       {slipNumber && (
-        <span className="inline-flex items-center mt-2 px-3 py-1 rounded-full bg-[#E8F9F4] text-teal text-[13px] font-medium">
+        <span className="badge badge--ok" style={{ marginTop: 'var(--s-2)', display: 'inline-flex' }}>
           {tr.slip} {slipNumber}
         </span>
       )}
@@ -55,22 +69,36 @@ export function FindDockSection({
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 flex items-center gap-2 h-[44px] text-[14px] font-medium text-navy hover:text-[#093a6b] transition-colors"
+        style={{
+          marginTop: 'var(--s-3)',
+          display: 'flex', alignItems: 'center', gap: 'var(--s-2)',
+          minHeight: 44,
+          fontSize: 'var(--t-body-sm)',
+          fontWeight: 600,
+          color: 'var(--color-ink)',
+          textDecoration: 'none',
+        }}
       >
-        <ExternalLink size={15} />
+        <ExternalLink size={14} strokeWidth={2} />
         {tr.openMaps}
       </a>
 
       {/* Parking collapsible */}
       {parkingInstructions && (
-        <div className="mt-3 border-t border-border pt-3">
+        <div
+          style={{
+            marginTop: 'var(--s-3)',
+            paddingTop: 'var(--s-3)',
+            borderTop: '1px dashed var(--color-line-soft)',
+          }}
+        >
           <ParkingCollapsible text={parkingInstructions} label={tr.parkingNote} />
         </div>
       )}
 
       {/* Operating area */}
       {operatingArea && (
-        <p className="mt-3 text-[13px] text-text-mid">
+        <p style={{ marginTop: 'var(--s-3)', fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)' }}>
           Operating area: {operatingArea}
         </p>
       )}

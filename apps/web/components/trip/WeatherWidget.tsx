@@ -1,3 +1,4 @@
+import { Thermometer, Wind, CloudRain } from 'lucide-react'
 import type { WeatherData } from '@/lib/trip/getWeatherData'
 import type { TripT } from '@/lib/i18n/tripTranslations'
 
@@ -19,55 +20,86 @@ export function WeatherWidget({ weather, tr }: WeatherWidgetProps) {
   const message = tr[messageKey] as string
 
   return (
-    <div className="mx-4 mt-3 bg-white rounded-[16px] border border-border p-5">
-      <p className="text-[11px] font-semibold text-text-mid uppercase tracking-wider mb-3">
+    <div
+      className="tile"
+      style={{ margin: '0 var(--s-4)', marginTop: 'var(--s-3)' }}
+    >
+      <span
+        className="font-mono"
+        style={{
+          fontSize: '11px', fontWeight: 700,
+          letterSpacing: '0.12em', textTransform: 'uppercase' as const,
+          color: 'var(--color-ink-muted)',
+          display: 'block',
+          marginBottom: 'var(--s-3)',
+        }}
+      >
         {tr.weather}
-      </p>
+      </span>
 
       {/* Header row */}
-      <div className="flex items-center gap-4 mb-4">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', marginBottom: 'var(--s-3)' }}>
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-[24px] shrink-0"
-          style={{ backgroundColor: weather.bgColor }}
+          style={{
+            width: 44, height: 44,
+            borderRadius: 'var(--r-1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '22px',
+            backgroundColor: weather.bgColor,
+          }}
         >
           {weather.icon}
         </div>
         <div>
-          <p className="text-[15px] font-semibold text-navy">{weather.label}</p>
-          <p className="text-[13px] text-text-mid mt-0.5">
+          <p style={{ fontSize: 'var(--t-body-md)', fontWeight: 700, color: 'var(--color-ink)' }}>
+            {weather.label}
+          </p>
+          <p className="font-mono" style={{ fontSize: '12px', color: 'var(--color-ink-muted)', marginTop: 2 }}>
             {tr.feels} {weather.temperature}°F
           </p>
         </div>
       </div>
 
       {/* Details row */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--s-2)', marginBottom: 'var(--s-3)' }}>
         {[
-          { icon: '🌡️', label: `${weather.temperature}°F`, sublabel: 'High' },
-          { icon: '💨', label: `${weather.windspeed} mph`, sublabel: tr.wind },
-          { icon: '🌧️', label: `${weather.precipitation}mm`, sublabel: 'Rain' },
+          { Icon: Thermometer, label: `${weather.temperature}°F`, sublabel: 'High' },
+          { Icon: Wind, label: `${weather.windspeed} mph`, sublabel: tr.wind },
+          { Icon: CloudRain, label: `${weather.precipitation}mm`, sublabel: 'Rain' },
         ].map((item) => (
           <div
             key={item.sublabel}
-            className="flex flex-col items-center gap-0.5 bg-bg rounded-[10px] p-2.5"
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              gap: 2,
+              background: 'var(--color-bone)',
+              borderRadius: 'var(--r-1)',
+              padding: 'var(--s-2) var(--s-2)',
+            }}
           >
-            <span className="text-[16px]">{item.icon}</span>
-            <span className="text-[13px] font-semibold text-navy">{item.label}</span>
-            <span className="text-[11px] text-text-mid">{item.sublabel}</span>
+            <item.Icon size={15} strokeWidth={2} style={{ color: 'var(--color-ink-muted)' }} />
+            <span className="font-mono" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-ink)' }}>
+              {item.label}
+            </span>
+            <span style={{ fontSize: '11px', color: 'var(--color-ink-muted)' }}>
+              {item.sublabel}
+            </span>
           </div>
         ))}
       </div>
 
       {/* Condition banner */}
       <div
-        className="px-4 py-2.5 rounded-[10px] text-[14px] font-medium"
         style={{
+          padding: 'var(--s-2) var(--s-3)',
+          borderRadius: 'var(--r-1)',
+          fontSize: 'var(--t-body-sm)',
+          fontWeight: 600,
           backgroundColor: weather.bgColor,
           color: weather.color,
         }}
       >
         {message}
-        {weather.severity === 'good' && ' ✓'}
       </div>
     </div>
   )

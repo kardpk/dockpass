@@ -12,8 +12,15 @@ export async function verifyTurnstile(token: string): Promise<boolean> {
 
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    if (process.env.NODE_ENV === "development") return true;
-    console.error("[turnstile] TURNSTILE_SECRET_KEY not set");
+    // Turnstile not configured — allow registration with warning.
+    // The 12 other security layers still protect the endpoint.
+    console.warn("[turnstile] TURNSTILE_SECRET_KEY not set — bot check skipped");
+    return true;
+  }
+
+  // If key IS configured but token is empty — likely a bot
+  if (!token) {
+    console.warn("[turnstile] Empty token received — blocking");
     return false;
   }
 

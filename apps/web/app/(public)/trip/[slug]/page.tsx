@@ -6,7 +6,7 @@ import { detectLanguage } from '@/lib/i18n/detect'
 import { t } from '@/lib/i18n/tripTranslations'
 import { formatTripDate, formatTime } from '@/lib/utils/format'
 
-// Section imports
+// Section imports — streamlined to 5 editorial sections
 import { TripHero } from '@/components/trip/TripHero'
 import { WeatherWidget } from '@/components/trip/WeatherWidget'
 import { FindDockSection } from '@/components/trip/FindDockSection'
@@ -14,10 +14,6 @@ import { CaptainSection } from '@/components/trip/CaptainSection'
 import { SafetySection } from '@/components/trip/SafetySection'
 import { WhatToBringSection } from '@/components/trip/WhatToBringSection'
 import { BoatRulesSection } from '@/components/trip/BoatRulesSection'
-import { RouteSection } from '@/components/trip/RouteSection'
-import { OnboardSection } from '@/components/trip/OnboardSection'
-import { AddonsPreviewSection } from '@/components/trip/AddonsPreviewSection'
-import { CancellationSection } from '@/components/trip/CancellationSection'
 import { StickyJoinCTA } from '@/components/trip/StickyJoinCTA'
 import { ActiveTripBanner } from '@/components/trip/ActiveTripBanner'
 import { TripCancelledPage } from '@/components/trip/TripCancelledPage'
@@ -91,17 +87,11 @@ export default async function TripPage({
     redirect(`/trip/${slug}/completed`)
   }
 
-  // Fetch weather server-side (parallel-ish — called after trip resolves)
+  // Fetch weather server-side
   const weather =
     trip.boat.lat && trip.boat.lng
       ? await getWeatherData(trip.boat.lat, trip.boat.lng, trip.tripDate)
       : null
-
-  const hasOnboard =
-    trip.boat.selectedEquipment.length > 0 ||
-    Object.keys(trip.boat.selectedAmenities).length > 0 ||
-    Object.keys(trip.boat.onboardInfo).length > 0 ||
-    Object.keys(trip.boat.specificFieldValues).length > 0
 
   const hasRules =
     !!trip.boat.houseRules ||
@@ -122,7 +112,7 @@ export default async function TripPage({
         />
       )}
 
-      {/* SECTION 1 — Hero */}
+      {/* ── SECTION 1: Hero ───────────────────────────── */}
       <TripHero
         boatName={trip.boat.boatName}
         tripDate={trip.tripDate}
@@ -134,15 +124,15 @@ export default async function TripPage({
         tr={tr}
       />
 
-      {/* Scrollable content — pb-32 guards against sticky CTA overlap */}
-      <div className="bg-[#F5F8FC] pb-32">
+      {/* ── SECTION 2: Before You Board ───────────────── */}
+      <div style={{ background: 'var(--color-paper)', paddingBottom: 'calc(var(--s-16) + 80px)' }}>
 
-        {/* SECTION 2 — Weather */}
+        {/* Weather */}
         {weather && (
           <WeatherWidget weather={weather} tripDate={trip.tripDate} tr={tr} />
         )}
 
-        {/* SECTION 3 — Find Dock */}
+        {/* Find your dock */}
         <FindDockSection
           marinaName={trip.boat.marinaName}
           marinaAddress={trip.boat.marinaAddress}
@@ -154,7 +144,17 @@ export default async function TripPage({
           tr={tr}
         />
 
-        {/* SECTION 4 — Captain */}
+        {/* What to bring */}
+        {(trip.boat.whatToBring || trip.boat.whatNotToBring) && (
+          <WhatToBringSection
+            whatToBring={trip.boat.whatToBring}
+            whatNotToBring={trip.boat.whatNotToBring}
+            slug={slug}
+            tr={tr}
+          />
+        )}
+
+        {/* ── SECTION 3: Your Captain ─────────────────── */}
         {trip.boat.captainName && (
           <CaptainSection
             captainName={trip.boat.captainName}
@@ -170,22 +170,11 @@ export default async function TripPage({
           />
         )}
 
-        {/* SECTION 5 — Safety */}
+        {/* ── SECTION 4: Safety & Rules ───────────────── */}
         {trip.boat.safetyPoints.length > 0 && (
           <SafetySection safetyPoints={trip.boat.safetyPoints} tr={tr} />
         )}
 
-        {/* SECTION 6 — What to Bring */}
-        {(trip.boat.whatToBring || trip.boat.whatNotToBring) && (
-          <WhatToBringSection
-            whatToBring={trip.boat.whatToBring}
-            whatNotToBring={trip.boat.whatNotToBring}
-            slug={slug}
-            tr={tr}
-          />
-        )}
-
-        {/* SECTION 7 — Boat Rules */}
         {hasRules && (
           <BoatRulesSection
             houseRules={trip.boat.houseRules}
@@ -195,48 +184,9 @@ export default async function TripPage({
             tr={tr}
           />
         )}
-
-        {/* SECTION 8 — Route / Marina Map */}
-        {trip.boat.lat && trip.boat.lng && (
-          <RouteSection
-            lat={trip.boat.lat}
-            lng={trip.boat.lng}
-            marinaName={trip.boat.marinaName}
-            slipNumber={trip.boat.slipNumber}
-            routeDescription={trip.routeDescription}
-            routeStops={trip.routeStops}
-            tr={tr}
-          />
-        )}
-
-        {/* SECTION 9 — On Board */}
-        {hasOnboard && (
-          <OnboardSection
-            selectedEquipment={trip.boat.selectedEquipment}
-            selectedAmenities={trip.boat.selectedAmenities}
-            specificFieldValues={trip.boat.specificFieldValues}
-            onboardInfo={trip.boat.onboardInfo}
-            boatTypeKey={trip.boat.boatTypeKey}
-            tr={tr}
-          />
-        )}
-
-        {/* SECTION 10 — Cancellation */}
-        {trip.boat.cancellationPolicy && (
-          <CancellationSection
-            policy={trip.boat.cancellationPolicy}
-            tripDate={trip.tripDate}
-            tr={tr}
-          />
-        )}
-
-        {/* SECTION 11 — Add-ons */}
-        {trip.addons.length > 0 && (
-          <AddonsPreviewSection addons={trip.addons} tr={tr} />
-        )}
       </div>
 
-      {/* Sticky CTA — always visible */}
+      {/* ── SECTION 5: Sticky CTA ─────────────────────── */}
       <StickyJoinCTA
         tripSlug={slug}
         tripCode={trip.tripCode}
@@ -258,7 +208,7 @@ export default async function TripPage({
           charterType: trip.charterType as 'captained' | 'bareboat' | 'both',
           tripPurpose: trip.tripPurpose ?? 'commercial',
           addons: trip.addons,
-          isEU: false, // TODO: detect from Accept-Language or CF-IPCountry header
+          isEU: false,
         }}
       />
 
