@@ -597,7 +597,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           boatId={boat.id as string}
           readinessScore={readinessScore}
           totalChecks={readinessChecks.length}
-          readinessChecks={readinessChecks}
+          readinessChecks={readinessChecks.map(({ label, ok, warnLabel, step }) => ({ label, ok, warnLabel, step }))}
         />
         <Link
           href={`/dashboard/boats/${boat.id}/edit`}
