@@ -20,6 +20,15 @@ function initials(name: string) {
   return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 }
 
+// E-2: Determines the semantic state of the guest roster for dot colour + tooltip
+type GuestDotState = 'ALL_SIGNED' | 'ALL_IN' | 'PARTIAL' | 'EMPTY'
+function getGuestDotState(total: number, signed: number, maxGuests: number): GuestDotState {
+  if (total === 0) return 'EMPTY'
+  if (signed === total && total === maxGuests) return 'ALL_SIGNED'  // full house + all waivers
+  if (total === maxGuests) return 'ALL_IN'                          // full house, some waivers pending
+  return 'PARTIAL'                                                  // not all guests checked in
+}
+
 export function GuestManagementTable({
   tripId, initialGuests, maxGuests, requiresApproval,
 }: GuestManagementTableProps) {
@@ -110,6 +119,43 @@ export function GuestManagementTable({
           >
             {total} / {maxGuests}
           </span>
+
+          {/* E-2: Semantic status dot — colour reflects real guest roster state */}
+          {(() => {
+            const dotState = getGuestDotState(total, signed, maxGuests)
+            const dotColor =
+              dotState === 'ALL_SIGNED'
+                ? '#1F6B52'
+                : dotState === 'ALL_IN' || dotState === 'PARTIAL'
+                  ? '#B5822A'
+                  : 'var(--color-ink-muted)'
+            const pendingWaivers = total - signed
+            const tooltip =
+              dotState === 'ALL_SIGNED'
+                ? 'All waivers signed'
+                : dotState === 'ALL_IN'
+                  ? `${pendingWaivers} waiver${pendingWaivers !== 1 ? 's' : ''} pending`
+                  : dotState === 'PARTIAL'
+                    ? `${total} of ${maxGuests} checked in`
+                    : 'No guests yet'
+            return (
+              <span
+                title={tooltip}
+                aria-label={tooltip}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: dotColor,
+                  display: 'inline-block',
+                  flexShrink: 0,
+                  cursor: 'help',
+                  transition: 'background 300ms ease',
+                }}
+              />
+            )
+          })()}
+
           {pendingApproval > 0 && (
             <span className="pill pill--warn">
               <span className="pill-dot" />

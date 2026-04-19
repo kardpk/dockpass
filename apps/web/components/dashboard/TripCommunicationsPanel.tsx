@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageSquare, Copy, Check, Pencil, X, Save } from 'lucide-react'
+import { Mail, Copy, Check, Pencil, X, Save } from 'lucide-react'
 
 interface TripCommunicationsPanelProps {
   tripId: string
@@ -81,7 +81,7 @@ export function TripCommunicationsPanel({
           marginBottom: 'var(--s-4)',
         }}
       >
-        <MessageSquare
+        <Mail
           size={14}
           strokeWidth={2}
           style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }}

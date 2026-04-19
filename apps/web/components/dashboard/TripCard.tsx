@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { MapPin, ChevronRight } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { formatDuration } from '@/lib/utils/format'
 import { TripStatusBadge } from '@/components/ui/TripStatusBadge'
 import type { TripStatus } from '@/types'
@@ -134,23 +134,40 @@ export function TripCard({
             </div>
           </div>
 
-          {/* Trip code badge + status */}
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
-            <span
-              className="font-mono"
-              style={{
-                fontSize: '13px',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                color: 'var(--color-rust)',
-                background: 'rgba(184,74,31,0.08)',
-                padding: '2px 8px',
-                borderRadius: 'var(--r-1)',
-              }}
-            >
+          {/* Trip code — E-1: two-tier badge: CODE label + value, distinct from status pills */}
+          <div
+            className="mono"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              background: 'rgba(184,74,31,0.07)',
+              border: '1px solid rgba(184,74,31,0.18)',
+              padding: '3px 8px',
+              borderRadius: 'var(--r-1)',
+              gap: 1,
+              flexShrink: 0,
+            }}
+          >
+            <span style={{
+              fontSize: 8,
+              fontWeight: 600,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--color-ink-muted)',
+              lineHeight: 1,
+            }}>
+              code
+            </span>
+            <span style={{
+              fontSize: '13px',
+              fontWeight: 800,
+              letterSpacing: '0.1em',
+              color: 'var(--color-rust)',
+              lineHeight: 1,
+            }}>
               {tripCode}
             </span>
-            <ChevronRight size={16} strokeWidth={2} style={{ color: 'var(--color-ink-muted)' }} />
           </div>
         </div>
 
