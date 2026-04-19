@@ -569,6 +569,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
             boatId={boat.id as string}
             boatName={boat.boat_name as string}
             publicSlug={(boat.public_slug as string) ?? ""}
+            shortBoardToken={(boat.short_board_token as string | null) ?? null}
           />
         </section>
 

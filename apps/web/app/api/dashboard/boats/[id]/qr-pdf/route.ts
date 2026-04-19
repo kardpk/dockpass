@@ -32,7 +32,7 @@ export async function GET(
   // 2. Verify boat ownership
   const { data: boat } = await supabase
     .from("boats")
-    .select("id, boat_name, public_slug, marina_name")
+    .select("id, boat_name, public_slug, short_board_token, marina_name")
     .eq("id", boatId)
     .eq("operator_id", operator.id)
     .eq("is_active", true)
@@ -43,8 +43,12 @@ export async function GET(
   }
 
   const publicSlug = boat.public_slug as string;
+  const shortToken = (boat.short_board_token as string | null) ?? null;
   const boatName = boat.boat_name as string;
-  const boardingUrl = `https://boatcheckin.com/board/${publicSlug}`;
+  // Prefer short URL — cleaner text in PDF + fewer QR modules = better print scan
+  const boardingUrl = shortToken
+    ? `https://boatcheckin.com/b/${shortToken}`
+    : `https://boatcheckin.com/board/${publicSlug}`;
 
   // 3. Generate QR code as a PNG data buffer
   //    Level M = ~15% error correction — survives typical marine wear/scratches

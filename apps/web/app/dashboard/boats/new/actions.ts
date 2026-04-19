@@ -2,6 +2,7 @@
 
 import { requireOperator } from "@/lib/security/auth";
 import { auditLog } from "@/lib/security/audit";
+import { generateShortBoardToken } from "@/lib/utils/shortBoardToken";
 import type { WizardAddon } from "./types";
 
 /**
@@ -168,6 +169,18 @@ export async function saveBoatProfile(data: {
       return { success: false, error: boatError?.message ?? "Failed to save boat." };
     }
 
+    // 5b. Assign short_board_token immediately after getting the boat.id
+    //     This is done as a separate UPDATE so the INSERT stays clean.
+    //     Non-fatal if it fails — backfill endpoint covers it.
+    const shortToken = generateShortBoardToken(boat.id, data.boatName);
+    const { error: tokenError } = await supabase
+      .from("boats")
+      .update({ short_board_token: shortToken })
+      .eq("id", boat.id)
+      .is("short_board_token", null); // idempotency: only set if not already assigned
+    if (tokenError) {
+      console.warn("[saveBoatProfile] short_board_token assign failed (non-fatal):", tokenError.message);
+    }
     // 6. INSERT addons
     if (data.addons.length > 0) {
       const addonRows = data.addons.map((addon, i) => ({

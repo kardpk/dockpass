@@ -8,10 +8,17 @@ interface Props {
   boatId: string;
   boatName: string;
   publicSlug: string;
+  /** Short human-readable token: e.g. "mv-lotus-a3f9" → boatcheckin.com/b/mv-lotus-a3f9
+   *  Falls back to the full /board/[publicSlug] URL if null (pre-migration boats). */
+  shortBoardToken: string | null;
 }
 
-export function BoatQRSection({ boatId, boatName, publicSlug }: Props) {
-  const boardingUrl = `https://boatcheckin.com/board/${publicSlug}`;
+export function BoatQRSection({ boatId, boatName, publicSlug, shortBoardToken }: Props) {
+  // Prefer short URL — much cleaner for SMS and printing
+  const boardingUrl = shortBoardToken
+    ? `https://boatcheckin.com/b/${shortBoardToken}`
+    : `https://boatcheckin.com/board/${publicSlug}`;
+
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -93,7 +100,8 @@ export function BoatQRSection({ boatId, boatName, publicSlug }: Props) {
           </span>
         </div>
 
-        {/* QR display — §10.4: always white bg, ink fg, min 120px, ECL M */}
+        {/* QR display — §10.4: always white bg, ink fg, min 120px, ECL M
+            Short URL = fewer modules = larger cells = easier scan in direct sun */}
         <div style={{
           display: "flex",
           justifyContent: "center",
@@ -116,7 +124,8 @@ export function BoatQRSection({ boatId, boatName, publicSlug }: Props) {
           </div>
         </div>
 
-        {/* URL — mono, caption §10.4 */}
+        {/* URL — mono, caption §10.4
+            Short form is legible; fallback long form word-breaks cleanly */}
         <p style={{
           fontFamily: "var(--font-jetbrains)",
           fontSize: "var(--t-mono-xs)",
