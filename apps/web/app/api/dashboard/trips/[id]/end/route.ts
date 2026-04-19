@@ -6,18 +6,22 @@ import { createClient } from '@/lib/supabase/server'
 import { endBuoyPolicy } from '@/lib/buoy/client'
 import { auditLog } from '@/lib/security/audit'
 import { rateLimit } from '@/lib/security/rate-limit'
+import { correctTripStatus } from '@/lib/utils/tripStatus'
 
 /**
  * POST /api/dashboard/trips/[id]/end
  *
  * Operator-authenticated end-trip endpoint.
- * Uses Supabase auth via cookie session — no snapshot token required.
- * This is the correct path for the operator dashboard "End Trip" button.
+ * Uses cookie session auth — no snapshot token required.
  *
- * NOTE: Does NOT use requireOperator() because that function uses React.cache()
- * and calls redirect() on auth failure, which throws NEXT_REDIRECT in Route
- * Handlers and causes silent failures. Instead we read auth directly from the
- * Supabase session cookie, matching the pattern used by all other guards.
+ * Strategy:
+ *  1. Read user from cookie session (createClient)
+ *  2. Fetch trip by ID alone (no ownership filter in SELECT)
+ *  3. Verify trip.operator_id === user.id manually
+ *  4. Update trip status
+ *
+ * This separates "trip not found" from "ownership mismatch" and avoids
+ * the SELECT returning empty due to combined filter issues.
  */
 export async function POST(
   req: NextRequest,
@@ -34,7 +38,7 @@ export async function POST(
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 
-  // Authenticate via cookie session — read auth user directly
+  // Auth: read user from cookie session
   const supabaseCookie = await createClient()
   const { data: { user }, error: authError } = await supabaseCookie.auth.getUser()
 
@@ -42,39 +46,33 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   }
 
-  // Service client for privileged writes
+  // Service client — bypasses RLS for all subsequent queries
   const supabase = createServiceClient()
 
-  // Verify the user has an operator record
-  const { data: operator } = await supabase
-    .from('operators')
-    .select('id, is_active')
-    .eq('id', user.id)
-    .single()
-
-  if (!operator || !operator.is_active) {
-    return NextResponse.json({ error: 'Operator not found' }, { status: 403 })
-  }
-
-  // Fetch trip + verify operator ownership
+  // Fetch trip by ID only (no owner filter in SELECT to avoid silent null)
   const { data: trip, error: tripErr } = await supabase
     .from('trips')
     .select(`
-      id, slug, status, started_at, duration_hours,
+      id, slug, status, trip_date, started_at, duration_hours,
       max_guests, operator_id, buoy_policy_id,
       boats ( boat_name )
     `)
     .eq('id', id)
-    .eq('operator_id', operator.id)
     .single()
 
   if (tripErr || !trip) {
-    console.error('[dashboard/end-trip] Trip lookup failed', {
-      tripId: id,
-      operatorId: operator.id,
-      error: tripErr?.message,
-    })
+    console.error('[end-trip] trip fetch failed', { id, error: tripErr?.message })
     return NextResponse.json({ error: 'Trip not found' }, { status: 404 })
+  }
+
+  // Ownership check — trip must belong to the authenticated user
+  if (trip.operator_id !== user.id) {
+    console.error('[end-trip] ownership mismatch', {
+      tripId: id,
+      tripOperatorId: trip.operator_id,
+      userId: user.id,
+    })
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 })
   }
 
   // Idempotent — already completed
@@ -82,7 +80,15 @@ export async function POST(
     return NextResponse.json({ data: { alreadyEnded: true } })
   }
 
-  if (trip.status !== 'active') {
+  // Apply the same date-correction logic the UI uses (correctTripStatus):
+  // A trip whose date is today with DB status 'upcoming' is treated as 'active'.
+  // Without this, the End Trip button is visible in the UI but the API rejects it.
+  const tripDate = (trip as Record<string, unknown>).trip_date as string | undefined
+  const effectiveStatus = tripDate
+    ? correctTripStatus(tripDate, trip.status as string)
+    : trip.status
+
+  if (effectiveStatus !== 'active') {
     return NextResponse.json(
       { error: `Cannot end a trip with status: ${trip.status}` },
       { status: 409 }
@@ -99,15 +105,16 @@ export async function POST(
   }
 
   // Update trip to completed
+  // Note: DB status may be 'upcoming' (if date-corrected to active by UI),
+  // so we filter on either 'active' OR 'upcoming' to handle both cases.
   const { error: updateErr } = await supabase
     .from('trips')
     .update({ status: 'completed', ended_at: endedAt })
     .eq('id', id)
-    .eq('operator_id', operator.id)
-    .eq('status', 'active') // optimistic concurrency
+    .in('status', ['active', 'upcoming']) // Accept both DB states
 
   if (updateErr) {
-    console.error('[dashboard/end-trip] UPDATE failed:', updateErr)
+    console.error('[end-trip] UPDATE failed:', updateErr.message)
     return NextResponse.json({ error: 'Failed to end trip' }, { status: 500 })
   }
 
@@ -124,9 +131,9 @@ export async function POST(
   // Audit log
   auditLog({
     action: 'trip_ended',
-    operatorId: operator.id,
+    operatorId: user.id,
     actorType: 'operator',
-    actorIdentifier: operator.id,
+    actorIdentifier: user.id,
     entityType: 'trip',
     entityId: id,
     changes: {
@@ -137,7 +144,7 @@ export async function POST(
 
   // Operator notification
   void supabase.from('operator_notifications').insert({
-    operator_id: operator.id,
+    operator_id: user.id,
     type: 'trip_ended',
     title: 'Trip completed',
     body: `${(trip.boats as { boat_name: string })?.boat_name ?? 'Your boat'} has returned`,
