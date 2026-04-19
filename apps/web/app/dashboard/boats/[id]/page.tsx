@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { BoatQRSection } from "./BoatQRSection";
 import { BoatDetailClient } from "./BoatDetailClient";
+import { TripReadinessModal } from "./TripReadinessModal";
 
 interface BoatDetailPageProps {
   params: Promise<{ id: string }>;
@@ -255,33 +256,44 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           }}
         >
           {[
-            { Icon: Users, value: boat.max_capacity, label: "guests" },
-            { Icon: Calendar, value: tripCount ?? 0, label: "trips" },
-            { Icon: Anchor, value: boat.state_code ?? "—", label: "state" },
-            ...(boat.length_ft ? [{ Icon: Ship, value: `${boat.length_ft}ft`, label: "length" }] : []),
-          ].map(({ Icon, value, label }) => (
-            <div
-              key={label}
-              style={{
-                flexShrink: 0,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "4px 10px",
-                borderRadius: 9999,
-                border: "1px solid var(--color-line)",
-                background: "var(--color-bone)",
-              }}
-            >
-              <Icon size={12} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)" }} />
-              <span style={{ fontSize: 13, fontWeight: 500, color: "var(--color-ink)" }}>
-                {value}
-              </span>
-              <span className="mono" style={{ fontSize: 11, color: "var(--color-ink-muted)" }}>
-                {label}
-              </span>
-            </div>
-          ))}
+            // Guests chip — always shown
+            { Icon: Users, value: boat.max_capacity, label: "guests", brass: false, show: true },
+            // Trips chip — only shown when operator has run at least 1 trip
+            { Icon: Calendar, value: tripCount ?? 0, label: "trips", brass: false, show: (tripCount ?? 0) >= 1 },
+            // State chip — "SB 606" for FL boats (compliance context), raw state for others
+            {
+              Icon: Anchor,
+              value: (boat.state_code ?? "").toUpperCase() === "FL" ? "SB 606" : (boat.state_code ?? "—"),
+              label: (boat.state_code ?? "").toUpperCase() === "FL" ? "livery law" : "state",
+              brass: (boat.state_code ?? "").toUpperCase() === "FL",
+              show: true,
+            },
+            ...(boat.length_ft ? [{ Icon: Ship, value: `${boat.length_ft}ft`, label: "length", brass: false, show: true }] : []),
+          ]
+            .filter((chip) => chip.show)
+            .map(({ Icon, value, label, brass }) => (
+              <div
+                key={label}
+                style={{
+                  flexShrink: 0,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "4px 10px",
+                  borderRadius: 9999,
+                  border: brass ? "1px solid var(--color-brass)" : "1px solid var(--color-line)",
+                  background: brass ? "rgba(200,161,74,0.1)" : "var(--color-bone)",
+                }}
+              >
+                <Icon size={12} strokeWidth={1.5} style={{ color: brass ? "var(--color-brass)" : "var(--color-ink-muted)" }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: brass ? "var(--color-brass-deep, #9E7D2E)" : "var(--color-ink)" }}>
+                  {value}
+                </span>
+                <span className="mono" style={{ fontSize: 11, color: brass ? "var(--color-brass)" : "var(--color-ink-muted)" }}>
+                  {label}
+                </span>
+              </div>
+            ))}
         </div>
 
         {/* ── LOCATION ── */}
@@ -580,13 +592,12 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           marginRight: "auto",
         }}
       >
-        <Link
-          href={`/dashboard/trips/new?boat=${boat.id}`}
-          className="btn btn--ink"
-          style={{ flex: 1, justifyContent: "center", height: 48, fontSize: "var(--t-body-sm)", fontWeight: 500 }}
-        >
-          Create trip →
-        </Link>
+        <TripReadinessModal
+          boatId={boat.id as string}
+          readinessScore={readinessScore}
+          totalChecks={readinessChecks.length}
+          readinessChecks={readinessChecks}
+        />
         <Link
           href={`/dashboard/boats/${boat.id}/edit`}
           className="btn btn--ghost"

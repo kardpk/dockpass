@@ -113,7 +113,7 @@ async function getMonthlyStats(
   const [tripsResult, revenueResult, ratingResult] = await Promise.all([
     supabase
       .from('trips')
-      .select('id, guests(id)', { count: 'exact' })
+      .select('id, status, guests(id)', { count: 'exact' })
       .eq('operator_id', operatorId)
       .gte('trip_date', startOfMonth.toISOString().split('T')[0]!)
       .in('status', ['upcoming', 'active', 'completed']),
@@ -144,11 +144,17 @@ async function getMonthlyStats(
     return sum + ((t.guests as { id: string }[])?.length ?? 0)
   }, 0)
 
+  // Count completed trips — used for add-on revenue empty-state micro-label
+  const completedTripsThisMonth = trips.filter(
+    (t: { status: string }) => t.status === 'completed'
+  ).length
+
   return {
     bookingsThisMonth: tripsResult.count ?? 0,
     addonRevenueThisMonthCents: addonRevenue,
     averageRating: avgRating,
     totalGuestsThisMonth: totalGuests,
+    completedTripsThisMonth,
   }
 }
 

@@ -2,23 +2,55 @@ import { Anchor, TrendingUp, Star } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import type { DashboardStats } from "@/types";
 
+// Mono micro-label shown beneath a stat value to explain an empty state
+function MicroLabel({ text }: { text: string }) {
+  return (
+    <span
+      className="mono"
+      style={{
+        display: "block",
+        fontSize: 9,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+        color: "var(--color-ink-muted)",
+        marginTop: 4,
+        lineHeight: 1.4,
+      }}
+    >
+      {text}
+    </span>
+  );
+}
+
 export function DashboardStatsRow({ stats }: { stats: DashboardStats }) {
+  const hasCompletedTrips = stats.completedTripsThisMonth > 0;
+
   const items = [
     {
-      label: "Charters this month",
+      label: "Trips this month",
       value: stats.bookingsThisMonth.toString(),
       icon: <Anchor size={14} strokeWidth={2} aria-hidden="true" />,
+      microLabel: stats.bookingsThisMonth === 0 ? "No trips yet this month" : undefined,
     },
     {
       label: "Add-on revenue",
-      value: formatCurrency(stats.addonRevenueThisMonthCents),
+      // Show "—" instead of $0.00 when operator has never had a completed trip
+      value:
+        stats.addonRevenueThisMonthCents === 0 && !hasCompletedTrips
+          ? "—"
+          : formatCurrency(stats.addonRevenueThisMonthCents),
       icon: <TrendingUp size={14} strokeWidth={2} aria-hidden="true" />,
+      microLabel:
+        stats.addonRevenueThisMonthCents === 0 && !hasCompletedTrips
+          ? "Unlocks after first completed trip"
+          : undefined,
     },
     {
       label: "Avg rating",
       value: stats.averageRating ? stats.averageRating.toString() : "—",
       unit: stats.averageRating ? "/5" : undefined,
       icon: <Star size={14} strokeWidth={2} aria-hidden="true" />,
+      microLabel: !stats.averageRating ? "Shown after first review" : undefined,
     },
   ];
 
@@ -41,6 +73,8 @@ export function DashboardStatsRow({ stats }: { stats: DashboardStats }) {
               <span className="unit">{item.unit}</span>
             )}
           </div>
+          {/* Contextual micro-label for empty states */}
+          {item.microLabel && <MicroLabel text={item.microLabel} />}
         </div>
       ))}
     </div>

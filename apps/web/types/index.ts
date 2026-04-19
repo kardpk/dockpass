@@ -449,6 +449,7 @@ export interface DashboardStats {
   addonRevenueThisMonthCents: number
   averageRating: number | null
   totalGuestsThisMonth: number
+  completedTripsThisMonth: number
 }
 
 // ─── Add-on summary for trip ─────────────────

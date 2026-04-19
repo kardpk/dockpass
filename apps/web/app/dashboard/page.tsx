@@ -57,8 +57,66 @@ export default async function DashboardPage() {
       <DashboardStatsRow stats={data.stats} />
 
       {/* Upcoming trips (next 7 days) */}
-      {data.upcomingTrips.length > 0 && (
+      {data.upcomingTrips.length > 0 ? (
         <UpcomingTripsList trips={data.upcomingTrips} />
+      ) : (
+        /* Coming Up — empty state: dashed placeholder so the section doesn't just disappear */
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--s-3)",
+              marginBottom: "var(--s-3)",
+              paddingBottom: "var(--s-3)",
+              borderBottom: "1.5px solid var(--color-ink)",
+            }}
+          >
+            <span
+              className="mono"
+              style={{
+                fontSize: "var(--t-mono-sm)",
+                letterSpacing: "0.15em",
+                textTransform: "uppercase" as const,
+                color: "var(--color-ink-muted)",
+                fontWeight: 600,
+              }}
+            >
+              Coming up
+            </span>
+          </div>
+          <Link
+            href="/dashboard/trips/new"
+            className="tile"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "var(--s-5)",
+              borderStyle: "dashed",
+              textDecoration: "none",
+              gap: "var(--s-3)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--s-3)" }}>
+              <Anchor size={18} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)", flexShrink: 0 }} />
+              <span style={{ fontSize: "var(--t-body-sm)", color: "var(--color-ink-muted)" }}>
+                No trips scheduled
+              </span>
+            </div>
+            <span
+              className="mono"
+              style={{
+                fontSize: "var(--t-mono-xs)",
+                color: "var(--color-rust)",
+                letterSpacing: "0.08em",
+                whiteSpace: "nowrap" as const,
+              }}
+            >
+              Create your first trip →
+            </span>
+          </Link>
+        </div>
       )}
 
       {/* No trips at all — create nudge */}
