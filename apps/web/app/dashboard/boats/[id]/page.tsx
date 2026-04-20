@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { BoatQRSection } from "./BoatQRSection";
 import { BoatDetailClient } from "./BoatDetailClient";
+import { COMPLIANCE_ITEMS } from "@/lib/wizard/compliance";
 
 interface BoatDetailPageProps {
   params: Promise<{ id: string }>;
@@ -111,8 +112,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
     .select("captain_id", { count: "exact", head: true })
     .eq("boat_id", id);
 
-  const complianceScore = boat.compliance_score ?? 0;
-  const isCompliant = complianceScore >= 90;
+
 
   const onboardInfo = (boat.onboard_info as Record<string, unknown>) ?? {};
   const standardRules: string[] = Array.isArray(onboardInfo.standardRules)
@@ -454,31 +454,205 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           </div>
         </section>
 
-        {/* ── COMPLIANCE SCORE ── */}
-        <section style={{ marginBottom: "var(--s-6)" }}>
-          <SectionKicker icon={Shield} label="Compliance" />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--s-3) var(--s-4)", background: "var(--color-bone)", border: "1px solid var(--color-line-soft)", borderRadius: "var(--r-1)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
-              {isCompliant ? (
-                <Check size={16} strokeWidth={2} style={{ color: "var(--color-status-ok)" }} />
-              ) : (
-                <TriangleAlert size={16} strokeWidth={2} style={{ color: complianceScore >= 70 ? "var(--color-status-warn)" : "var(--color-status-error)" }} />
-              )}
-              <div>
-                <p className="font-display" style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>Compliance score</p>
-                <p className="mono" style={{ fontSize: "10px", letterSpacing: "0.05em", marginTop: 2, color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
-                  {complianceScore >= 90 ? "Excellent" : complianceScore >= 70 ? "Needs attention" : "Incomplete setup"}
-                </p>
+        {/* ── COMPLIANCE PANEL (live — computed from rubric, not stale DB value) ── */}
+        {(() => {
+          // Resolve meta synchronously from already-fetched data
+          const meta = { captainCount: captainLinkCount ?? 0, photoCount: photoCount ?? 0 };
+
+          // Evaluate every rubric item against the current boat row
+          const evaluated = COMPLIANCE_ITEMS.map((item) => ({
+            ...item,
+            earned: item.evaluate(boat, meta),
+          }));
+
+          const totalEarned = evaluated.reduce((s, i) => s + i.earned, 0);
+          const totalMax = evaluated.reduce((s, i) => s + i.points, 0);
+          const livePct = Math.round((totalEarned / totalMax) * 100);
+          const passedCount = evaluated.filter((i) => i.earned === i.points).length;
+
+          const categories: { key: string; label: string }[] = [
+            { key: "vessel",     label: "Vessel Setup" },
+            { key: "legal",      label: "Legal & Waivers" },
+            { key: "safety",     label: "Safety" },
+            { key: "operations", label: "Operations" },
+          ];
+
+          const statusColor =
+            livePct >= 90
+              ? "var(--color-status-ok)"
+              : livePct >= 70
+              ? "var(--color-status-warn)"
+              : "var(--color-status-error)";
+
+          return (
+            <section style={{ marginBottom: "var(--s-6)" }}>
+              <SectionKicker
+                icon={Shield}
+                label="Compliance"
+                right={
+                  <span
+                    className={livePct >= 90 ? "pill pill--ok" : livePct >= 70 ? "pill pill--warn" : "pill pill--error"}
+                    style={{ fontSize: "var(--t-mono-xs)" }}
+                  >
+                    {passedCount}/{evaluated.length} items · {livePct}%
+                  </span>
+                }
+              />
+
+              {/* Progress bar */}
+              <div style={{ height: 4, background: "var(--color-line-soft)", borderRadius: 2, marginBottom: "var(--s-4)", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${livePct}%`, background: statusColor, borderRadius: 2, transition: "width 0.4s ease" }} />
               </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
-              <span className="mono" style={{ fontSize: "12px", letterSpacing: "0.1em", color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
-                {`[${"█".repeat(Math.round(complianceScore / 10))}${"░".repeat(10 - Math.round(complianceScore / 10))}]`} {complianceScore}%
-              </span>
-              <Link href={`/dashboard/boats/${boat.id}/edit`} className="btn btn--outline btn--sm" style={{ height: 28, padding: "0 10px", fontSize: "var(--t-mono-xs)", letterSpacing: "0.05em" }}>Edit</Link>
-            </div>
-          </div>
-        </section>
+
+              {/* Categorised item list */}
+              <div className="tile" style={{ padding: 0, overflow: "hidden" }}>
+                {categories.map((cat, catIdx) => {
+                  const items = evaluated.filter((i) => i.category === cat.key);
+                  if (items.length === 0) return null;
+                  return (
+                    <div key={cat.key}>
+                      {/* Category header */}
+                      <div
+                        style={{
+                          padding: "var(--s-2) var(--s-4)",
+                          background: "var(--color-bone)",
+                          borderTop: catIdx > 0 ? "1px solid var(--color-line)" : undefined,
+                          borderBottom: "1px solid var(--color-line-soft)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span
+                          className="mono"
+                          style={{
+                            fontSize: "var(--t-mono-xs)",
+                            fontWeight: 700,
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            color: "var(--color-ink-muted)",
+                          }}
+                        >
+                          {cat.label}
+                        </span>
+                        <span
+                          className="mono"
+                          style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}
+                        >
+                          {items.reduce((s, i) => s + i.earned, 0)}
+                          &nbsp;/&nbsp;
+                          {items.reduce((s, i) => s + i.points, 0)} pts
+                        </span>
+                      </div>
+
+                      {/* Items */}
+                      {items.map((item, idx) => {
+                        const isLast = idx === items.length - 1;
+                        const ok = item.earned === item.points;
+                        const partial = item.earned > 0 && item.earned < item.points;
+                        return (
+                          <div
+                            key={item.key}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "var(--s-3)",
+                              padding: "var(--s-3) var(--s-4)",
+                              borderBottom: isLast ? "none" : "1px solid var(--color-line-soft)",
+                              background: ok
+                                ? "var(--color-paper)"
+                                : partial
+                                ? "rgba(181,130,42,0.04)"
+                                : "rgba(168,54,30,0.03)",
+                            }}
+                          >
+                            {/* Status icon */}
+                            <div style={{ flexShrink: 0, width: 18 }}>
+                              {ok ? (
+                                <Check size={14} strokeWidth={2.5} style={{ color: "var(--color-status-ok)" }} />
+                              ) : partial ? (
+                                <TriangleAlert size={14} strokeWidth={2} style={{ color: "var(--color-status-warn)" }} />
+                              ) : (
+                                <TriangleAlert size={14} strokeWidth={2} style={{ color: "var(--color-status-error)" }} />
+                              )}
+                            </div>
+
+                            {/* Label + statute tag */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)", flexWrap: "wrap" }}>
+                                <span style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>
+                                  {item.label}
+                                </span>
+                                {item.statute && (
+                                  <Link
+                                    href={item.statuteHref ?? "/standards"}
+                                    className="mono"
+                                    style={{
+                                      fontSize: "9px",
+                                      letterSpacing: "0.1em",
+                                      textTransform: "uppercase",
+                                      color: "var(--color-ink-muted)",
+                                      background: "var(--color-bone)",
+                                      border: "1px solid var(--color-line-soft)",
+                                      borderRadius: 3,
+                                      padding: "1px 5px",
+                                      textDecoration: "none",
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {item.statute}
+                                  </Link>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Points earned */}
+                            <span
+                              className="mono"
+                              style={{
+                                fontSize: "var(--t-mono-xs)",
+                                color: ok
+                                  ? "var(--color-status-ok)"
+                                  : partial
+                                  ? "var(--color-status-warn)"
+                                  : "var(--color-ink-muted)",
+                                flexShrink: 0,
+                                minWidth: 44,
+                                textAlign: "right",
+                              }}
+                            >
+                              {item.earned}&nbsp;/&nbsp;{item.points}
+                            </span>
+
+                            {/* Fix button — only when incomplete */}
+                            {!ok && (
+                              <Link
+                                href={item.href(boat.id)}
+                                className="btn btn--outline btn--sm"
+                                style={{ flexShrink: 0, height: 26, padding: "0 9px", fontSize: "var(--t-mono-xs)", letterSpacing: "0.05em" }}
+                              >
+                                Fix
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Explanatory footnote */}
+              <p
+                className="mono"
+                style={{ fontSize: "9px", letterSpacing: "0.08em", color: "var(--color-ink-muted)", marginTop: "var(--s-2)", lineHeight: 1.5 }}
+              >
+                Score is computed live from current vessel data.
+                {livePct < 90 && " Fix highlighted items to reach 90% and unlock full trip readiness."}
+              </p>
+            </section>
+          );
+        })()}
 
         {/* ── HOUSE RULES ── */}
         {(rulesFromText.length > 0 || dos.length > 0 || donts.length > 0) && (
