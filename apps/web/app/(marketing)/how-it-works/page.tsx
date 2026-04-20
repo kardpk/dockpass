@@ -485,7 +485,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="final-cta">
+      <section className="final-cta-bone">
         <div className="container">
           <div className="fca-inner">
             <div>
