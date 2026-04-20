@@ -137,12 +137,12 @@ export default function AboutPage() {
 </section>
 
 {/*  ═══ WHY WE BUILT IT ═══  */}
-<section className="block" style={{ background: 'var(--paper-warm)', borderTop: '1px solid var(--line-soft)', borderBottom: '1px solid var(--line-soft)' }}>
+<section className="block" style={{ background: 'var(--paper-warm)', borderTop: '1px solid var(--line-soft)', borderBottom: '1px solid var(--line-soft)', zIndex: 1, position: 'relative' }}>
   <div className="container">
     <div className="two-col">
       <div>
         <span className="eyebrow">Why we built it</span>
-        <h2 className="section-title">The answer to<br/>"where is the paperwork"<br/><em>should never be</em><br/>"somewhere on the boat."</h2>
+        <h2 className="section-title">The answer to<br/>&quot;where is the paperwork&quot;<br/><em>should never be</em><br/>&quot;somewhere on the boat.&quot;</h2>
       </div>
       <div className="prose">
         <p>Most charter operators we've talked to can describe, in detail, the one bad moment that changed how they think about documentation. A guest made a claim months after a trip. An insurer asked for the signed waiver. A regulator wanted the manifest from a specific date. And the record — if it existed at all — was a water-stained page in a binder under the helm seat, or a photo buried in a captain's camera roll.</p>
