@@ -99,11 +99,17 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
 
   const { data: linkedCaptains } = await supabase
     .from("captain_boat_links")
-    .select("captain:captains(id, full_name, license_type, captain_photo_url, captain_languages, captain_years_exp, is_default)")
+    .select("captain:captains(id, full_name, license_type, photo_url, languages, years_experience, is_default)")
     .eq("boat_id", id)
     .limit(4);
 
   const primaryCaptain = (linkedCaptains?.[0] as any)?.captain ?? null;
+
+  // Separate count for the readiness check (doesn't depend on the join succeeding)
+  const { count: captainLinkCount } = await supabase
+    .from("captain_boat_links")
+    .select("captain_id", { count: "exact", head: true })
+    .eq("boat_id", id);
 
   const complianceScore = boat.compliance_score ?? 0;
   const isCompliant = complianceScore >= 90;
@@ -143,7 +149,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
     },
     {
       label: "Captain assigned",
-      ok: !!(primaryCaptain || boat.captain_name),
+      ok: (captainLinkCount ?? 0) > 0 || !!boat.captain_name,
       hint: "Link a captain so the operator snapshot SMS can be sent",
       href: `/dashboard/captains`,
     },
@@ -348,9 +354,9 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}
                 >
-                  {primaryCaptain?.captain_photo_url ? (
+                  {primaryCaptain?.photo_url ? (
                     <Image
-                      src={primaryCaptain.captain_photo_url}
+                      src={primaryCaptain.photo_url}
                       alt={primaryCaptain.full_name}
                       width={48}
                       height={48}
@@ -371,15 +377,15 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
                         {primaryCaptain?.license_type ?? boat.captain_license}
                       </span>
                     )}
-                    {primaryCaptain?.captain_years_exp && (
+                    {primaryCaptain?.years_experience && (
                       <span className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}>
-                        · {primaryCaptain.captain_years_exp} yrs exp
+                        · {primaryCaptain.years_experience} yrs exp
                       </span>
                     )}
                   </div>
-                  {Array.isArray(primaryCaptain?.captain_languages) && primaryCaptain.captain_languages.length > 0 && (
+                  {Array.isArray(primaryCaptain?.languages) && primaryCaptain.languages.length > 0 && (
                     <div style={{ display: "flex", gap: "var(--s-1)", marginTop: "var(--s-2)", flexWrap: "wrap" }}>
-                      {primaryCaptain.captain_languages.map((lang: string) => (
+                      {primaryCaptain.languages.map((lang: string) => (
                         <span key={lang} className="pill" style={{ fontSize: "var(--t-mono-xs)", textTransform: "uppercase" }}>
                           {lang}
                         </span>
