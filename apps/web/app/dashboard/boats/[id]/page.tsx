@@ -100,11 +100,14 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
 
   const { data: linkedCaptains } = await supabase
     .from("captain_boat_links")
-    .select("captain:captains(id, full_name, license_type, photo_url, languages, years_experience, is_default)")
+    .select("captain:captains(id, full_name, license_type, photo_url, languages, years_experience, is_default, default_role)")
     .eq("boat_id", id)
     .limit(4);
 
-  const primaryCaptain = (linkedCaptains?.[0] as any)?.captain ?? null;
+  // All linked crew members (up to 4), preserving order — primary captain is index 0
+  const allCrew: Array<{ captain: any }> = (linkedCaptains ?? [])
+    .map((item: any) => ({ captain: item?.captain }))
+    .filter((item: any) => !!item.captain);
 
   // Separate count for the readiness check (doesn't depend on the join succeeding)
   const { count: captainLinkCount } = await supabase
@@ -340,68 +343,187 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
         )}
 
         {/* ── CAPTAIN & CREW ── */}
-        {(primaryCaptain || boat.captain_name) && (
-          <section style={{ marginBottom: "var(--s-6)" }}>
-            <SectionKicker icon={UserCog} label="Captain & Crew" />
-            <div className="tile" style={{ padding: "var(--s-4)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "var(--s-3)" }}>
-                <div
-                  style={{
-                    width: 48, height: 48, borderRadius: "50%", flexShrink: 0,
-                    background: "var(--color-bone)",
-                    border: "1px solid var(--color-line)",
-                    overflow: "hidden",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
+        <section style={{ marginBottom: "var(--s-6)" }}>
+          <SectionKicker
+            icon={UserCog}
+            label="Captain & Crew"
+            right={
+              <Link
+                href="/dashboard/captains"
+                className="btn btn--ghost btn--sm"
+                style={{ gap: "var(--s-1)", height: 24, padding: "0 8px", fontSize: "var(--t-mono-xs)", letterSpacing: "0.05em" }}
+              >
+                Manage crew <ChevronRight size={11} strokeWidth={2} />
+              </Link>
+            }
+          />
+
+          <div className="tile" style={{ padding: 0, overflow: "hidden" }}>
+            {allCrew.length === 0 && !boat.captain_name ? (
+              // ── EMPTY STATE ──
+              <div style={{ padding: "var(--s-4)", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--s-2)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
+                  <TriangleAlert size={14} strokeWidth={2} style={{ color: "var(--color-status-warn)" }} />
+                  <p style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>No captain linked to this vessel</p>
+                </div>
+                <p className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)", lineHeight: 1.5 }}>
+                  Link a licensed captain to enable trip start and snapshot delivery.
+                </p>
+                <Link
+                  href="/dashboard/captains"
+                  className="btn btn--outline btn--sm"
+                  style={{ marginTop: "var(--s-1)", height: 28, padding: "0 12px", fontSize: "var(--t-mono-xs)" }}
                 >
-                  {primaryCaptain?.photo_url ? (
-                    <Image
-                      src={primaryCaptain.photo_url}
-                      alt={primaryCaptain.full_name}
-                      width={48}
-                      height={48}
-                      className="object-cover w-full h-full"
-                      unoptimized
-                    />
-                  ) : (
-                    <UserCog size={22} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)" }} />
-                  )}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p className="font-display" style={{ fontWeight: 500, fontSize: "17px", color: "var(--color-ink)", letterSpacing: "-0.01em" }}>
-                    {primaryCaptain?.full_name ?? boat.captain_name}
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)", marginTop: 3, flexWrap: "wrap" }}>
-                    {(primaryCaptain?.license_type ?? boat.captain_license) && (
-                      <span className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}>
-                        {primaryCaptain?.license_type ?? boat.captain_license}
-                      </span>
-                    )}
-                    {primaryCaptain?.years_experience && (
-                      <span className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}>
-                        · {primaryCaptain.years_experience} yrs exp
-                      </span>
-                    )}
-                  </div>
-                  {Array.isArray(primaryCaptain?.languages) && primaryCaptain.languages.length > 0 && (
-                    <div style={{ display: "flex", gap: "var(--s-1)", marginTop: "var(--s-2)", flexWrap: "wrap" }}>
-                      {primaryCaptain.languages.map((lang: string) => (
-                        <span key={lang} className="pill" style={{ fontSize: "var(--t-mono-xs)", textTransform: "uppercase" }}>
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div style={{ marginTop: "var(--s-3)", paddingTop: "var(--s-3)", borderTop: "1px solid var(--color-line-soft)" }}>
-                <Link href="/dashboard/captains" className="btn btn--ghost btn--sm" style={{ gap: "var(--s-1)" }}>
-                  Manage crew <ChevronRight size={13} strokeWidth={2} />
+                  Link captain →
                 </Link>
               </div>
-            </div>
-          </section>
-        )}
+            ) : (
+              <>
+                {/* Legacy: boats.captain_name with no linked record */}
+                {allCrew.length === 0 && boat.captain_name && (
+                  <div
+                    style={{
+                      display: "flex", alignItems: "center", gap: "var(--s-3)",
+                      padding: "var(--s-3) var(--s-4)",
+                      borderBottom: "1px solid var(--color-line-soft)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                        background: "var(--color-bone)", border: "1px solid var(--color-line)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}
+                    >
+                      <UserCog size={15} strokeWidth={1.5} style={{ color: "var(--color-ink-muted)" }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 500, color: "var(--color-ink)" }}>{boat.captain_name}</p>
+                      {boat.captain_license && (
+                        <p className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)", marginTop: 2 }}>
+                          {boat.captain_license}
+                        </p>
+                      )}
+                    </div>
+                    <span className="pill pill--ok" style={{ fontSize: "var(--t-mono-xs)", textTransform: "uppercase", flexShrink: 0 }}>Captain</span>
+                  </div>
+                )}
+
+                {/* Linked crew roster — one compact row per member */}
+                {allCrew.map(({ captain }, idx) => {
+                  const isLast = idx === allCrew.length - 1;
+                  const roleLabel = formatLabel(captain.default_role ?? "captain");
+                  const initials = (captain.full_name as string)
+                    ?.split(" ")
+                    .map((n: string) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase() ?? "?";
+                  const isMainCaptain = (captain.default_role ?? "captain") === "captain";
+                  // Hide language chip if only English
+                  const langs: string[] = Array.isArray(captain.languages)
+                    ? captain.languages.filter((l: string) => l.toLowerCase() !== "en")
+                    : [];
+
+                  return (
+                    <div
+                      key={captain.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--s-3)",
+                        padding: "var(--s-3) var(--s-4)",
+                        borderBottom: isLast ? "none" : "1px solid var(--color-line-soft)",
+                        background: "var(--color-paper)",
+                      }}
+                    >
+                      {/* Avatar — 32px with initials fallback */}
+                      <div
+                        style={{
+                          width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                          background: isMainCaptain ? "rgba(31,107,82,0.08)" : "var(--color-bone)",
+                          border: isMainCaptain ? "1px solid rgba(31,107,82,0.2)" : "1px solid var(--color-line)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {captain.photo_url ? (
+                          <Image
+                            src={captain.photo_url}
+                            alt={captain.full_name}
+                            width={32}
+                            height={32}
+                            className="object-cover w-full h-full"
+                            unoptimized
+                          />
+                        ) : (
+                          <span
+                            className="mono"
+                            style={{ fontSize: 11, fontWeight: 700, color: isMainCaptain ? "var(--color-status-ok)" : "var(--color-ink-muted)" }}
+                          >
+                            {initials}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Name + credentials inline */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "var(--s-2)", flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 14, fontWeight: 500, color: "var(--color-ink)", letterSpacing: "-0.01em" }}>
+                            {captain.full_name}
+                          </span>
+                          {captain.license_type && (
+                            <span className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}>
+                              {captain.license_type}
+                            </span>
+                          )}
+                          {captain.years_experience && (
+                            <span className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)" }}>
+                              {captain.years_experience}yr
+                            </span>
+                          )}
+                          {langs.map((lang: string) => (
+                            <span key={lang} className="pill" style={{ fontSize: "var(--t-mono-xs)", textTransform: "uppercase" }}>
+                              {lang}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Role chip */}
+                      <span
+                        className={isMainCaptain ? "pill pill--ok" : "pill"}
+                        style={{ fontSize: "var(--t-mono-xs)", textTransform: "uppercase", flexShrink: 0 }}
+                      >
+                        {roleLabel}
+                      </span>
+                    </div>
+                  );
+                })}
+
+                {/* + Link row — visible when fewer than 4 crew linked */}
+                {allCrew.length < 4 && (
+                  <div
+                    style={{
+                      borderTop: allCrew.length > 0 ? "1px solid var(--color-line-soft)" : undefined,
+                      padding: "var(--s-2) var(--s-3)",
+                    }}
+                  >
+                    <Link
+                      href="/dashboard/captains"
+                      className="btn btn--ghost btn--sm"
+                      style={{ gap: 4, fontSize: "var(--t-mono-xs)", letterSpacing: "0.05em", color: "var(--color-ink-muted)" }}
+                    >
+                      <Plus size={11} strokeWidth={2.5} />
+                      Link a captain
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+
 
         {/* ── TRIP READINESS ── */}
         <section style={{ marginBottom: "var(--s-6)" }}>
