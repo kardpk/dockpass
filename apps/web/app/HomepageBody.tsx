@@ -259,10 +259,20 @@ export default function HomepageBody() {
 
       {/* ═══ ADVISORY ═══ */}
       <div className="advisory">
-        <div className="hp-container">
-          <strong>Boatcheckin is a recordkeeping platform, not a law firm or insurance broker.</strong>&nbsp;&nbsp;
-          Every operator remains responsible for their own compliance with applicable law.&nbsp;&nbsp;
-          Consult a licensed attorney for advice specific to your operation.
+        <div className="hp-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <span>
+            <strong>Boatcheckin is a recordkeeping platform, not a law firm or insurance broker.</strong>&nbsp;&nbsp;
+            Every operator remains responsible for their own compliance with applicable law.&nbsp;&nbsp;
+            Consult a licensed attorney for advice specific to your operation.
+          </span>
+          <span style={{ display: 'flex', gap: '16px', flexShrink: 0, font: 'var(--mono)', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <Link href="/guest-notice" style={{ color: 'var(--brass)', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              Guest Notice →
+            </Link>
+            <Link href="/standards" style={{ color: 'var(--brass)', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              Our Standards →
+            </Link>
+          </span>
         </div>
       </div>
 

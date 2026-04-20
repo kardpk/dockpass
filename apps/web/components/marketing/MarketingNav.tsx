@@ -3,6 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+const COMPLIANCE_LINKS: [string, string][] = [
+  ['/standards', 'Standards'],
+  ['/security', 'Security'],
+  ['/guest-notice', 'Guest Notice'],
+]
+
 function ArrowIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -11,8 +17,17 @@ function ArrowIcon() {
   )
 }
 
+function ChevronIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display:'inline-block', marginLeft:4, verticalAlign:'middle' }}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+
 export function MarketingNav() {
   const [navOpen, setNavOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   return (
     <nav className="hp-nav">
@@ -28,13 +43,47 @@ export function MarketingNav() {
           </span>
           Boatcheckin
         </Link>
+
         <div className={`nav-links${navOpen ? ' open' : ''}`}>
           <Link href="/#how">How it Works</Link>
-          <Link href="/#compliance">Compliance</Link>
+
+          {/* Compliance dropdown */}
+          <div
+            className="nav-dropdown-wrap"
+            onMouseEnter={() => setDropdownOpen(true)}
+            onMouseLeave={() => setDropdownOpen(false)}
+          >
+            <Link href="/#compliance" className="nav-dropdown-trigger" onClick={() => setDropdownOpen(o => !o)}>
+              Compliance<ChevronIcon />
+            </Link>
+            {dropdownOpen && (
+              <div className="nav-dropdown">
+                {COMPLIANCE_LINKS.map(([href, label]) => (
+                  <Link key={href} href={href} className="nav-dropdown-item" onClick={() => { setDropdownOpen(false); setNavOpen(false) }}>
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           <Link href="/#operators">For Operators</Link>
           <Link href="/#pricing">Pricing</Link>
           <Link href="/about">About</Link>
+
+          {/* Mobile-only compliance links (shown when nav is open) */}
+          {navOpen && (
+            <div className="nav-mobile-group">
+              <span className="nav-mobile-label">Compliance</span>
+              {COMPLIANCE_LINKS.map(([href, label]) => (
+                <Link key={href} href={href} className="nav-mobile-sub" onClick={() => setNavOpen(false)}>
+                  → {label}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
+
         <div className="nav-cta">
           <Link href="/login" className="btn">Sign In</Link>
           <Link href="/signup" className="btn btn-primary">

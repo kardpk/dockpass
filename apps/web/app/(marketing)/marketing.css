@@ -45,6 +45,19 @@
 @media(max-width:720px){ .nav-toggle { display:block; } .nav-cta .btn:first-child { display:none; } }
 @media(max-width:400px){ .nav-inner { padding:14px 16px; } }
 
+/* ── NAV DROPDOWN ─────────────────────────────────── */
+.nav-dropdown-wrap { position:relative; display:flex; align-items:center; }
+.nav-dropdown-trigger { display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--ink-soft); transition:color 200ms; padding:4px 0; cursor:pointer; }
+.nav-dropdown-trigger:hover { color:var(--rust); }
+.nav-dropdown { position:absolute; top:calc(100% + 10px); left:50%; transform:translateX(-50%); background:var(--paper); border:1.5px solid var(--ink); box-shadow:4px 4px 0 var(--ink); min-width:160px; z-index:200; display:flex; flex-direction:column; }
+.nav-dropdown-item { display:block; padding:12px 18px; font-size:13px; font-weight:500; color:var(--ink-soft); border-bottom:1px solid var(--line-softer); transition:background 150ms, color 150ms; white-space:nowrap; }
+.nav-dropdown-item:last-child { border-bottom:none; }
+.nav-dropdown-item:hover { background:var(--paper-warm); color:var(--rust); }
+.nav-mobile-group { display:flex; flex-direction:column; gap:0; border-top:1px solid var(--line-soft); margin-top:8px; padding-top:8px; }
+.nav-mobile-label { font-family:var(--mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--rust); font-weight:600; padding:6px 0 4px; }
+.nav-mobile-sub { font-size:13px; color:var(--ink-muted); padding:5px 0 5px 12px; display:block; }
+.nav-mobile-sub:hover { color:var(--rust); }
+
 /* ── EYEBROW ──────────────────────────────────────── */
 .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--rust); display:flex; align-items:center; gap:12px; margin-bottom:20px; }
 .eyebrow::before { content:''; width:32px; height:1px; background:var(--rust); flex-shrink:0; }
@@ -170,9 +183,10 @@ section.block-tight { padding:72px 0; display:block; position:relative; isolatio
 
 /* ── FOOTER ───────────────────────────────────────── */
 .hp-footer { background:var(--ink); color:var(--bone); padding:80px 0 32px; }
-.footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; margin-bottom:56px; }
-@media(max-width:900px){ .footer-grid { grid-template-columns:1fr 1fr; gap:32px; } }
-@media(max-width:500px){ .footer-grid { grid-template-columns:1fr; } }
+.footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:40px; margin-bottom:56px; }
+@media(max-width:1100px){ .footer-grid { grid-template-columns:2fr 1fr 1fr; gap:32px; } }
+@media(max-width:720px){ .footer-grid { grid-template-columns:1fr 1fr; gap:28px; } }
+@media(max-width:480px){ .footer-grid { grid-template-columns:1fr; } }
 .footer-brand { font-family:var(--display); font-size:26px; font-weight:700; letter-spacing:-0.02em; margin-bottom:14px; }
 .footer-desc { font-size:13px; line-height:1.6; color:rgba(244,239,230,0.6); max-width:300px; margin-bottom:24px; }
 .footer-contact-item { margin-bottom:16px; }
@@ -186,8 +200,11 @@ section.block-tight { padding:72px 0; display:block; position:relative; isolatio
 .footer-col a { color:rgba(244,239,230,0.65); transition:color 200ms; }
 .footer-col a:hover { color:var(--bone); }
 .footer-bottom { padding-top:28px; border-top:1px solid rgba(244,239,230,0.12); font-family:var(--mono); font-size:10px; color:rgba(244,239,230,0.45); letter-spacing:0.04em; line-height:1.7; }
-.fb-meta { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:16px; }
+.fb-meta { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:12px; }
 .fb-sep { color:rgba(244,239,230,0.25); }
+.footer-bottom-links { display:flex; flex-wrap:wrap; gap:4px 0; align-items:center; margin-bottom:16px; font-family:var(--mono); font-size:10px; letter-spacing:0.06em; }
+.footer-bottom-links a { color:rgba(244,239,230,0.55); transition:color 200ms; }
+.footer-bottom-links a:hover { color:var(--brass); }
 .footer-legal { max-width:900px; font-size:10px; color:rgba(244,239,230,0.38); line-height:1.8; margin-top:12px; }
 .footer-legal p+p { margin-top:10px; }
 .footer-legal strong { color:rgba(244,239,230,0.65); }
@@ -486,6 +503,21 @@ section.block-tight { padding:72px 0; display:block; position:relative; isolatio
 .pb { padding-bottom:8px; }
 .pt { padding-top:8px; }
 .px { padding-left:8px; padding-right:8px; }
+
+/* ── COOKIE BANNER ───────────────────────────────── */
+.cookie-banner { position:fixed; bottom:0; left:0; right:0; z-index:9000; background:var(--ink); color:var(--bone); border-top:1.5px solid var(--rust); }
+.cookie-inner { max-width:1320px; margin:0 auto; padding:16px 32px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+@media(max-width:720px){ .cookie-inner { padding:16px 20px; flex-direction:column; align-items:flex-start; gap:14px; } }
+.cookie-text { display:flex; align-items:baseline; gap:10px; font-size:13px; line-height:1.6; color:rgba(244,239,230,0.82); flex:1; flex-wrap:wrap; }
+.cookie-label { font-family:var(--mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--brass); font-weight:700; white-space:nowrap; flex-shrink:0; }
+.cookie-link { color:var(--brass); text-decoration:underline; text-underline-offset:3px; }
+.cookie-link:hover { color:var(--bone); }
+.cookie-actions { display:flex; gap:10px; flex-shrink:0; }
+.cookie-btn { display:inline-flex; align-items:center; padding:10px 18px; font-family:var(--body); font-size:13px; font-weight:600; border-radius:2px; cursor:pointer; transition:all 180ms var(--ease); border:1.5px solid; }
+.cookie-btn-decline { background:transparent; color:rgba(244,239,230,0.6); border-color:rgba(244,239,230,0.2); }
+.cookie-btn-decline:hover { background:rgba(244,239,230,0.08); color:var(--bone); border-color:rgba(244,239,230,0.4); }
+.cookie-btn-accept { background:var(--rust); color:var(--paper); border-color:var(--rust); }
+.cookie-btn-accept:hover { background:var(--rust-deep); border-color:var(--rust-deep); }
 
 /* ── ANIMATIONS ───────────────────────────────────── */
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
