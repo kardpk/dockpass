@@ -96,8 +96,7 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
   const dontBringItems = parseItems(boat.what_not_to_bring);
 
   return (
-    <>
-      <div className="max-w-[640px] mx-auto pb-[144px]">
+    <div className="max-w-[640px] mx-auto pb-[144px]">
 
       {/* ── HERO ── */}
       <div style={{ position: "relative", height: 160, background: "var(--color-ink)", overflow: "hidden" }}>
@@ -360,10 +359,10 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
 
         {/* ── TRIP READINESS ── */}
         <section style={{ marginBottom: "var(--s-5)" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--s-2)", paddingBottom: 'var(--s-2)', borderBottom: '2px solid var(--color-ink)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
-              <Shield size={14} strokeWidth={2} style={{ color: 'var(--color-ink)' }} />
-              <span className="font-mono" style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-ink)' }}>Trip Readiness</span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--s-2)", paddingBottom: "var(--s-2)", borderBottom: "2px solid var(--color-ink)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
+              <Shield size={14} strokeWidth={2} style={{ color: "var(--color-ink)" }} />
+              <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-ink)" }}>Trip Readiness</span>
             </div>
             <span
               className={readinessScore === readinessChecks.length ? "pill pill--ok" : "pill pill--warn"}
@@ -375,8 +374,9 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           <div className="tile" style={{ padding: 0, overflow: "hidden" }}>
             {readinessChecks.map((check, i) => {
               const isLast = i === readinessChecks.length - 1;
-              const content = (
+              return (
                 <div
+                  key={check.label}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -384,49 +384,55 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
                     padding: "var(--s-3) var(--s-4)",
                     borderBottom: isLast ? "none" : "1px solid var(--color-line-soft)",
                     background: check.ok ? "var(--color-paper)" : "rgba(184,136,42,0.03)",
-                    textDecoration: "none",
                   }}
                 >
+                  <div style={{ flexShrink: 0 }}>
+                    {check.ok ? (
+                      <Check size={15} strokeWidth={2} style={{ color: "var(--color-status-ok)" }} />
+                    ) : (
+                      <TriangleAlert size={15} strokeWidth={2} style={{ color: "var(--color-status-warn)" }} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>{check.label}</p>
+                    {!check.ok && check.hint && (
+                      <p className="mono" style={{ fontSize: "var(--t-mono-xs)", color: "var(--color-ink-muted)", marginTop: 2 }}>{check.hint}</p>
+                    )}
+                  </div>
+                  {!check.ok && check.href && (
+                    <Link href={check.href} className="btn btn--outline btn--sm" style={{ flexShrink: 0, height: 28, padding: "0 10px", fontSize: "var(--t-mono-xs)" }}>Fix</Link>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* ── COMPLIANCE SCORE ── */}
         <section style={{ marginBottom: "var(--s-5)" }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-2)', paddingBottom: 'var(--s-2)', borderBottom: '2px solid var(--color-ink)' }}>
-            <Shield size={14} strokeWidth={2} style={{ color: 'var(--color-ink)' }} />
-            <span className="font-mono" style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-ink)' }}>Compliance</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)", marginBottom: "var(--s-2)", paddingBottom: "var(--s-2)", borderBottom: "2px solid var(--color-ink)" }}>
+            <Shield size={14} strokeWidth={2} style={{ color: "var(--color-ink)" }} />
+            <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-ink)" }}>Compliance</span>
           </div>
-          {/* Compliance score widget */}
-          <div className="flex items-center justify-between p-standard bg-off-white border border-border-light rounded-chip mt-standard">
-            <div className="flex items-center gap-tight">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--s-3) var(--s-4)", background: "var(--color-bone)", border: "1px solid var(--color-line-soft)", borderRadius: 4, marginTop: "var(--s-2)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
               {isCompliant ? (
                 <Check size={16} strokeWidth={2} style={{ color: "var(--color-status-ok)" }} />
               ) : (
                 <TriangleAlert size={16} strokeWidth={2} style={{ color: complianceScore >= 70 ? "var(--color-status-warn)" : "var(--color-status-error)" }} />
               )}
               <div>
-                <p className="font-display" style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>
-                  Compliance score
-                </p>
-                <p className="mono mt-[2px]" style={{ fontSize: "10px", letterSpacing: "0.05em", color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
+                <p className="font-display" style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>Compliance score</p>
+                <p className="mono" style={{ fontSize: "10px", letterSpacing: "0.05em", marginTop: 2, color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
                   {complianceScore >= 90 ? "Excellent" : complianceScore >= 70 ? "Needs attention" : "Incomplete setup"}
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-tight">
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
               <span className="mono" style={{ fontSize: "12px", letterSpacing: "0.1em", color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
                 {`[${'█'.repeat(Math.round(complianceScore / 10))}${'░'.repeat(10 - Math.round(complianceScore / 10))}]`} {complianceScore}%
               </span>
-              <Link
-                href={`/dashboard/boats/${boat.id}/edit`}
-                className="btn btn--outline btn--sm"
-                style={{
-                  height: 28,
-                  padding: "0 10px",
-                  fontSize: "var(--t-mono-xs)",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Edit
-              </Link>
+              <Link href={`/dashboard/boats/${boat.id}/edit`} className="btn btn--outline btn--sm" style={{ height: 28, padding: "0 10px", fontSize: "var(--t-mono-xs)", letterSpacing: "0.05em" }}>Edit</Link>
             </div>
           </div>
         </section>
@@ -524,34 +530,33 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           />
         </section>
 
-      </div>
-
-      {/* ── STICKY CTA FOOTER ── */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 56,
-          left: 0,
-          right: 0,
-          zIndex: 40,
-          background: "var(--color-paper)",
-          borderTop: "1px solid var(--color-line-soft)",
-          padding: "var(--s-3) var(--s-5)",
-          display: "flex",
-          gap: "var(--s-2)",
-          maxWidth: 640,
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <Link
-          href={`/dashboard/boats/${boat.id}/edit`}
-          className="btn btn--ghost"
-          style={{ height: 48, paddingInline: "var(--s-4)", fontSize: "var(--t-body-sm)" }}
+        {/* ── STICKY CTA FOOTER ── */}
+        <div
+          style={{
+            position: "fixed",
+            bottom: 56,
+            left: 0,
+            right: 0,
+            zIndex: 40,
+            background: "var(--color-paper)",
+            borderTop: "1px solid var(--color-line-soft)",
+            padding: "var(--s-3) var(--s-5)",
+            display: "flex",
+            gap: "var(--s-2)",
+            maxWidth: 640,
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
         >
-          Edit boat setup
-        </Link>
+          <Link
+            href={`/dashboard/boats/${boat.id}/edit`}
+            className="btn btn--ghost"
+            style={{ height: 48, paddingInline: "var(--s-4)", fontSize: "var(--t-body-sm)" }}
+          >
+            Edit boat setup
+          </Link>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
