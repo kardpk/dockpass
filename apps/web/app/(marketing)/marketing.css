@@ -49,7 +49,7 @@
 .nav-dropdown-wrap { position:relative; display:flex; align-items:center; }
 .nav-dropdown-trigger { display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--ink-soft); transition:color 200ms; padding:4px 0; cursor:pointer; }
 .nav-dropdown-trigger:hover { color:var(--rust); }
-.nav-dropdown { position:absolute; top:100%; left:50%; transform:translateX(-50%); background:var(--paper); border:1.5px solid var(--ink); box-shadow:4px 4px 0 var(--ink); min-width:160px; z-index:200; display:flex; flex-direction:column; padding-top:10px; }
+.nav-dropdown { position:absolute; top:calc(100% + 10px); left:50%; transform:translateX(-50%); background:var(--paper); border:1.5px solid var(--ink); box-shadow:4px 4px 0 var(--ink); min-width:160px; z-index:200; display:flex; flex-direction:column; }
 .nav-dropdown-item { display:block; padding:12px 18px; font-size:13px; font-weight:500; color:var(--ink-soft); border-bottom:1px solid var(--line-softer); transition:background 150ms, color 150ms; white-space:nowrap; }
 .nav-dropdown-item:last-child { border-bottom:none; }
 .nav-dropdown-item:hover { background:var(--paper-warm); color:var(--rust); }
@@ -57,6 +57,7 @@
 .nav-mobile-label { font-family:var(--mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--rust); font-weight:600; padding:6px 0 4px; }
 .nav-mobile-sub { font-size:13px; color:var(--ink-muted); padding:5px 0 5px 12px; display:block; }
 .nav-mobile-sub:hover { color:var(--rust); }
+
 
 /* ── EYEBROW ──────────────────────────────────────── */
 .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--rust); display:flex; align-items:center; gap:12px; margin-bottom:20px; }
