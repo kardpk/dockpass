@@ -95,6 +95,42 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
   const bringItems = parseItems(boat.what_to_bring);
   const dontBringItems = parseItems(boat.what_not_to_bring);
 
+  // ── Trip Readiness checks ──
+  const readinessChecks: { label: string; ok: boolean; hint?: string; href?: string }[] = [
+    {
+      label: "Boat photos uploaded",
+      ok: (photoCount ?? 0) >= 1,
+      hint: "Add at least one photo so guests recognise the vessel",
+      href: `/dashboard/boats/${id}/edit?step=photos`,
+    },
+    {
+      label: "Waiver configured",
+      ok: !!(boat.waiver_text || boat.waiver_url),
+      hint: "Attach a waiver guests must sign before boarding",
+      href: `/dashboard/boats/${id}/edit?step=waiver`,
+    },
+    {
+      label: "Safety briefing cards set",
+      ok: !!(boat.safety_cards && (boat.safety_cards as unknown[]).length > 0),
+      hint: "Add vessel-specific safety cards for guest swipe-through",
+      href: `/dashboard/boats/${id}/edit?step=safety`,
+    },
+    {
+      label: "Captain assigned",
+      ok: !!(primaryCaptain || boat.captain_name),
+      hint: "Link a captain so the operator snapshot SMS can be sent",
+      href: `/dashboard/captains`,
+    },
+    {
+      label: "Home marina set",
+      ok: !!boat.marina_name,
+      hint: "Set the marina so guests know where to board",
+      href: `/dashboard/boats/${id}/edit?step=location`,
+    },
+  ];
+  const readinessScore = readinessChecks.filter((c) => c.ok).length;
+
+
   return (
     <div className="max-w-[640px] mx-auto pb-[144px]">
 
