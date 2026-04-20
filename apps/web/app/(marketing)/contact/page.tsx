@@ -148,7 +148,7 @@ export default function ContactPage() {
   <div className="container">
     <div style={{ maxWidth: '680px', marginBottom: '40px' }}>
       <span className="eyebrow">What to expect after you write</span>
-      <h2 style={{ fontFamily: 'var(--display)', fontSize: 'clamp(28px,3.6vw,40px)', fontWeight: '500', letterSpacing: '-0.025em', lineHeight: '1.1', fontVariationSettings: ''opsz' 144' }}>Response targets, written down so they're <em style={{ fontStyle: 'italic', color: 'var(--rust)' }}>accountable.</em></h2>
+      <h2 style={{ fontFamily: 'var(--display)', fontSize: 'clamp(28px,3.6vw,40px)', fontWeight: '500', letterSpacing: '-0.025em', lineHeight: '1.1', fontVariationSettings: '"opsz" 144' }}>Response targets, written down so they're <em style={{ fontStyle: 'italic', color: 'var(--rust)' }}>accountable.</em></h2>
     </div>
 
     <div className="resp-grid">
