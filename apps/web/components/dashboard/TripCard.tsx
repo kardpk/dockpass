@@ -60,10 +60,10 @@ export function TripCard({
       className="tile"
       style={{
         display: 'flex',
-        gap: 'var(--s-3)',
-        padding: '12px 16px',
+        gap: 'var(--s-4)',
+        padding: '16px 20px',
         textDecoration: 'none',
-        transition: 'background var(--dur-fast) var(--ease)',
+        transition: 'background 140ms ease',
         cursor: 'pointer',
         borderLeft: `4px solid ${accentColor}`,
         position: 'relative',
@@ -111,7 +111,7 @@ export function TripCard({
             <p
               className="font-display"
               style={{
-                fontSize: '19px',
+                fontSize: 'var(--t-tile)',
                 fontWeight: 500,
                 color: 'var(--color-ink)',
                 lineHeight: 1.15,
@@ -123,13 +123,15 @@ export function TripCard({
             </p>
             {/* Location — inline, compact */}
             <div
+              className="font-mono"
               style={{
                 display: 'flex', alignItems: 'center', gap: 4,
-                marginTop: 4,
-                fontSize: '13px', color: 'var(--color-ink-muted)',
+                marginTop: 5,
+                fontSize: 11, color: 'var(--color-ink-muted)',
+                letterSpacing: '0.02em',
               }}
             >
-              <MapPin size={11} strokeWidth={2} />
+              <MapPin size={10} strokeWidth={2} />
               <span>{marinaName}{slipNumber ? ` · Slip ${slipNumber}` : ''}</span>
             </div>
           </div>

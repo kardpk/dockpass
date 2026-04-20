@@ -89,7 +89,7 @@ export function CrewRosterClient({
           </h1>
           <p
             className="font-mono"
-            style={{ fontSize: '13px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-ink-soft)', marginTop: 'var(--s-1)' }}
+            style={{ fontSize: 'var(--t-mono-xs)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-ink-muted)', marginTop: 6 }}
           >
             {captains.length} member{captains.length !== 1 ? 's' : ''} in your roster
           </p>
@@ -127,20 +127,20 @@ export function CrewRosterClient({
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   paddingBottom: 'var(--s-3)',
-                  borderBottom: 'var(--border-w) solid var(--color-ink)',
+                  borderBottom: '1px solid var(--color-line-soft)',
                   marginBottom: 'var(--s-3)',
                 }}
               >
                 <div
                   className="font-mono"
                   style={{
-                    fontSize: '13px', fontWeight: 700,
-                    letterSpacing: '0.14em', textTransform: 'uppercase',
-                    color: 'var(--color-ink)',
+                    fontSize: 'var(--t-mono-xs)', fontWeight: 600,
+                    letterSpacing: '0.12em', textTransform: 'uppercase',
+                    color: 'var(--color-ink-muted)',
                     display: 'flex', alignItems: 'center', gap: 'var(--s-2)',
                   }}
                 >
-                  <group.config.Icon size={14} strokeWidth={2} />
+                  <group.config.Icon size={12} strokeWidth={2} />
                   {group.config.label}
                 </div>
                 <span className="pill pill--ghost">{group.members.length}</span>

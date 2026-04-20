@@ -90,7 +90,7 @@ export default async function CrewPage() {
   })
 
   return (
-    <div className="max-w-[560px] mx-auto px-5 pb-[100px]" style={{ paddingTop: 'var(--s-4)' }}>
+    <div style={{ maxWidth: 660, margin: '0 auto', padding: 'var(--s-6) var(--s-5) 120px' }}>
       <CrewRosterClient
         initialCaptains={profiles}
         expiringCaptains={expiringCaptains}

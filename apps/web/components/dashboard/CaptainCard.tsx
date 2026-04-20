@@ -95,10 +95,10 @@ export function CaptainCard({
         position: 'relative',
         background: isExpired ? 'rgba(235, 87, 87, 0.03)' : 'var(--color-paper)',
         borderLeft: `4px solid ${
-          isExpired ? 'var(--color-status-err)' :
-          isExpiringRed ? 'var(--color-status-err)' :
-          isExpiringAmber ? 'var(--color-status-warn)' :
-          'var(--color-ink)'
+          isExpired      ? 'var(--color-status-err)' :
+          isExpiringRed  ? 'var(--color-status-err)' :
+          isExpiringAmber? 'var(--color-status-warn)' :
+          'var(--color-line-soft)'
         }`,
       }}
     >

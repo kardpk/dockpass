@@ -80,7 +80,7 @@ export default async function TripsPage() {
   }
 
   return (
-    <div className="max-w-[640px] mx-auto px-5 pb-[100px]" style={{ paddingTop: 'var(--s-4)' }}>
+    <div style={{ maxWidth: 660, margin: '0 auto', padding: 'var(--s-6) var(--s-5) 120px' }}>
 
       {/* ── Header ─────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--s-6)' }}>
@@ -93,7 +93,7 @@ export default async function TripsPage() {
           </h1>
           <p
             className="font-mono"
-            style={{ fontSize: '13px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-ink-soft)', marginTop: 'var(--s-1)' }}
+            style={{ fontSize: 'var(--t-mono-xs)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-ink-muted)', marginTop: 6 }}
           >
             {upcomingTrips.length} upcoming
           </p>
@@ -147,13 +147,13 @@ export default async function TripsPage() {
               <div
                 className="font-mono"
                 style={{
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
+                  fontSize: 'var(--t-mono-xs)',
+                  fontWeight: 600,
+                  letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-ink-muted)',
                   paddingBottom: 'var(--s-3)',
-                  borderBottom: 'var(--border-w) solid var(--color-ink)',
+                  borderBottom: '1px solid var(--color-line-soft)',
                   marginBottom: 'var(--s-3)',
                 }}
               >
