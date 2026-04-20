@@ -90,13 +90,13 @@
 .page-hero .lede strong { color:var(--ink); font-weight:600; }
 
 /* ── SECTIONS ─────────────────────────────────────── */
-section.block { padding:112px 0; display:block; position:relative; isolation:isolate; }
-section.block-tight { padding:72px 0; display:block; position:relative; isolation:isolate; }
+.marketing-page section.block { padding:112px 0; display:block; position:relative; isolation:isolate; }
+.marketing-page section.block-tight { padding:72px 0; display:block; position:relative; isolation:isolate; }
 .section-header { max-width:780px; margin-bottom:56px; }
 .section-title { font-family:var(--display); font-weight:500; font-size:clamp(32px,4.5vw,54px); line-height:1.02; letter-spacing:-0.03em; margin-bottom:24px; }
 .section-title em { font-style:italic; color:var(--rust); font-weight:400; }
 .section-sub { font-size:18px; line-height:1.55; color:var(--ink-soft); max-width:640px; }
-@media(max-width:720px){ section.block { padding:72px 0; } section.block-tight { padding:56px 0; } }
+@media(max-width:720px){ .marketing-page section.block { padding:72px 0; } .marketing-page section.block-tight { padding:56px 0; } }
 
 /* ── PROSE ────────────────────────────────────────── */
 .prose p { font-size:17px; line-height:1.7; color:var(--ink-soft); max-width:680px; }
