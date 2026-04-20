@@ -14,6 +14,7 @@ import { TripCommunicationsPanel } from '@/components/dashboard/TripCommunicatio
 import { WeatherAlertCard } from '@/components/dashboard/WeatherAlertCard'
 import { TripCrewPanel } from '@/components/dashboard/TripCrewPanel'
 import type { Metadata } from 'next'
+import type { QualificationStatus } from '@/types'
 
 export const metadata: Metadata = { title: 'Trip detail — BoatCheckin' }
 
@@ -32,13 +33,14 @@ export default async function TripDetailPage({
       id, slug, trip_code, trip_date, departure_time,
       duration_hours, max_guests, status, charter_type,
       requires_approval, special_notes,
-      started_at,
+      started_at, trip_type, requires_qualification,
       bookings ( id, organiser_name, organiser_email,
         max_guests, booking_code, notes ),
       boats (
         id, boat_name, boat_type, marina_name,
         marina_address, slip_number, lat, lng,
-        captain_name, waiver_text, safety_cards
+        captain_name, waiver_text, safety_cards,
+        requires_qualification
       ),
       guests (
         id, full_name, language_preference,
@@ -50,6 +52,12 @@ export default async function TripDetailPage({
         guest_addon_orders (
           quantity, total_cents,
           addons ( name, emoji )
+        ),
+        guest_qualifications (
+          id, qualification_status,
+          has_boat_ownership, experience_years,
+          safe_boater_required, safe_boater_card_url,
+          attested_at, review_notes
         )
       )
     `)
@@ -99,6 +107,44 @@ export default async function TripDetailPage({
     role: a.role as string,
   }))
 
+  // Compute whether this is a qualification trip
+  type RawTrip = typeof raw
+  const rawBoat = (raw as Record<string, unknown>).boats as Record<string, unknown> | null
+  const tripRequiresQualification =
+    (raw as Record<string, unknown>).requires_qualification === true ||
+    rawBoat?.requires_qualification === true
+
+  // Shape qualification map: guest_id → qualification record
+  const qualificationMap = new Map<string, {
+    id: string
+    qualificationStatus: QualificationStatus
+    hasBoatOwnership: boolean
+    experienceYears: number
+    safetyBoaterRequired: boolean
+    safetyBoaterCardUrl: string | null
+    attestedAt: string
+    reviewNotes: string | null
+  }>()
+
+  type RawGuest = { id: string; guest_qualifications?: Record<string, unknown>[] }
+  const rawGuests = ((raw as Record<string, unknown>).guests ?? []) as RawGuest[]
+  for (const g of rawGuests) {
+    const quals = g.guest_qualifications ?? []
+    if (quals.length > 0) {
+      const q = quals[0] as Record<string, unknown>
+      qualificationMap.set(g.id, {
+        id:                  q.id as string,
+        qualificationStatus: q.qualification_status as QualificationStatus,
+        hasBoatOwnership:    q.has_boat_ownership as boolean,
+        experienceYears:     q.experience_years as number,
+        safetyBoaterRequired: q.safe_boater_required as boolean,
+        safetyBoaterCardUrl: q.safe_boater_card_url as string | null,
+        attestedAt:          q.attested_at as string,
+        reviewNotes:         q.review_notes as string | null,
+      })
+    }
+  }
+
   const tripDate = new Date(trip.tripDate + 'T00:00:00')
   const formattedDate = tripDate.toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric',
@@ -137,6 +183,8 @@ export default async function TripDetailPage({
         initialGuests={trip.guests}
         maxGuests={trip.maxGuests}
         requiresApproval={trip.requiresApproval}
+        requiresQualification={tripRequiresQualification}
+        qualificationMap={Object.fromEntries(qualificationMap.entries())}
       />
 
       {/* ── Crew assignment ────────────────────────────── */}

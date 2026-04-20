@@ -9,6 +9,7 @@ import { StepDetails } from './StepDetails'
 import { StepSafety } from './StepSafety'
 import { StepWaiver } from './StepWaiver'
 import { StepBoarding } from './StepBoarding'
+import { StepQualification } from './StepQualification'
 import type { JoinStep, JoinFlowState } from '@/types'
 import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
 import { getComplianceRules } from '@/lib/compliance/rules'
@@ -37,6 +38,12 @@ interface JoinFlowSheetProps {
       maxQuantity: number
     }[]
     isEU: boolean
+    // Self-drive qualification settings (from boat/trip)
+    requiresQualification: boolean
+    requiresBoaterCard: boolean
+    minExperienceYears: number
+    requiresBoatOwnership: boolean
+    qualificationNotes: string | null
   }
   currentLang: string
 }
@@ -46,6 +53,8 @@ interface JoinFlowSheetProps {
 const STEPS: JoinStep[]             = ['code', 'details', 'safety', 'waiver', 'boarding']
 const FAST_TRACK_STEPS: JoinStep[]  = ['code', 'details', 'waiver', 'boarding']
 const RELAXED_STEPS: JoinStep[]     = ['code', 'details', 'safety', 'waiver', 'boarding']
+// Self-drive: adds qualification step between details and safety
+const SELF_DRIVE_STEPS: JoinStep[]  = ['code', 'details', 'qualification', 'safety', 'waiver', 'boarding']
 
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
@@ -59,6 +68,19 @@ const INITIAL_STATE: JoinFlowState = {
   gdprConsent: false, marketingConsent: false,
   isEU: false,
   fwcLicenseUrl: null, fwcLicenseUploading: false,
+  // Step 2.5 — qualification defaults
+  hasBoatOwnership: false,
+  ownershipYears: '',
+  ownershipVesselType: '',
+  experienceYears: '',
+  experienceDescription: '',
+  safetyBoaterRequired: false,
+  safetyBoaterCardUrl: null,
+  safetyBoaterCardUploading: false,
+  safetyBoaterCardNumber: '',
+  safetyBoaterCardState: 'FL',
+  qualificationAttested: false,
+  qualificationId: null,
   safetyAcks: [], currentSafetyCard: 0,
   waiverScrolled: false, waiverAgreed: false,
   signatureText: '', waiverTextHash: '',
@@ -109,7 +131,14 @@ export function JoinFlowSheet({
   // Progress bar (excludes insurance step from count)
   const isFastTrack = complianceRules?.features?.fast_track_enabled ?? false
   const isRelaxedTrip = ['private_party', 'family', 'fishing_social', 'training'].includes(tripData.tripPurpose)
-  const activeSteps = isFastTrack ? FAST_TRACK_STEPS : isRelaxedTrip ? RELAXED_STEPS : STEPS
+  const isQualificationTrip = tripData.requiresQualification
+  const activeSteps = isQualificationTrip
+    ? SELF_DRIVE_STEPS
+    : isFastTrack
+      ? FAST_TRACK_STEPS
+      : isRelaxedTrip
+        ? RELAXED_STEPS
+        : STEPS
   const stepIndex = activeSteps.indexOf(state.step === 'insurance' ? 'waiver' : state.step)
   const progressPercent = Math.max(0, (stepIndex / (activeSteps.length - 1)) * 100)
 
@@ -207,12 +236,33 @@ export function JoinFlowSheet({
                 <StepDetails
                   state={state}
                   onUpdate={updateState}
-                  onNext={() => goToStep(isFastTrack ? 'waiver' : 'safety')}
+                  onNext={() => goToStep(
+                    isQualificationTrip ? 'qualification'
+                    : isFastTrack ? 'waiver'
+                    : 'safety'
+                  )}
                   onBack={() => goToStep('code')}
                   charterType={tripData.charterType}
                   tripSlug={tripSlug}
                   complianceRules={complianceRules}
                   isRelaxedTrip={isRelaxedTrip}
+                />
+              )}
+
+              {state.step === 'qualification' && (
+                <StepQualification
+                  state={state}
+                  onUpdate={updateState}
+                  onNext={(qualificationId) => {
+                    updateState({ qualificationId })
+                    goToStep('safety')
+                  }}
+                  onBack={() => goToStep('details')}
+                  tripSlug={tripSlug}
+                  requiresBoaterCard={tripData.requiresBoaterCard}
+                  minExperienceYears={tripData.minExperienceYears}
+                  requiresBoatOwnership={tripData.requiresBoatOwnership}
+                  qualificationNotes={tripData.qualificationNotes}
                 />
               )}
 

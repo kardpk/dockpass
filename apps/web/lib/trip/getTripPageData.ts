@@ -43,6 +43,12 @@ export interface TripPageData {
   routeStops: RouteStop[]
   startedAt: string | null
   endedAt: string | null
+  // Self-drive qualification settings
+  requiresQualification: boolean
+  requiresBoaterCard: boolean
+  minExperienceYears: number
+  requiresBoatOwnership: boolean
+  qualificationNotes: string | null
 
   // Boat profile
   boat: {
@@ -151,6 +157,7 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
       duration_hours, max_guests, status, charter_type, trip_purpose,
       special_notes, requires_approval, route_description,
       route_stops, started_at, ended_at,
+      trip_type, requires_qualification,
       operators ( id, company_name ),
       boats (
         id, boat_name, boat_type,
@@ -162,6 +169,8 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
         what_to_bring, house_rules, prohibited_items,
         safety_briefing, safety_cards, waiver_text, cancellation_policy,
         onboard_info, photo_urls,
+        requires_qualification, requires_boater_card,
+        min_experience_years, requires_boat_ownership, qualification_notes,
         addons (
           id, name, description, emoji,
           price_cents, max_quantity, is_available, sort_order
@@ -203,6 +212,14 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
     routeStops: (trip.route_stops as RouteStop[]) ?? [],
     startedAt: trip.started_at ?? null,
     endedAt: trip.ended_at ?? null,
+    // Self-drive qualification — trip-level OR boat-level (trip overrides)
+    requiresQualification:
+      (trip as Record<string, unknown>).requires_qualification === true ||
+      boat.requires_qualification === true,
+    requiresBoaterCard:    boat.requires_boater_card    ?? false,
+    minExperienceYears:    boat.min_experience_years    ?? 0,
+    requiresBoatOwnership: boat.requires_boat_ownership ?? false,
+    qualificationNotes:    boat.qualification_notes     ?? null,
     boat: {
       id: boat.id,
       boatName: boat.boat_name,

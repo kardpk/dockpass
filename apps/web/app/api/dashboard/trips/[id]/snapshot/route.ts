@@ -37,9 +37,11 @@ export async function POST(
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, status, charter_type, trip_purpose, force_full_compliance,
       safety_briefing_confirmed_at, safety_briefing_confirmed_by, safety_briefing_type,
+      trip_type, requires_qualification,
       boats (
         boat_name, marina_name, slip_number,
-        captain_name, lat, lng, waiver_text, safety_cards
+        captain_name, lat, lng, waiver_text, safety_cards,
+        requires_qualification
       ),
       guests (
         id, full_name, language_preference,
@@ -50,6 +52,9 @@ export async function POST(
         guest_addon_orders (
           quantity, total_cents,
           addons ( name, emoji )
+        ),
+        guest_qualifications (
+          id, qualification_status, attested_at
         )
       )
     `)
@@ -134,20 +139,31 @@ export async function POST(
     lengthFt: (trip.boat as Record<string, unknown>).lengthFt as number | null ?? null,
     weather: null,
     alerts,
-    guests: trip.guests.map(g => ({
-      id: g.id,
-      fullName: g.fullName,
-      dateOfBirth: g.dateOfBirth ?? null,
-      waiverSigned: g.waiverSigned,
-      waiverTextHash: g.waiverTextHash ?? null,
-      safetyAckCount: g.safetyAcknowledgments?.length ?? 0,
-      languageFlag: LANGUAGE_FLAGS[g.languagePreference as keyof typeof LANGUAGE_FLAGS] ?? '🌐',
-      addonEmojis: g.addonOrders.map(o => o.emoji),
-      approvalStatus: g.approvalStatus ?? 'auto_approved',
-      fwcLicenseUrl: g.fwcLicenseUrl ?? null,
-      liveryBriefingVerifiedAt: g.liveryBriefingVerifiedAt ?? null,
-      liveryBriefingVerifiedBy: g.liveryBriefingVerifiedBy ?? null,
-    })),
+    guests: trip.guests.map(g => {
+      // Resolve qualification from raw data (not included in shapeTripDetail)
+      type RawGuestInTrip = { id: string; guest_qualifications?: Record<string, unknown>[] }
+      const rawGuestList = ((raw as Record<string, unknown>).guests ?? []) as RawGuestInTrip[]
+      const rawG = rawGuestList.find(rg => rg.id === g.id)
+      const qual = (rawG?.guest_qualifications ?? [])[0] as Record<string, unknown> | undefined
+
+      return {
+        id: g.id,
+        fullName: g.fullName,
+        dateOfBirth: g.dateOfBirth ?? null,
+        waiverSigned: g.waiverSigned,
+        waiverTextHash: g.waiverTextHash ?? null,
+        safetyAckCount: g.safetyAcknowledgments?.length ?? 0,
+        languageFlag: LANGUAGE_FLAGS[g.languagePreference as keyof typeof LANGUAGE_FLAGS] ?? '🌐',
+        addonEmojis: g.addonOrders.map(o => o.emoji),
+        approvalStatus: g.approvalStatus ?? 'auto_approved',
+        fwcLicenseUrl: g.fwcLicenseUrl ?? null,
+        liveryBriefingVerifiedAt: g.liveryBriefingVerifiedAt ?? null,
+        liveryBriefingVerifiedBy: g.liveryBriefingVerifiedBy ?? null,
+        // Qualification status for captain snapshot display
+        qualificationStatus: qual ? (qual.qualification_status as string ?? null) : null,
+        qualificationAttested: !!qual?.attested_at,
+      }
+    }),
     addonSummary,
     generatedAt: now.toISOString(),
     expiresAt: expires.toISOString(),

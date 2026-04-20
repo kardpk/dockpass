@@ -24,6 +24,12 @@ interface TripDataForJoin {
     maxQuantity: number
   }[]
   isEU: boolean
+  // Self-drive qualification settings
+  requiresQualification: boolean
+  requiresBoaterCard: boolean
+  minExperienceYears: number
+  requiresBoatOwnership: boolean
+  qualificationNotes: string | null
 }
 
 interface StickyJoinCTAProps {

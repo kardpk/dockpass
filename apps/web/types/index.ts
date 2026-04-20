@@ -311,13 +311,14 @@ export interface SafetyAck {
 
 /** Steps in the guest join flow */
 export type JoinStep =
-  | 'code'       // step 1 — trip code entry
-  | 'details'    // step 2 — personal info
-  | 'safety'     // step 3 — safety card swipe
-  | 'waiver'     // step 4 — waiver signing + registration submit
-  | 'insurance'  // step 4.5 — conditional FL course info
-  | 'addons'     // step 5 — add-on ordering
-  | 'boarding'   // step 6 — boarding pass + QR
+  | 'code'          // step 1 — trip code entry
+  | 'details'       // step 2 — personal info
+  | 'qualification' // step 2.5 — self-drive experience attestation + Safe Boater Card
+  | 'safety'        // step 3 — safety card swipe
+  | 'waiver'        // step 4 — waiver signing + registration submit
+  | 'insurance'     // step 4.5 — conditional FL course info
+  | 'addons'        // step 5 — add-on ordering
+  | 'boarding'      // step 6 — boarding pass + QR
 
 /** Full state of the join flow bottom sheet */
 export interface JoinFlowState {
@@ -348,6 +349,20 @@ export interface JoinFlowState {
   // Step 2b — FWC compliance (bareboat only)
   fwcLicenseUrl: string | null      // uploaded FWC Boater Safety ID photo
   fwcLicenseUploading: boolean      // upload in progress
+
+  // Step 2.5 — qualification (self-drive only — only rendered when trip/boat requires_qualification)
+  hasBoatOwnership: boolean
+  ownershipYears: string
+  ownershipVesselType: string        // 'center_console' | 'pontoon' | 'sailboat' | 'other'
+  experienceYears: string
+  experienceDescription: string
+  safetyBoaterRequired: boolean      // true when DOB > 1988 AND boat.requires_boater_card
+  safetyBoaterCardUrl: string | null // uploaded card photo URL (Supabase Storage)
+  safetyBoaterCardUploading: boolean
+  safetyBoaterCardNumber: string
+  safetyBoaterCardState: string
+  qualificationAttested: boolean     // attestation checkbox checked
+  qualificationId: string | null     // returned from /qualify API after successful submit
 
   // Step 3 — safety
   safetyAcks: SafetyAck[]
@@ -403,6 +418,23 @@ export interface DashboardGuest {
     quantity: number
     totalCents: number
   }[]
+  // Qualification record (self-drive trips only)
+  qualification: GuestQualification | null
+}
+
+/** Self-drive qualification status per guest */
+export type QualificationStatus = 'pending' | 'approved' | 'flagged' | 'rejected'
+
+/** Qualification record for operator dashboard display */
+export interface GuestQualification {
+  id: string
+  qualificationStatus: QualificationStatus
+  hasBoatOwnership: boolean
+  experienceYears: number
+  safetyBoaterRequired: boolean
+  safetyBoaterCardUrl: string | null
+  attestedAt: string
+  reviewNotes: string | null
 }
 
 // ─── Trip detail for operator ───────────────
@@ -502,6 +534,9 @@ export interface CaptainSnapshotData {
     fwcLicenseUrl: string | null
     liveryBriefingVerifiedAt: string | null
     liveryBriefingVerifiedBy: string | null
+    // Self-drive qualification status (null for non-qualification trips)
+    qualificationStatus: QualificationStatus | null
+    qualificationAttested: boolean
   }[]
   addonSummary: AddonSummaryItem[]
   generatedAt: string

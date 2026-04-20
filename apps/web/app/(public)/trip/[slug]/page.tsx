@@ -209,6 +209,12 @@ export default async function TripPage({
           tripPurpose: trip.tripPurpose ?? 'commercial',
           addons: trip.addons,
           isEU: false,
+          // Self-drive qualification settings
+          requiresQualification: trip.requiresQualification,
+          requiresBoaterCard:    trip.requiresBoaterCard,
+          minExperienceYears:    trip.minExperienceYears,
+          requiresBoatOwnership: trip.requiresBoatOwnership,
+          qualificationNotes:    trip.qualificationNotes,
         }}
       />
 
