@@ -20,6 +20,8 @@ export const CACHE_KEYS = {
     `session:operator:${id}` as const,
   scrapeLock: (operatorId: string) =>
     `lock:scrape:${operatorId}` as const,
+  shortUrlToken: (shortToken: string) =>
+    `snap:short:${shortToken}` as const,
 } as const;
 
 // ── TTL values (seconds) ──
@@ -30,4 +32,5 @@ export const TTL = {
   TRIP_CACHE: 300,            // 5 min
   OPERATOR_SESSION: 86400,    // 24 hours
   SCRAPE_LOCK: 30,            // 30 sec
+  SHORT_URL: 21600,           // 6 hours
 } as const;

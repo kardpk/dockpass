@@ -5,6 +5,7 @@ import { Plus, X, AlertTriangle, Check, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/Switch";
 import { WizardField } from "@/components/ui/WizardField";
 import { ContinueButton } from "@/components/ui/ContinueButton";
+import { UscgPopover } from "@/components/ui/UscgPopover";
 import type { BoatTemplate } from "@/lib/wizard/boat-template-types";
 import type { WizardData } from "../types";
 
@@ -362,9 +363,15 @@ export function Step4Equipment({
           title="USCG Required"
           subtitle="Required for all charter vessels. Check what's onboard."
           pill={
-            <span className="pill pill--warn" style={{ fontSize: "var(--t-mono-xs)" }}>
-              Safety
-            </span>
+            <UscgPopover
+              title="USCG Mandatory Equipment"
+              citationPath="46 CFR §25.25"
+              explanation="The Coast Guard requires uninspected passenger vessels carrying at least one passenger for hire to have specific lifesaving and fire protection equipment."
+            >
+              <span className="pill pill--warn" style={{ fontSize: "var(--t-mono-xs)" }}>
+                Safety
+              </span>
+            </UscgPopover>
           }
         />
         <div>

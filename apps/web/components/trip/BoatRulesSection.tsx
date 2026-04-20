@@ -120,7 +120,7 @@ export function BoatRulesSection({
                   {idx + 1}.
                 </span>
                 <span style={{ fontSize: '13px', color: 'var(--color-ink)', lineHeight: 1.45 }}>
-                  {rule}
+                  {rule.replace(/^\d+[\.\)]\s*/, '')}
                 </span>
               </div>
             ))}
@@ -283,7 +283,7 @@ export function BoatRulesSection({
                 )}
                 {section.type === 'check' && <Check size={12} strokeWidth={3} style={{ color: 'var(--color-ink)', flexShrink: 0, marginTop: 2 }} />}
                 <span style={{ fontSize: '13px', color: 'var(--color-ink)', lineHeight: 1.45 }}>
-                  {item}
+                  {section.type === 'numbered' ? item.replace(/^\d+[\.\)]\s*/, '') : item}
                 </span>
               </div>
             ))}

@@ -251,7 +251,7 @@ export function TripActionBar({
                     display: 'block', marginBottom: 4,
                   }}
                 >
-                  Captain link · valid 72h
+                  Captain link
                 </span>
                 <p
                   className="font-mono"

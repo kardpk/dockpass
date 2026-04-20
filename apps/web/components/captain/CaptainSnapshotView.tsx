@@ -465,6 +465,9 @@ export function CaptainSnapshotView({
         <p className="mono text-center" style={{ fontSize: 'var(--t-mono-xs)', color: 'var(--color-ink-muted)', letterSpacing: '0.05em' }}>
           Live updates active · Fallback refresh every 30s
         </p>
+        <p className="mono text-center" style={{ fontSize: 'var(--t-mono-xs)', color: 'var(--color-ink-muted)', letterSpacing: '0.05em', marginTop: 'var(--s-1)' }}>
+          Valid until {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(liveSnapshot.expiresAt))}
+        </p>
 
         {/* Bottom action button */}
         <div style={{ paddingTop: 'var(--s-2)', paddingBottom: 'var(--s-10)' }}>

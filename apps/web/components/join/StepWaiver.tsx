@@ -280,7 +280,7 @@ export function StepWaiver({
             role="region"
             aria-label="Waiver text"
           >
-            {waiverText || `By participating in this charter, you acknowledge and accept all risks associated with boating activities. You agree to follow all safety instructions from the captain and crew. BoatCheckin and the boat operator are not liable for personal injury, loss, or damage arising from participation in this trip.`}
+            {waiverText || `By participating in this charter, you acknowledge and accept all risks associated with boating activities. You agree to follow all safety instructions from the captain and crew. The boat operator is not liable for personal injury, loss, or damage arising from participation in this trip.`}
           </div>
 
           {/* Agree checkbox */}

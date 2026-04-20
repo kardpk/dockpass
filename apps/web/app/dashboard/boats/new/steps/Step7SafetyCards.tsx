@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { ContinueButton } from "@/components/ui/ContinueButton";
+import { UscgPopover } from "@/components/ui/UscgPopover";
 import type {
   WizardData,
   SafetyCard,
@@ -219,12 +220,18 @@ function SortableCardRow({
 
         {/* USCG pill — amber severity */}
         {isRequired && (
-          <span
-            className="pill pill--warn"
-            style={{ fontSize: 'var(--t-mono-xs)', flexShrink: 0 }}
+          <UscgPopover
+            title="USCG Mandatory Safety Topic"
+            citationPath="46 CFR §26.03-2"
+            explanation="The Coast Guard requires uninspected passenger vessels to brief all passengers on safety and emergency procedures before departure."
           >
-            USCG
-          </span>
+            <span
+              className="pill pill--warn"
+              style={{ fontSize: 'var(--t-mono-xs)', flexShrink: 0 }}
+            >
+              USCG
+            </span>
+          </UscgPopover>
         )}
 
         {/* Delete / clear */}

@@ -14,6 +14,7 @@ import { WizardField } from "@/components/ui/WizardField";
 import { ContinueButton } from "@/components/ui/ContinueButton";
 import type { LucideIcon } from "lucide-react";
 import type { WizardData, BoatTypeKey, CharterType } from "../types";
+import { Copy } from "lucide-react";
 
 // ─── MASTER_DESIGN R1: NO emojis — lucide icons only ───
 const BOAT_TYPES: { key: BoatTypeKey; Icon: LucideIcon; label: string; desc: string }[] = [
@@ -88,6 +89,45 @@ export function Step1Vessel({ data, onNext, onBoatTypeSelected, templateLoading,
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [justSelected, setJustSelected] = useState(false);
 
+  // Cloning state
+  const [existingBoats, setExistingBoats] = useState<Array<{ id: string, boat_name: string }>>([]);
+  const [selectedCloneId, setSelectedCloneId] = useState<string>("");
+  const [isCloning, setIsCloning] = useState(false);
+
+  // Fetch boats on mount
+  useEffect(() => {
+    fetch("/api/dashboard/boats")
+      .then(res => res.json())
+      .then(json => {
+        if (json.boats && Array.isArray(json.boats)) {
+          setExistingBoats(json.boats);
+        }
+      })
+      .catch(err => console.error("Failed to fetch boats for clone list:", err));
+  }, []);
+
+  async function handleClone() {
+    if (!selectedCloneId) return;
+    setIsCloning(true);
+    try {
+      const res = await fetch(`/api/dashboard/boats/${selectedCloneId}/clone`, {
+        method: "POST"
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        // Trigger parent state update with cloned data
+        onNext(json.data);
+      } else {
+        alert("Failed to clone boat data.");
+      }
+    } catch (err) {
+      console.error("Clone error:", err);
+      alert("Error cloning boat.");
+    } finally {
+      setIsCloning(false);
+    }
+  }
+
   function handleTypeSelect(type: BoatTypeKey) {
     if (type === boatType) return;
     setBoatType(type);
@@ -142,6 +182,40 @@ export function Step1Vessel({ data, onNext, onBoatTypeSelected, templateLoading,
 
   return (
     <div className="space-y-page">
+      {/* Clone from existing boat section */}
+      {existingBoats.length > 0 && !boatType && (
+        <div style={{ marginBottom: "var(--s-6)" }}>
+          <p className="mono" style={{ fontSize: 'var(--t-mono-xs)', color: 'var(--color-ink-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 'var(--s-3)' }}>
+            Copy from existing boat
+          </p>
+          <div style={{ display: 'flex', gap: 'var(--s-2)', flexWrap: 'wrap' }}>
+            <select
+              value={selectedCloneId}
+              onChange={(e) => setSelectedCloneId(e.target.value)}
+              disabled={isCloning}
+              className="field-input"
+              style={{ flex: 1, minWidth: 200, height: 44, appearance: "none", background: "var(--color-paper)" }}
+            >
+              <option value="" disabled>Select boat to copy...</option>
+              {existingBoats.map(b => (
+                <option key={b.id} value={b.id}>{b.boat_name}</option>
+              ))}
+            </select>
+            <button
+              onClick={handleClone}
+              disabled={!selectedCloneId || isCloning}
+              className="btn btn--secondary"
+              style={{ height: 44 }}
+            >
+              {isCloning ? <AnchorLoader size="sm" /> : <><Copy size={16} /> Clone &rarr;</>}
+            </button>
+          </div>
+          <p style={{ fontSize: '13px', color: 'var(--color-ink-muted)', marginTop: 'var(--s-2)' }}>
+            Copies equipment, rules, and packing guide. Does not copy photos or marina assigned.
+          </p>
+        </div>
+      )}
+
       {/* Boat type selector */}
       <div>
         <p className="text-label text-dark-text mb-tight">

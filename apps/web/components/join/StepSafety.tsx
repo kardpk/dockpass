@@ -165,6 +165,7 @@ export function StepSafety({ safetyCards, charterType, lengthFt, complianceRules
             transition={{ duration: 0.2 }}
           >
             <GuestSafetyCard
+              topicKey={card.topic_key}
               imageUrl={card.image_url}
               title={card.title}
               instructions={card.instructions}

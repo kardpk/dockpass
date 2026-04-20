@@ -283,14 +283,14 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
         <div
           style={{
             position: 'relative',
-            height: 24,
+            height: 32,
             background: '#0B1D3A',
             overflow: 'visible',
           }}
         >
-          <div style={{ position: 'absolute', left: -12, top: '50%', transform: 'translateY(-50%)', width: 24, height: 24, borderRadius: '50%', background: '#F5F0E8' }} />
-          <div style={{ position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)', width: 24, height: 24, borderRadius: '50%', background: '#F5F0E8' }} />
-          <div style={{ position: 'absolute', left: 20, right: 20, top: '50%', borderTop: '2px dashed rgba(255,255,255,0.15)' }} />
+          <div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: '50%', background: '#F5F0E8' }} />
+          <div style={{ position: 'absolute', right: -16, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: '50%', background: '#F5F0E8' }} />
+          <div style={{ position: 'absolute', left: 24, right: 24, top: '50%', borderTop: '4px dashed rgba(255,255,255,0.15)' }} />
         </div>
 
         {/* ── Bottom section: QR + Guest info ── */}
@@ -308,7 +308,7 @@ export function StepBoarding({ tripData, state, tripSlug, onClose }: StepBoardin
             <div
               style={{
                 background: '#ffffff',
-                padding: 10,
+                padding: 12,
                 borderRadius: 8,
                 transition: 'all 500ms ease',
                 filter: isLiveryPending ? 'blur(8px)' : 'none',

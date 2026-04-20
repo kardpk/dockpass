@@ -165,13 +165,19 @@ export function Step2Marina({ data, onNext, saveLabel }: Step2Props) {
           onLocationChange={handleLocationChange}
           address={marinaAddress}
         />
-        {!lat && !lng && marinaAddress.length > 4 && (
+        {!lat && !lng && marinaAddress.length > 4 ? (
           <div className="mt-tight p-standard bg-warning-bg rounded-chip">
             <p className="text-[12px] text-warning-text">
               No location set — guests may have trouble finding your dock.
             </p>
           </div>
-        )}
+        ) : !/\b\d{5}(?:-\d{4})?\b/.test(marinaAddress) && marinaAddress.length > 4 ? (
+          <div className="mt-tight p-standard bg-warning-bg rounded-chip">
+            <p className="text-[12px] text-warning-text">
+              <span className="font-bold">Tip:</span> Please include a full address with city, state, and zip code to help guests find your dock.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       <ContinueButton onClick={handleContinue}>{saveLabel}</ContinueButton>

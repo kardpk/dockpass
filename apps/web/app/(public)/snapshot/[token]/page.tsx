@@ -209,7 +209,7 @@ function TokenExpiredPage() {
           Link expired
         </h1>
         <p className="text-[15px] text-text-mid">
-          Captain links expire after 1 hour.
+          Captain links are time-limited and have expired.
           Ask the operator to share a fresh link.
         </p>
       </div>

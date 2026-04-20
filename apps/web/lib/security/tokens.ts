@@ -81,9 +81,7 @@ export function generateTripCode(): string {
   return Array.from(buf, (byte) => chars[byte % chars.length]!).join('')
 }
 
-// ─── Captain token (HMAC-signed, 72hr TTL, version-revocable) ─────────────────
-
-const CAPTAIN_TOKEN_TTL_HOURS = 72
+// ─── Captain token (HMAC-signed, dynamic TTL, version-revocable) ─────────────────
 
 export interface CaptainTokenPayload {
   tripId: string
@@ -93,17 +91,17 @@ export interface CaptainTokenPayload {
 }
 
 /**
- * Generate an HMAC-signed captain snapshot token with a 72-hour TTL.
+ * Generate an HMAC-signed captain snapshot token.
  * Token format: `<base64url-payload>.<base64url-hmac>`
  */
 export function generateCaptainToken(
   tripId: string,
-  version: number
+  version: number,
+  expiresAt: Date
 ): { token: string; expiresAt: Date } {
   const issuedAt = Date.now()
-  const expiresAt = issuedAt + CAPTAIN_TOKEN_TTL_HOURS * 60 * 60 * 1000
 
-  const payload: CaptainTokenPayload = { tripId, version, issuedAt, expiresAt }
+  const payload: CaptainTokenPayload = { tripId, version, issuedAt, expiresAt: expiresAt.getTime() }
   const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url')
 
   const hmac = createHmac('sha256', process.env.CAPTAIN_TOKEN_SECRET!)
@@ -150,3 +148,31 @@ export function verifyCaptainToken(token: string): CaptainTokenPayload | null {
   }
 }
 
+/**
+ * Calculates absolute expiration time for Captain Snapshot tokens.
+ * ttl = MIN(base_ttl, (departure_timestamp + 2hr) - now())
+ */
+export function calculateSnapshotExpiry(
+  tripDateStr: string,
+  departureTimeStr: string,
+  baseTtlHours: number
+): Date {
+  const nowMs = Date.now()
+  let departureMs = nowMs
+  
+  try {
+    const tzStr = `${tripDateStr}T${departureTimeStr}:00`
+    const parsed = new Date(tzStr).getTime()
+    if (!isNaN(parsed)) departureMs = parsed
+  } catch {}
+
+  const capMs = departureMs + (2 * 60 * 60 * 1000)
+  const baseTtlMs = baseTtlHours * 60 * 60 * 1000
+
+  const timeToCapMs = capMs - nowMs
+  const finalTtlMs = Math.min(baseTtlMs, timeToCapMs)
+  // Ensure we don't have negative expiry
+  const validTtlMs = finalTtlMs > 0 ? finalTtlMs : 0
+
+  return new Date(nowMs + validTtlMs)
+}

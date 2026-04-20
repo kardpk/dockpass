@@ -73,58 +73,9 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
 
   const primaryCaptain = (linkedCaptains?.[0] as any)?.captain ?? null;
 
-  // ── Trip Readiness checks ──
-  const hasEquipment = boat.equipment && Object.keys(boat.equipment).length > 0;
-  const safetyCardCount = Array.isArray(boat.safety_cards) ? boat.safety_cards.length : 0;
-  const hasHouseRules = !!(boat.house_rules || (Array.isArray(boat.standard_rules) && boat.standard_rules.length > 0));
-  const hasPhotos = (photoCount ?? 0) > 0;
-  const hasPacking = !!boat.what_to_bring;
-
-  const readinessChecks = [
-    {
-      label: "Equipment configured",
-      ok: hasEquipment,
-      okLabel: "Equipment set up",
-      warnLabel: "No equipment configured yet",
-      step: 4,
-      Icon: Package,
-    },
-    {
-      label: "Safety cards",
-      ok: safetyCardCount > 0,
-      okLabel: `${safetyCardCount} safety card${safetyCardCount !== 1 ? "s" : ""} ready`,
-      warnLabel: "No safety cards added yet",
-      step: 7,
-      Icon: Shield,
-    },
-    {
-      label: "House rules",
-      ok: hasHouseRules,
-      okLabel: "House rules configured",
-      warnLabel: "House rules not set",
-      step: 5,
-      Icon: BookOpen,
-    },
-    {
-      label: "Boat photos",
-      ok: hasPhotos,
-      okLabel: `${photoCount} photo${photoCount !== 1 ? "s" : ""} uploaded`,
-      warnLabel: "No boat photos yet — add photos",
-      step: 9,
-      Icon: Camera,
-    },
-    {
-      label: "Packing list",
-      ok: hasPacking,
-      okLabel: "Packing list ready",
-      warnLabel: "Packing list is empty",
-      step: 6,
-      Icon: ClipboardList,
-    },
-  ];
-
-  const readinessScore = readinessChecks.filter((c) => c.ok).length;
-
+  const complianceScore = boat.compliance_score ?? 0;
+  const isCompliant = complianceScore >= 90;
+  
   // ── Parse structured rules ──
   // ── Parse structured rules — stored in onboard_info JSONB ──
   const onboardInfo = (boat.onboard_info as Record<string, unknown>) ?? {};
@@ -435,48 +386,47 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
                     textDecoration: "none",
                   }}
                 >
-                  {/* Status icon */}
-                  <div
-                    style={{
-                      width: 28, height: 28, borderRadius: "var(--r-1)", flexShrink: 0,
-                      background: check.ok ? "rgba(74,124,89,0.08)" : "rgba(184,136,42,0.1)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}
-                  >
-                    {check.ok ? (
-                      <Check size={14} strokeWidth={2.5} style={{ color: "var(--color-status-ok)" }} />
-                    ) : (
-                      <TriangleAlert size={13} strokeWidth={1.75} style={{ color: "var(--color-status-warn)" }} />
-                    )}
-                  </div>
-                  <span
-                    style={{
-                      flex: 1,
-                      fontSize: "var(--t-body-sm)",
-                      color: check.ok ? "var(--color-ink)" : "var(--color-status-warn)",
-                      fontWeight: check.ok ? 400 : 500,
-                    }}
-                  >
-                    {check.ok ? check.okLabel : check.warnLabel}
-                  </span>
-                  {!check.ok && (
-                    <ChevronRight size={14} strokeWidth={1.75} style={{ color: "var(--color-status-warn)", flexShrink: 0 }} />
-                  )}
-                </div>
-              );
-
-              return check.ok ? (
-                <div key={check.label}>{content}</div>
+        {/* ── COMPLIANCE SCORE ── */}
+        <section style={{ marginBottom: "var(--s-5)" }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 'var(--s-2)', paddingBottom: 'var(--s-2)', borderBottom: '2px solid var(--color-ink)' }}>
+            <Shield size={14} strokeWidth={2} style={{ color: 'var(--color-ink)' }} />
+            <span className="font-mono" style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-ink)' }}>Compliance</span>
+          </div>
+          {/* Compliance score widget */}
+          <div className="flex items-center justify-between p-standard bg-off-white border border-border-light rounded-chip mt-standard">
+            <div className="flex items-center gap-tight">
+              {isCompliant ? (
+                <Check size={16} strokeWidth={2} style={{ color: "var(--color-status-ok)" }} />
               ) : (
-                <Link
-                  key={check.label}
-                  href={`/dashboard/boats/${boat.id}/edit?step=${check.step}`}
-                  style={{ display: "block", textDecoration: "none" }}
-                >
-                  {content}
-                </Link>
-              );
-            })}
+                <TriangleAlert size={16} strokeWidth={2} style={{ color: complianceScore >= 70 ? "var(--color-status-warn)" : "var(--color-status-error)" }} />
+              )}
+              <div>
+                <p className="font-display" style={{ fontSize: "var(--t-body-sm)", fontWeight: 500, color: "var(--color-ink)" }}>
+                  Compliance score
+                </p>
+                <p className="mono mt-[2px]" style={{ fontSize: "10px", letterSpacing: "0.05em", color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
+                  {complianceScore >= 90 ? "Excellent" : complianceScore >= 70 ? "Needs attention" : "Incomplete setup"}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-tight">
+              <span className="mono" style={{ fontSize: "12px", letterSpacing: "0.1em", color: complianceScore >= 70 ? (isCompliant ? "var(--color-status-ok)" : "var(--color-status-warn)") : "var(--color-status-error)" }}>
+                {`[${'█'.repeat(Math.round(complianceScore / 10))}${'░'.repeat(10 - Math.round(complianceScore / 10))}]`} {complianceScore}%
+              </span>
+              <Link
+                href={`/dashboard/boats/${boat.id}/edit`}
+                className="btn btn--outline btn--sm"
+                style={{
+                  height: 28,
+                  padding: "0 10px",
+                  fontSize: "var(--t-mono-xs)",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                Edit
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -593,12 +543,6 @@ export default async function BoatDetailPage({ params }: BoatDetailPageProps) {
           marginRight: "auto",
         }}
       >
-        <TripReadinessModal
-          boatId={boat.id as string}
-          readinessScore={readinessScore}
-          totalChecks={readinessChecks.length}
-          readinessChecks={readinessChecks.map(({ label, ok, warnLabel, step }) => ({ label, ok, warnLabel, step }))}
-        />
         <Link
           href={`/dashboard/boats/${boat.id}/edit`}
           className="btn btn--ghost"

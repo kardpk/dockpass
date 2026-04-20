@@ -14,7 +14,13 @@ export interface ReviewRequestJob {
   operatorId: string
 }
 
+export interface SmsJobPayload {
+  type: 'captain_snapshot' | 'operator_manifest_ready' | 'operator_weather_critical' | 'operator_license_expiry'
+  payload: any
+}
+
 export const queues = {
+
   reviewRequests: new Queue('review-requests', {
     connection,
     defaultJobOptions: {
@@ -22,6 +28,15 @@ export const queues = {
       backoff: { type: 'exponential', delay: 2000 },
       removeOnComplete: 200,
       removeOnFail: 100,
+    },
+  }),
+  sms: new Queue('sms', {
+    connection,
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 },
+      removeOnComplete: false, // Keep for audit
+      removeOnFail: false,
     },
   }),
 }

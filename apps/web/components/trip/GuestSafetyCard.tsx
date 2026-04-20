@@ -1,8 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { ShieldCheck, MessageSquareText } from "lucide-react";
+import { ShieldCheck, MessageSquareText, Shield, User, Flame, Radio, AlertTriangle, Lock, Wind, Droplets, Sun, Info } from "lucide-react";
 import { SafetyAudioPlayer } from "@/components/ui/SafetyAudioPlayer";
+
+function getTopicIcon(topic: string | undefined) {
+  switch (topic) {
+    case 'life_jackets': return <Shield size={48} className="text-ink-muted opacity-30" />;
+    case 'fitting_jackets': return <User size={48} className="text-ink-muted opacity-30" />;
+    case 'fire_extinguisher': return <Flame size={48} className="text-ink-muted opacity-30" />;
+    case 'vhf_radio': return <Radio size={48} className="text-ink-muted opacity-30" />;
+    case 'emergency_procedures': return <AlertTriangle size={48} className="text-ink-muted opacity-30" />;
+    case 'restricted_areas': return <Lock size={48} className="text-ink-muted opacity-30" />;
+    case 'seasickness': return <Wind size={48} className="text-ink-muted opacity-30" />;
+    case 'marine_toilet': return <Droplets size={48} className="text-ink-muted opacity-30" />;
+    case 'sun_exposure': return <Sun size={48} className="text-ink-muted opacity-30" />;
+    default: return <Info size={48} className="text-ink-muted opacity-30" />;
+  }
+}
 
 /**
  * GuestSafetyCard — The card guests swipe through during boarding/checkin.
@@ -16,6 +31,7 @@ import { SafetyAudioPlayer } from "@/components/ui/SafetyAudioPlayer";
  */
 
 interface GuestSafetyCardProps {
+  topicKey?: string;
   imageUrl: string | null;       // Captain's boat-specific photo
   title: string;                 // From dictionary (localized)
   instructions: string;          // From dictionary (localized, legal-grade)
@@ -28,6 +44,7 @@ interface GuestSafetyCardProps {
 }
 
 export function GuestSafetyCard({
+  topicKey,
   imageUrl,
   title,
   instructions,
@@ -62,9 +79,9 @@ export function GuestSafetyCard({
           </div>
         </div>
       ) : (
-        <div className="w-full aspect-[16/10] bg-gold-dim flex flex-col items-center justify-center gap-2">
-          <span className="text-[48px]">{emoji}</span>
-          <div className="bg-black/10 text-navy text-[11px] font-medium px-2.5 py-1 rounded-full">
+        <div className="w-full aspect-[16/10] bg-[#F5F0E8] flex flex-col items-center justify-center gap-2 relative">
+          {getTopicIcon(topicKey)}
+          <div className="absolute top-3 right-3 bg-black/10 text-navy text-[11px] font-medium px-2.5 py-1 rounded-full">
             {cardIndex} / {totalCards}
           </div>
         </div>

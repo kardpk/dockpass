@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireOperator } from '@/lib/security/auth'
-import { generateCaptainToken } from '@/lib/security/tokens'
+import { generateCaptainToken, calculateSnapshotExpiry } from '@/lib/security/tokens'
 import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(
@@ -14,7 +14,7 @@ export async function POST(
   // Fetch current version — verify operator owns this trip
   const { data: trip } = await supabase
     .from('trips')
-    .select('id, operator_id, captain_token_version')
+    .select('id, operator_id, captain_token_version, trip_date, departure_time')
     .eq('id', id)
     .eq('operator_id', operator.id)
     .single()
@@ -24,7 +24,8 @@ export async function POST(
   }
 
   const newVersion = (trip.captain_token_version ?? 1) + 1
-  const { token, expiresAt } = generateCaptainToken(trip.id, newVersion)
+  const expiresAt = calculateSnapshotExpiry(trip.trip_date, trip.departure_time, 3)
+  const { token } = generateCaptainToken(trip.id, newVersion, expiresAt)
 
   const { error } = await supabase
     .from('trips')

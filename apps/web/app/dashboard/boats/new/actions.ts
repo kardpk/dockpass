@@ -3,6 +3,7 @@
 import { requireOperator } from "@/lib/security/auth";
 import { auditLog } from "@/lib/security/audit";
 import { generateShortBoardToken } from "@/lib/utils/shortBoardToken";
+import { calculateComplianceScore } from "@/lib/wizard/compliance";
 import type { WizardAddon } from "./types";
 
 /**
@@ -111,7 +112,38 @@ export async function saveBoatProfile(data: {
       url: card.image_url || null,
     }));
 
-    // 5. INSERT boat
+    // 5. Calculate compliance score
+    const boatPayload = {
+      boat_name: data.boatName,
+      boat_type: data.boatType,
+      max_capacity: parseInt(data.maxCapacity) || 1,
+      marina_address: data.marinaAddress,
+      waiver_text: data.firmaTemplateId ? "[Firma PDF Waiver — template configured]" : "[No waiver configured]",
+      firma_template_id: data.firmaTemplateId || null,
+      house_rules: houseRulesText,
+      what_to_bring: data.whatToBring || null,
+      safety_cards: safetyCardsJson,
+      onboard_info: {
+        equipment: data.selectedEquipment,
+        amenities: data.selectedAmenities,
+        specificFields: data.specificFieldValues,
+        customDetails: data.customDetails,
+        captainCertifications: data.captainCertifications,
+        captainLicenseType: data.captainLicenseType,
+        whatNotToBring: data.whatNotToBring,
+        uscgDocNumber: data.uscgDocNumber,
+        registrationState: data.registrationState,
+        operatingArea: data.operatingArea,
+        standardRules: data.standardRules,
+        dos: data.customDos,
+        donts: data.customDonts,
+        customRuleSections: data.customRuleSections,
+      }
+    };
+
+    const initialScore = await calculateComplianceScore(supabase, operator.id, null, boatPayload);
+
+    // 6. INSERT boat
     const { data: boat, error: boatError } = await supabase
       .from("boats")
       .insert({
@@ -137,29 +169,12 @@ export async function saveBoatProfile(data: {
         captain_rating: data.captainRating ? parseFloat(data.captainRating) : null,
         what_to_bring: data.whatToBring || null,
         house_rules: houseRulesText,
-        // Waiver: now handled by Firma PDF, store placeholder text
-        waiver_text: data.firmaTemplateId
-          ? "[Firma PDF Waiver — template configured]"
-          : "[No waiver configured]",
-        firma_template_id: data.firmaTemplateId || null,
+        waiver_text: boatPayload.waiver_text,
+        firma_template_id: boatPayload.firma_template_id,
         safety_cards: safetyCardsJson,
-        onboard_info: {
-          equipment: data.selectedEquipment,
-          amenities: data.selectedAmenities,
-          specificFields: data.specificFieldValues,
-          customDetails: data.customDetails,
-          captainCertifications: data.captainCertifications,
-          captainLicenseType: data.captainLicenseType,
-          whatNotToBring: data.whatNotToBring,
-          uscgDocNumber: data.uscgDocNumber,
-          registrationState: data.registrationState,
-          operatingArea: data.operatingArea,
-          standardRules: data.standardRules,
-          dos: data.customDos,
-          donts: data.customDonts,
-          customRuleSections: data.customRuleSections,
-        },
+        onboard_info: boatPayload.onboard_info,
         is_active: true,
+        compliance_score: initialScore,
       })
       .select("id")
       .single();
@@ -358,7 +373,21 @@ export async function updateBoatStep(
     }
 
     if (Object.keys(patch).length === 0) {
-      return { success: true }; // nothing to update
+      // Even if no specific step fields updated, photo count might have changed (e.g. step 9 upload).
+      // We will still re-evaluate compliance score.
+    }
+
+    const { data: currentBoat } = await supabase
+      .from("boats")
+      .select("*")
+      .eq("id", boatId)
+      .eq("operator_id", operator.id)
+      .single();
+
+    if (currentBoat) {
+      const mergedBoat = { ...currentBoat, ...patch };
+      const newScore = await calculateComplianceScore(supabase, operator.id, boatId, mergedBoat);
+      patch.compliance_score = newScore;
     }
 
     const { error } = await supabase

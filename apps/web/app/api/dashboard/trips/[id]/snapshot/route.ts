@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireOperator } from '@/lib/security/auth'
 import { createClient } from '@/lib/supabase/server'
 import { generateSnapshotToken } from '@/lib/security/snapshot'
+import { calculateSnapshotExpiry } from '@/lib/security/tokens'
 import { rateLimit } from '@/lib/security/rate-limit'
 import { getRedis } from '@/lib/redis/upstash'
 import type { CaptainSnapshotData } from '@/types'
@@ -64,10 +65,11 @@ export async function POST(
   const trip = shapeTripDetail(raw as Record<string, unknown>)
   const alerts = buildCaptainAlerts(trip.guests)
   const addonSummary = buildAddonSummary(trip.guests)
-  const token = generateSnapshotToken(id)
+
+  const expires = calculateSnapshotExpiry((raw as Record<string, unknown>).trip_date as string, (raw as Record<string, unknown>).departure_time as string, 3)
+  const token = generateSnapshotToken(id, expires)
 
   const now = new Date()
-  const expires = new Date(now.getTime() + 3600000)
 
   // ── Captain Resolution: trip_assignments → boat default ──
   const { data: assignments } = await supabase
@@ -160,12 +162,13 @@ export async function POST(
     safetyBriefingType: (raw as Record<string, unknown>).safety_briefing_type as string ?? null,
   }
 
-  // Cache snapshot in Redis (1hr TTL)
+  // Cache snapshot in Redis with an identical TTL
   const redis = getRedis()
+  const redisTtlSeconds = Math.max(1, Math.ceil((expires.getTime() - now.getTime()) / 1000))
   await redis.set(
     `cache:snapshot:${token}`,
     snapshot,
-    { ex: 3600 }
+    { ex: redisTtlSeconds }
   ).catch(() => null)
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL

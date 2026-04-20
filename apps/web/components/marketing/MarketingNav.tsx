@@ -1,0 +1,50 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+
+function ArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M5 12h14M13 5l7 7-7 7" />
+    </svg>
+  )
+}
+
+export function MarketingNav() {
+  const [navOpen, setNavOpen] = useState(false)
+
+  return (
+    <nav className="hp-nav">
+      <div className="nav-inner">
+        <Link href="/" className="brand">
+          <span className="brand-mark">
+            <svg viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="16" r="13" stroke="#0B1E2D" strokeWidth="1.5" />
+              <path d="M16 6v20M6 16h20" stroke="#0B1E2D" strokeWidth="1.5" />
+              <path d="M16 2 L18 6 L14 6 Z" fill="#B84A1F" />
+              <circle cx="16" cy="16" r="3" fill="#0B1E2D" />
+            </svg>
+          </span>
+          Boatcheckin
+        </Link>
+        <div className={`nav-links${navOpen ? ' open' : ''}`}>
+          <Link href="/#how">How it Works</Link>
+          <Link href="/#compliance">Compliance</Link>
+          <Link href="/#operators">For Operators</Link>
+          <Link href="/#pricing">Pricing</Link>
+          <Link href="/about">About</Link>
+        </div>
+        <div className="nav-cta">
+          <Link href="/login" className="btn">Sign In</Link>
+          <Link href="/signup" className="btn btn-primary">
+            Get Started <ArrowIcon />
+          </Link>
+          <button className="nav-toggle" aria-label="Menu" onClick={() => setNavOpen(o => !o)}>
+            <span /><span /><span />
+          </button>
+        </div>
+      </div>
+    </nav>
+  )
+}

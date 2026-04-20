@@ -115,6 +115,10 @@ export const guestRegistrationSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name too long')
     .transform(s => s.trim()),
+  phone: z.string()
+    .min(7, 'Phone number too short')
+    .max(20, 'Phone number too long')
+    .regex(/^[+\d\s()\-\.]+$/, 'Invalid phone format'),
   emergencyContactName: z.string()
     .min(2, 'Emergency contact name required')
     .max(100)

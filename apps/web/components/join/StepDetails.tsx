@@ -12,12 +12,14 @@ import { calculateAge } from '@/lib/compliance/rules'
 
 const detailsSchema = z.object({
   fullName: z.string().min(2, 'Name too short').max(100),
+  phone: z.string().min(7, 'Invalid phone').max(20),
   emergencyContactName: z.string().min(2, 'Required').max(100),
   emergencyContactPhone: z.string().min(7, 'Invalid phone').max(20),
 })
 
 const relaxedDetailsSchema = z.object({
   fullName: z.string().min(2, 'Name too short').max(100),
+  phone: z.string().min(7, 'Invalid phone').max(20).optional(),
   emergencyContactName: z.string().max(100).optional(),
   emergencyContactPhone: z.string().max(20).optional(),
 })
@@ -106,6 +108,7 @@ export function StepDetails({ state, onUpdate, onNext, onBack, charterType, trip
     const schema = isRelaxedTrip ? relaxedDetailsSchema : detailsSchema
     const result = schema.safeParse({
       fullName: state.fullName,
+      phone: state.phone || undefined,
       emergencyContactName: state.emergencyContactName || undefined,
       emergencyContactPhone: state.emergencyContactPhone || undefined,
     })
@@ -170,6 +173,18 @@ export function StepDetails({ state, onUpdate, onNext, onBack, charterType, trip
         />
       </FormField>
 
+      {/* Your phone number */}
+      <FormField label="Your phone number" required={!isRelaxedTrip} helper="For dock reminders and alerts" error={errors.phone}>
+        <input
+          type="tel"
+          autoComplete="tel"
+          placeholder="+1 305 555 0100"
+          value={state.phone}
+          onChange={e => onUpdate({ phone: e.target.value })}
+          className={inputClass(!!errors.phone)}
+        />
+      </FormField>
+
       {/* Emergency contact name */}
       <FormField
         label="Emergency contact name"
@@ -202,6 +217,17 @@ export function StepDetails({ state, onUpdate, onNext, onBack, charterType, trip
           className={inputClass(!!errors.emergencyContactPhone)}
         />
       </FormField>
+
+      {/* Warning if emergency contact matches own phone */}
+      {state.phone && state.emergencyContactPhone && 
+       state.phone.replace(/\D/g, '').slice(-10) === state.emergencyContactPhone.replace(/\D/g, '').slice(-10) && (
+        <div className="mt-2 text-[12.5px] text-warn p-2 bg-[#FFF8E1] border border-[#FFD54F] rounded-lg flex items-start gap-2">
+          <AlertTriangle size={16} className="text-[#F59E0B] shrink-0 mt-0.5" />
+          <span>
+            This looks like your own number. Emergency contacts should be someone not on the boat.
+          </span>
+        </div>
+      )}
 
       {/* ── Bareboat: DOB is REQUIRED (shown above optional toggle) ── */}
       {isBareboat && (

@@ -8,7 +8,13 @@ import { verifyWaiverHash } from '@/lib/security/waiver'
 import { auditLog } from '@/lib/security/audit'
 import { sanitiseText } from '@/lib/security/sanitise'
 import { guestRegistrationSchema } from '@/lib/security/sanitise'
+import { getTripBySlug } from '@/lib/trip/data'
 import { generateQRToken } from '@/lib/security/tokens'
+import { queueCaptainSnapshot } from '@/lib/notifications/smsQueue'
+import { smsTemplates } from '@/lib/notifications/sms-templates'
+import { generateSnapshotToken } from '@/lib/security/snapshot'
+import { redis, CACHE_KEYS } from '@/lib/redis/client'
+import crypto from 'crypto'
 import { getRedis } from '@/lib/redis/upstash'
 import { invalidateTripCache } from '@/lib/redis/cache'
 
@@ -217,6 +223,7 @@ export async function POST(
       trip_id: trip.id,
       operator_id: trip.operator_id,
       full_name: sanitiseText(data.fullName),
+      phone: data.phone.replace(/[^\d+\s()\-.]/g, ''),
       emergency_contact_name: sanitiseText(data.emergencyContactName),
       emergency_contact_phone: data.emergencyContactPhone.replace(/[^\d+\s()\-.]/g, ''),
       dietary_requirements: data.dietaryRequirements
@@ -289,6 +296,55 @@ export async function POST(
       data: { tripId: trip.id, guestId },
     })
 
+  // SMS Trigger A: All guests checked in?
+  // We recount guests asynchronously
+  supabase
+    .from('guests')
+    .select('id', { count: 'exact' })
+    .eq('trip_id', trip.id)
+    .is('deleted_at', null)
+    .then(async ({ count, error }) => {
+      if (error) return
+      if (count === trip.max_guests) {
+        // Find captain phone
+        const { data: tripData } = await supabase
+          .from('trips')
+          .select(`
+             boats(boat_name),
+             trip_assignments(captains(phone))
+          `)
+          .eq('id', trip.id)
+          .single()
+        
+        const captainPhone = (tripData?.trip_assignments as any)?.[0]?.captains?.phone
+        if (captainPhone) {
+          // Generate token
+          const expiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000) // 6 hours
+          const fullToken = generateSnapshotToken(trip.id, expiresAt)
+          
+          // Generate 8-char short token
+          const shortToken = crypto.createHash('sha256').update(fullToken).digest('hex').substring(0, 8)
+          await redis.set(CACHE_KEYS.shortUrlToken(shortToken), fullToken, { ex: 21600 })
+          
+          const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/s/${shortToken}`
+          const tDate = formatTripDate(tripDate) 
+          const tTime = formatTime(trip.departure_time || '09:00:00')
+
+          const body = smsTemplates.captainSnapshotReady({
+            boatName: (tripData?.boats as any)?.boat_name || 'Vessel',
+            date: tDate,
+            time: tTime,
+            checkedIn: count,
+            total: trip.max_guests,
+            shortUrl,
+            code: trip.trip_code || 'CODE'
+          })
+          
+          await queueCaptainSnapshot(trip.id, captainPhone, body)
+        }
+      }
+    })
+
   return NextResponse.json({
     data: {
       guestId,
@@ -301,6 +357,19 @@ export async function POST(
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+function formatTripDate(dateString: string) {
+  const d = new Date(dateString)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function formatTime(timeString: string) {
+  const [h, m] = timeString.split(':')
+  let hours = parseInt(h || '9')
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  hours = hours % 12 || 12
+  return `${hours}:${m} ${ampm}`
+}
 
 /**
  * Florida law: boat operators born on or after Jan 1, 1988

@@ -333,6 +333,7 @@ export interface JoinFlowState {
 
   // Step 2 — details
   fullName: string
+  phone: string
   emergencyContactName: string
   emergencyContactPhone: string
   dietaryRequirements: string

@@ -7,8 +7,8 @@ import { generateCaptainToken } from './tokens'
  * Generate a snapshot token for a trip.
  * Delegates to generateCaptainToken with version=1.
  */
-export function generateSnapshotToken(tripId: string): string {
-  const { token } = generateCaptainToken(tripId, 1)
+export function generateSnapshotToken(tripId: string, expiresAt: Date): string {
+  const { token } = generateCaptainToken(tripId, 1, expiresAt)
   return token
 }
 

@@ -409,6 +409,7 @@ export type Database = {
           emergency_contact_name: string
           emergency_contact_phone: string
           full_name: string
+          phone: string | null
           id: string
           language_preference: string | null
           operator_id: string
@@ -433,6 +434,7 @@ export type Database = {
           emergency_contact_name: string
           emergency_contact_phone: string
           full_name: string
+          phone?: string | null
           id?: string
           language_preference?: string | null
           operator_id: string
@@ -457,6 +459,7 @@ export type Database = {
           emergency_contact_name?: string
           emergency_contact_phone?: string
           full_name?: string
+          phone?: string | null
           id?: string
           language_preference?: string | null
           operator_id?: string
