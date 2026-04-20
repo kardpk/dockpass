@@ -391,7 +391,7 @@ export default function StandardsPage() {
         <p className="fca-sub">The statutes are the standard. The record is how you meet it. Set up Boatcheckin in under 10 minutes and start your operation's documentation on a clean page tonight.</p>
       </div>
       <div className="fca-stack">
-        <a href="/start" className="btn">Start Free →</a>
+        <a href="/signup" className="btn">Start Free →</a>
         <a href="/contact" className="btn btn-outline">Talk to Us</a>
       </div>
     </div>

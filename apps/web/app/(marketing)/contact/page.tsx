@@ -42,7 +42,7 @@ export default function ContactPage() {
 
       <div className="ch-card">
         <div className="ch-icon">
-          <svg viewBox="0 0 24 24"><path d="M3 8l9 6 9-6M3 6h18v12H3z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8l9 6 9-6M3 6h18v12H3z"/></svg>
         </div>
         <span className="ch-tag">Channel · General</span>
         <div className="ch-title">General <em>questions.</em></div>
@@ -55,7 +55,7 @@ export default function ContactPage() {
 
       <div className="ch-card">
         <div className="ch-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
         </div>
         <span className="ch-tag">Channel · Operators</span>
         <div className="ch-title">Operator <em>support.</em></div>
@@ -68,7 +68,7 @@ export default function ContactPage() {
 
       <div className="ch-card">
         <div className="ch-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-0.5-8-3-8-8V7l8-4z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-0.5-8-3-8-8V7l8-4z"/></svg>
         </div>
         <span className="ch-tag">Channel · Security</span>
         <div className="ch-title">Security &amp; <em>disclosure.</em></div>
@@ -81,7 +81,7 @@ export default function ContactPage() {
 
       <div className="ch-card">
         <div className="ch-icon">
-          <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg>
         </div>
         <span className="ch-tag">Channel · Legal</span>
         <div className="ch-title">Legal &amp; <em>notices.</em></div>

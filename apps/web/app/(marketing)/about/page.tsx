@@ -276,7 +276,7 @@ export default function AboutPage() {
         <p className="fca-sub">Set up your first vessel in under 10 minutes. Send your first guest link by tonight. Start the record on a clean page.</p>
       </div>
       <div className="fca-stack">
-        <a href="/start" className="btn">Start Free — 10-min Setup →</a>
+        <a href="/signup" className="btn">Start Free — 10-min Setup →</a>
         <a href="/contact" className="btn btn-outline">Talk to Us First</a>
       </div>
     </div>
