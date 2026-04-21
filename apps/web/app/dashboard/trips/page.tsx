@@ -1,6 +1,6 @@
 import { requireOperator } from '@/lib/security/auth'
 import { createServiceClient } from '@/lib/supabase/service'
-import { TripCard } from '@/components/dashboard/TripCard'
+import { TripListClient } from '@/components/dashboard/TripListClient'
 import { correctTripStatus, isTripRelevant } from '@/lib/utils/tripStatus'
 import { Anchor, Plus, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -22,21 +22,21 @@ function formatGroupDate(dateStr: string): string {
 
   return date.toLocaleDateString('en-US', {
     weekday: 'short',
-    month: 'short',
-    day: 'numeric',
+    month:   'short',
+    day:     'numeric',
   }).toUpperCase()
 }
 
 interface TripRow {
-  id: string
-  slug: string
-  trip_code: string
-  trip_date: string
-  departure_time: string
-  duration_hours: number
-  max_guests: number
-  status: string
-  special_notes: string | null
+  id:               string
+  slug:             string
+  trip_code:        string
+  trip_date:        string
+  departure_time:   string
+  duration_hours:   number
+  max_guests:       number
+  status:           string
+  special_notes:    string | null
   requires_approval: boolean
   boats: { boat_name: string; marina_name: string; slip_number: string | null; lat: number | null; lng: number | null } | null
   guests: { id: string; waiver_signed: boolean }[]
@@ -46,26 +46,32 @@ export default async function TripsPage() {
   const { operator } = await requireOperator()
   const supabase = createServiceClient()
 
-  const { data: trips } = await supabase
-    .from('trips')
-    .select(`
-      id, slug, trip_code, trip_date, departure_time,
-      duration_hours, max_guests, status, special_notes,
-      requires_approval,
-      boats ( boat_name, marina_name, slip_number, lat, lng ),
-      guests ( id, waiver_signed )
-    `)
-    .eq('operator_id', operator.id)
-    .in('status', ['upcoming', 'active'])
-    .is('guests.deleted_at', null)
-    .order('trip_date', { ascending: true })
-    .order('departure_time', { ascending: true })
-    .limit(50)
+  const [{ data: trips }, { count: boatCount }] = await Promise.all([
+    supabase
+      .from('trips')
+      .select(`
+        id, slug, trip_code, trip_date, departure_time,
+        duration_hours, max_guests, status, special_notes,
+        requires_approval,
+        boats ( boat_name, marina_name, slip_number, lat, lng ),
+        guests ( id, waiver_signed )
+      `)
+      .eq('operator_id', operator.id)
+      .in('status', ['upcoming', 'active'])
+      .is('guests.deleted_at', null)
+      .order('trip_date', { ascending: true })
+      .order('departure_time', { ascending: true })
+      .limit(50),
+    supabase
+      .from('boats')
+      .select('id', { count: 'exact', head: true })
+      .eq('operator_id', operator.id)
+      .eq('is_active', true),
+  ])
 
   const rawTrips = (trips ?? []) as unknown as TripRow[]
 
-  // ── Read-time date correction ──────────────────────────────
-  // Filter out past trips and correct stale statuses
+  // Read-time date correction: filter past trips and correct stale statuses
   const upcomingTrips = rawTrips
     .filter(t => isTripRelevant(t.trip_date))
     .map(t => ({ ...t, status: correctTripStatus(t.trip_date, t.status) }))
@@ -78,6 +84,35 @@ export default async function TripsPage() {
     if (!grouped.has(key)) grouped.set(key, [])
     grouped.get(key)!.push(trip)
   }
+
+  // Build serialisable groups for the client component
+  const groups = Array.from(grouped.entries()).map(([dateKey, dateTrips]) => ({
+    dateKey,
+    dateLabel: formatGroupDate(dateKey),
+    trips: dateTrips.map(trip => {
+      const guests = trip.guests ?? []
+      const boat   = trip.boats as { boat_name: string; marina_name: string; slip_number: string | null } | null
+      return {
+        id:               trip.id,
+        slug:             trip.slug,
+        trip_code:        trip.trip_code,
+        trip_date:        trip.trip_date,
+        departure_time:   trip.departure_time,
+        duration_hours:   trip.duration_hours,
+        max_guests:       trip.max_guests,
+        status:           trip.status,
+        requires_approval: trip.requires_approval,
+        boat_name:        boat?.boat_name   ?? '',
+        marina_name:      boat?.marina_name ?? '',
+        slip_number:      boat?.slip_number ?? null,
+        guest_count:      guests.length,
+        waivers_signed:   guests.filter(g => g.waiver_signed).length,
+      }
+    }),
+  }))
+
+  // Default to compact if operator has 5+ boats (fleet-scale operator)
+  const defaultCompact = (boatCount ?? 0) >= 5
 
   return (
     <div style={{ maxWidth: 660, margin: '0 auto', padding: 'var(--s-6) var(--s-5) 120px' }}>
@@ -98,10 +133,7 @@ export default async function TripsPage() {
             {upcomingTrips.length} upcoming
           </p>
         </div>
-        <Link
-          href="/dashboard/trips/new"
-          className="btn btn--rust"
-        >
+        <Link href="/dashboard/trips/new" className="btn btn--rust">
           <Plus size={14} strokeWidth={2.5} />
           New trip
         </Link>
@@ -129,65 +161,14 @@ export default async function TripsPage() {
           <p style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)', maxWidth: 280 }}>
             Create your first trip and share the link with your guests.
           </p>
-          <Link
-            href="/dashboard/trips/new"
-            className="btn btn--rust"
-            style={{ marginTop: 'var(--s-2)' }}
-          >
+          <Link href="/dashboard/trips/new" className="btn btn--rust" style={{ marginTop: 'var(--s-2)' }}>
             Create my first trip
             <ArrowRight size={14} strokeWidth={2.5} />
           </Link>
         </div>
       ) : (
-        /* Date-grouped trip list */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-8)' }}>
-          {Array.from(grouped.entries()).map(([dateKey, dateTrips]) => (
-            <section key={dateKey}>
-              {/* Date group kicker */}
-              <div
-                className="font-mono"
-                style={{
-                  fontSize: 'var(--t-mono-xs)',
-                  fontWeight: 600,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: 'var(--color-ink-muted)',
-                  paddingBottom: 'var(--s-3)',
-                  borderBottom: '1px solid var(--color-line-soft)',
-                  marginBottom: 'var(--s-3)',
-                }}
-              >
-                {formatGroupDate(dateKey)}
-              </div>
-
-              {/* Trip cards for this date */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
-                {dateTrips.map((trip) => {
-                  const guests = trip.guests ?? []
-                  return (
-                    <TripCard
-                      key={trip.id}
-                      tripId={trip.id}
-                      slug={trip.slug}
-                      tripCode={trip.trip_code}
-                      tripDate={trip.trip_date}
-                      departureTime={trip.departure_time}
-                      durationHours={trip.duration_hours}
-                      maxGuests={trip.max_guests}
-                      status={trip.status as 'upcoming' | 'active' | 'completed' | 'cancelled'}
-                      boatName={(trip.boats as unknown as { boat_name: string } | null)?.boat_name ?? ''}
-                      marinaName={(trip.boats as unknown as { marina_name: string } | null)?.marina_name ?? ''}
-                      slipNumber={(trip.boats as unknown as { slip_number: string | null } | null)?.slip_number ?? null}
-                      guestCount={guests.length}
-                      waiversSigned={guests.filter((g) => g.waiver_signed).length}
-                      requiresApproval={trip.requires_approval}
-                    />
-                  )
-                })}
-              </div>
-            </section>
-          ))}
-        </div>
+        /* TripListClient handles compact/full toggle via localStorage */
+        <TripListClient groups={groups} defaultCompact={defaultCompact} />
       )}
     </div>
   )
