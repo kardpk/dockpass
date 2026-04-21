@@ -37,25 +37,34 @@ export default async function RevenuePage() {
   const { operator } = await requireOperator()
   const supabase     = createServiceClient()
 
-  // ── Monthly roll-up (last 6 months) ─────────────────────────────────────
+  // ── Monthly roll-up via RPC (optional — gracefully falls back to empty) ────
   const { data: monthlyRaw } = await supabase.rpc('addon_revenue_monthly', {
     p_operator_id: operator.id,
-  }).throwOnError() as { data: MonthRow[] | null }
+  }).catch(() => ({ data: null })) as { data: MonthRow[] | null }
 
-  // Fallback: direct query if RPC doesn't exist yet
-  const monthlyRows: MonthRow[] = (monthlyRaw ?? []).slice(0, 6)
+  const monthlyRows: MonthRow[] = Array.isArray(monthlyRaw) ? monthlyRaw.slice(0, 6) : []
 
-  // ── Category breakdown (current month) ──────────────────────────────────
+  // ── Category breakdown (current month) — via order join ──────────────────
   const thisMonth = new Date()
   thisMonth.setDate(1)
   const thisMonthIso = thisMonth.toISOString().slice(0, 10)
 
-  const { data: catRaw } = await supabase
-    .from('guest_addon_orders')
-    .select('addons(category), total_cents')
-    .eq('operator_id', operator.id)
-    .eq('status', 'confirmed')
-    .gte('payment_captured_at', thisMonthIso)
+  let catRaw: { total_cents: unknown; addons: unknown }[] | null = null
+  try {
+    const { data } = await supabase
+      .from('guest_addon_orders')
+      .select(`
+        total_cents,
+        addons ( category ),
+        trips!inner ( boats!inner ( operator_id ) )
+      `)
+      .eq('trips.boats.operator_id', operator.id)
+      .eq('status', 'confirmed')
+      .gte('payment_captured_at', thisMonthIso)
+      .limit(500)
+    catRaw = data as typeof catRaw
+  } catch { /* non-fatal */ }
+
 
   // Group by category
   const catMap = new Map<string, number>()
