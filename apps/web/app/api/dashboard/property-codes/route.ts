@@ -118,8 +118,9 @@ export async function POST(req: NextRequest) {
   }
 
   auditLog({
-    action: 'property_code_created'
+    action: 'property_code_created',
     operatorId: operator.id,
+
     actorType: 'operator',
     actorIdentifier: operator.id,
     entityType: 'property_code',
