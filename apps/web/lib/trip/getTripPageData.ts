@@ -142,19 +142,37 @@ export type GetTripResult =
 
 export async function getTripPageData(slug: string): Promise<GetTripResult> {
   const redis = getRedis()
-  const cacheKey = `cache:trip:${slug}`
+  // v2: bumped with Phase 4E to invalidate stale pre-4E Redis entries
+  const cacheKey = `cache:trip:v2:${slug}`
 
   // ── Check Redis cache ──────────────────────────────────────────────────────
   try {
     const cached = await redis.get<TripPageData>(cacheKey)
     if (cached) {
       const liveCount = await getLiveGuestCount(cached.id)
+
+      // Fetch fresh operator config — NOT stored in cache because it can
+      // change at any time (operator toggles Stripe on/off, adds codes, etc.)
+      const supabaseFresh = createServiceClient()
+      const [{ data: freshOpConfig }, { count: freshPropCount }] = await Promise.all([
+        supabaseFresh.from('operators').select('addon_payment_mode').eq('id', cached.operator.id).single(),
+        supabaseFresh.from('property_codes').select('id', { count: 'exact', head: true }).eq('operator_id', cached.operator.id).eq('is_active', true),
+      ])
+      const freshPaymentMode = ((freshOpConfig as Record<string, unknown> | null)?.addon_payment_mode as string | null) ?? 'external'
+      const freshHasCodes    = (freshPropCount ?? 0) > 0
+
       return {
         found: true,
         data: {
           ...cached,
-          guestCount: liveCount,
-          isFull: liveCount >= cached.maxGuests,
+          // Ensure Phase 4E fields have safe defaults if cache predates 4E
+          durationDays: cached.durationDays ?? null,
+          returnDate:   cached.returnDate   ?? null,
+          guestCount:   liveCount,
+          isFull:       liveCount >= cached.maxGuests,
+          // Fresh operator config — always override stale cached placeholder
+          addonPaymentMode: freshPaymentMode as 'stripe' | 'external' | 'free',
+          hasPropertyCodes: freshHasCodes,
         },
       }
     }
@@ -345,7 +363,7 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
     // Non-fatal — data.boat.safetyCards stays as empty array
   }
 
-  // ── Cache to Redis (exclude live counts) ──────────────────────────────────
+  // ── Cache to Redis (v2 key — exclude live counts and operator config) ───────
   try {
     await redis.set(cacheKey, data, { ex: 300 })
   } catch {
