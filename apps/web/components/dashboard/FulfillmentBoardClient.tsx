@@ -1,14 +1,13 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { AddonFulfillmentCard } from '@/components/dashboard/AddonFulfillmentCard'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CheckCircle2, PackageCheck } from 'lucide-react'
 import type { FulfillmentOrderRow, FulfillmentStatus } from '@/lib/webhooks/types'
 
 interface FulfillmentBoardClientProps {
   initialDate: string
-  grouped: Record<string, FulfillmentOrderRow[]>
+  grouped:     Record<string, FulfillmentOrderRow[]>
 }
 
 function formatDate(dateStr: string) {
@@ -25,15 +24,19 @@ function offsetDate(dateStr: string, days: number): string {
   return d.toISOString().slice(0, 10)
 }
 
-export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoardClientProps) {
-  const router      = useRouter()
-  const [date, setDate]     = useState(initialDate)
-  const [orders, setOrders] = useState<Record<string, FulfillmentOrderRow[]>>(grouped)
-  const [loading, setLoading] = useState(false)
+const STATUS_ORDER: FulfillmentStatus[] = ['ordered', 'prepping', 'ready', 'loaded', 'delivered']
 
+export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoardClientProps) {
+  const [date,         setDate]         = useState(initialDate)
+  const [orders,       setOrders]       = useState<Record<string, FulfillmentOrderRow[]>>(grouped)
+  const [loading,      setLoading]      = useState(false)
+  const [allLoadedFor, setAllLoadedFor] = useState<Record<string, boolean>>({})  // boatKey → confirmed
+
+  // ── Date navigation ──────────────────────────────────────────────────────
   const navigateDate = useCallback(async (newDate: string) => {
     setLoading(true)
     setDate(newDate)
+    setAllLoadedFor({})
     try {
       const res  = await fetch(`/api/dashboard/fulfillment?date=${newDate}`)
       const json = await res.json()
@@ -45,19 +48,18 @@ export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoar
     }
   }, [])
 
+  // ── Single order advance ─────────────────────────────────────────────────
   const handleAdvance = useCallback(async (
     orderId: string,
     newStatus: FulfillmentStatus
   ) => {
     const res = await fetch(`/api/dashboard/fulfillment/${orderId}`, {
-      method: 'PATCH',
+      method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
+      body:    JSON.stringify({ status: newStatus }),
     })
     if (!res.ok) throw new Error('Failed to update')
 
-    // Update local state optimistically already handled in card,
-    // but also update our grouped map so date navigation preserves updates
     setOrders(prev => {
       const next = { ...prev }
       for (const time of Object.keys(next)) {
@@ -69,6 +71,56 @@ export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoar
     })
   }, [])
 
+  // ── All-loaded for a boat group ───────────────────────────────────────────
+  const handleAllLoaded = useCallback(async (boatKey: string, boatOrders: FulfillmentOrderRow[]) => {
+    const pending = boatOrders.filter(
+      o => STATUS_ORDER.indexOf(o.fulfillmentStatus) < STATUS_ORDER.indexOf('loaded')
+    )
+    if (pending.length === 0) return
+
+    try {
+      await Promise.all(pending.map(o =>
+        fetch(`/api/dashboard/fulfillment/${o.orderId}`, {
+          method:  'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ status: 'loaded' }),
+        })
+      ))
+
+      // Optimistic update — all to loaded
+      setOrders(prev => {
+        const next = { ...prev }
+        const orderIds = new Set(pending.map(o => o.orderId))
+        for (const time of Object.keys(next)) {
+          next[time] = (next[time] ?? []).map(o =>
+            orderIds.has(o.orderId) ? { ...o, fulfillmentStatus: 'loaded' } : o
+          )
+        }
+        return next
+      })
+
+      // Mark boat as confirmed, clear after 4 s
+      setAllLoadedFor(prev => ({ ...prev, [boatKey]: true }))
+      setTimeout(() => setAllLoadedFor(prev => ({ ...prev, [boatKey]: false })), 4000)
+
+      // Push notification to operator (fire-and-forget)
+      const firstOrder = boatOrders[0]
+      if (firstOrder) {
+        fetch('/api/workers/push-trip-update', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tripId:  firstOrder.tripId,
+            type:    'addon_loaded',
+            message: `All add-ons for ${firstOrder.boatName} loaded. Ready for departure.`,
+          }),
+        }).catch(() => {/* non-fatal */})
+      }
+    } catch {
+      // Non-fatal — individual cards still reflect real state via page reload
+    }
+  }, [])
+
   const departureTimes = Object.keys(orders).sort()
   const isToday        = date === new Date().toISOString().slice(0, 10)
   const totalOrders    = Object.values(orders).flat().length
@@ -78,38 +130,56 @@ export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoar
 
       {/* Date navigation */}
       <div>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-ink)', margin: '0 0 8px' }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-ink)', margin: '0 0 10px' }}>
           Fulfillment
         </h1>
+
+        {/* Prev / date display / next + date input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             onClick={() => navigateDate(offsetDate(date, -1))}
             style={{
               width: 32, height: 32, display: 'flex', alignItems: 'center',
               justifyContent: 'center', background: 'var(--color-paper)',
-              border: '1px solid var(--color-line-soft)', borderRadius: 'var(--r-1)',
-              cursor: 'pointer', color: 'var(--color-ink)',
+              border: '1px solid var(--color-line-soft)', cursor: 'pointer',
+              color: 'var(--color-ink)',
             }}
             aria-label="Previous day"
           >
             <ChevronLeft size={16} />
           </button>
 
-          <p className="font-mono" style={{
-            fontSize: 'var(--t-mono-xs)', fontWeight: 600,
-            color: 'var(--color-ink)', letterSpacing: '0.05em',
-            flex: 1, textAlign: 'center',
-          }}>
-            {isToday ? 'TODAY · ' : ''}{formatDate(date)}
-          </p>
+          {/* Date label — tapping opens native date picker via hidden input */}
+          <div style={{ flex: 1, position: 'relative' }}>
+            <p className="font-mono" style={{
+              fontSize: 'var(--t-mono-xs)', fontWeight: 600,
+              color: 'var(--color-ink)', letterSpacing: '0.05em',
+              textAlign: 'center', margin: 0,
+            }}>
+              {isToday ? 'TODAY · ' : ''}{formatDate(date)}
+            </p>
+            <input
+              type="date"
+              value={date}
+              onChange={e => e.target.value && navigateDate(e.target.value)}
+              style={{
+                position: 'absolute',
+                inset:    0,
+                opacity:  0,
+                cursor:   'pointer',
+                width:    '100%',
+              }}
+              aria-label="Select date"
+            />
+          </div>
 
           <button
             onClick={() => navigateDate(offsetDate(date, 1))}
             style={{
               width: 32, height: 32, display: 'flex', alignItems: 'center',
               justifyContent: 'center', background: 'var(--color-paper)',
-              border: '1px solid var(--color-line-soft)', borderRadius: 'var(--r-1)',
-              cursor: 'pointer', color: 'var(--color-ink)',
+              border: '1px solid var(--color-line-soft)', cursor: 'pointer',
+              color: 'var(--color-ink)',
             }}
             aria-label="Next day"
           >
@@ -118,27 +188,45 @@ export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoar
         </div>
       </div>
 
-      {/* Content */}
+      {/* Loading */}
       {loading && (
         <div style={{ textAlign: 'center', padding: 'var(--s-8)', color: 'var(--color-ink-muted)' }}>
           Loading...
         </div>
       )}
 
+      {/* Empty state */}
       {!loading && totalOrders === 0 && (
         <div
           className="tile"
           style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center',
-            padding: 'var(--s-10)', gap: 'var(--s-3)', borderStyle: 'dashed', textAlign: 'center',
+            padding: 'var(--s-10)', gap: 'var(--s-3)',
+            borderStyle: 'dashed', textAlign: 'center',
           }}
         >
+          <PackageCheck size={28} strokeWidth={1.5} style={{ color: 'var(--color-ink-muted)' }} />
           <p style={{ fontSize: 'var(--t-body-md)', color: 'var(--color-ink-muted)', margin: 0 }}>
             No add-on orders to fulfill on this date.
           </p>
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button
+              onClick={() => navigateDate(offsetDate(date, -1))}
+              style={{ fontSize: 12, color: 'var(--color-ink-muted)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Yesterday
+            </button>
+            <button
+              onClick={() => navigateDate(offsetDate(date, 1))}
+              style={{ fontSize: 12, color: 'var(--color-ink-muted)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Tomorrow
+            </button>
+          </div>
         </div>
       )}
 
+      {/* Departure time groups */}
       {!loading && departureTimes.map(time => {
         const timeOrders = orders[time] ?? []
         const boatGroups: Record<string, FulfillmentOrderRow[]> = {}
@@ -170,7 +258,12 @@ export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoar
             {/* Boat sub-sections */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
               {Object.entries(boatGroups).map(([boatKey, boatOrders]) => {
-                const firstOrder = boatOrders[0]!
+                const firstOrder   = boatOrders[0]!
+                const allLoaded    = boatOrders.every(
+                  o => STATUS_ORDER.indexOf(o.fulfillmentStatus) >= STATUS_ORDER.indexOf('loaded')
+                )
+                const justConfirmed = allLoadedFor[boatKey] === true
+
                 return (
                   <div
                     key={boatKey}
@@ -206,6 +299,50 @@ export function FulfillmentBoardClient({ initialDate, grouped }: FulfillmentBoar
                         />
                       ))}
                     </div>
+
+                    {/* All Loaded group button */}
+                    {!allLoaded && (
+                      <div style={{ padding: '0 12px 12px' }}>
+                        <button
+                          onClick={() => handleAllLoaded(boatKey, boatOrders)}
+                          style={{
+                            width:        '100%',
+                            height:       36,
+                            background:   'var(--color-bone)',
+                            border:       '1px solid var(--color-line)',
+                            fontSize:     11,
+                            fontWeight:   700,
+                            letterSpacing: '0.07em',
+                            textTransform: 'uppercase',
+                            color:        'var(--color-ink-secondary)',
+                            cursor:       'pointer',
+                            display:      'flex',
+                            alignItems:   'center',
+                            justifyContent: 'center',
+                            gap:          6,
+                          }}
+                        >
+                          <CheckCircle2 size={13} /> Mark all loaded for {firstOrder.boatName}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Confirmed flash */}
+                    {justConfirmed && (
+                      <div style={{
+                        padding:    '10px 14px',
+                        background: '#f0fdf4',
+                        borderTop:  '1px solid #bbf7d0',
+                        display:    'flex',
+                        alignItems: 'center',
+                        gap:        8,
+                        fontSize:   12,
+                        color:      '#166534',
+                        fontWeight: 600,
+                      }}>
+                        <CheckCircle2 size={14} /> All add-ons loaded — boat ready.
+                      </div>
+                    )}
                   </div>
                 )
               })}

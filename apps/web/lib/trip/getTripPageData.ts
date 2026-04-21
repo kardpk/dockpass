@@ -106,6 +106,13 @@ export interface TripPageData {
     emoji: string
     priceCents: number
     maxQuantity: number
+    // Resort fields (Phase 4D)
+    category:      string
+    cutoffHours:   number
+    prepTimeHours: number
+    isSeasonal:    boolean
+    seasonalFrom:  string | null
+    seasonalUntil: string | null
   }[]
 
   // Live counts (not cached — always fresh)
@@ -117,6 +124,11 @@ export interface TripPageData {
     id: string
     companyName: string | null
   }
+
+  // Resort / add-on config (Phase 4D — NOT cached in Redis, operator config is volatile)
+  addonPaymentMode:  'stripe' | 'external' | 'free'
+  hasPropertyCodes:  boolean
+  tripDepartureIso:  string   // trip_date + 'T' + departure_time for client-side cutoff math
 }
 
 export type GetTripResult =
@@ -173,7 +185,9 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
         min_experience_years, requires_boat_ownership, qualification_notes,
         addons (
           id, name, description, emoji,
-          price_cents, max_quantity, is_available, sort_order
+          price_cents, max_quantity, is_active, sort_order,
+          category, cutoff_hours, prep_time_hours,
+          is_seasonal, seasonal_from, seasonal_until
         )
       )
     `)
@@ -193,6 +207,25 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
   const boat = trip.boats as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const operator = trip.operators as any
+
+  // ── Parallel: operator payment config + property codes existence ──────────────
+  // NOT cached — these are operator config, can change at any time
+  const [{ data: opConfig }, { count: propCodeCount }] = await Promise.all([
+    supabase
+      .from('operators')
+      .select('addon_payment_mode')
+      .eq('id', operator?.id ?? '')
+      .single(),
+    supabase
+      .from('property_codes')
+      .select('id', { count: 'exact', head: true })
+      .eq('operator_id', operator?.id ?? '')
+      .eq('is_active', true),
+  ])
+
+  const addonPaymentMode = ((opConfig as Record<string, unknown> | null)?.addon_payment_mode as string | null) ?? 'external'
+  const hasPropertyCodes  = (propCodeCount ?? 0) > 0
+  const tripDepartureIso  = `${trip.trip_date}T${trip.departure_time ?? '09:00:00'}`
 
   // ── Shape data ─────────────────────────────────────────────────────────────
   const data: TripPageData = {
@@ -266,20 +299,32 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
         isCover: i === 0,
       })),
     addons: ((boat.addons as Record<string, unknown>[]) ?? [])
-      .filter((a) => a['is_available'] === true)
-      .sort((a, b) => (a['sort_order'] as number) - (b['sort_order'] as number))
+      // is_active is the new column name; fall back to is_available for older rows
+      .filter((a) => a['is_active'] === true || a['is_available'] === true)
+      .sort((a, b) => (Number(a['sort_order']) || 0) - (Number(b['sort_order']) || 0))
       .map((a) => ({
-        id: a['id'] as string,
-        name: a['name'] as string,
-        description: (a['description'] as string) ?? null,
-        emoji: a['emoji'] as string,
-        priceCents: a['price_cents'] as number,
-        maxQuantity: a['max_quantity'] as number,
+        id:           a['id']          as string,
+        name:         a['name']        as string,
+        description:  (a['description'] as string | null) ?? null,
+        emoji:        (a['emoji'] as string | null) ?? '',
+        priceCents:   Number(a['price_cents'])   || 0,
+        maxQuantity:  Number(a['max_quantity'])   || 4,
+        // Resort fields
+        category:     (a['category']      as string | null) ?? 'general',
+        cutoffHours:  Number(a['cutoff_hours'])   || 0,
+        prepTimeHours: Number(a['prep_time_hours']) || 0,
+        isSeasonal:   (a['is_seasonal'] as boolean | null) ?? false,
+        seasonalFrom: (a['seasonal_from'] as string | null) ?? null,
+        seasonalUntil:(a['seasonal_until'] as string | null) ?? null,
       })),
     operator: {
       id: operator?.id ?? '',
       companyName: operator?.company_name ?? null,
     },
+    // Resort config — NOT part of Redis cache key, appended fresh below
+    addonPaymentMode: 'external' as const, // placeholder, overwritten after cache
+    hasPropertyCodes: false,               // placeholder, overwritten after cache
+    tripDepartureIso,
     guestCount: 0, // overwritten below
     isFull: false,
   }
@@ -300,15 +345,18 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
     // Non-fatal
   }
 
-  // ── Get live guest count ──────────────────────────────────────────────────
+  // ── Get live guest count ─────────────────────────────────────────────
   const liveCount = await getLiveGuestCount(trip.id)
 
   return {
     found: true,
     data: {
       ...data,
-      guestCount: liveCount,
-      isFull: liveCount >= trip.max_guests,
+      guestCount:       liveCount,
+      isFull:           liveCount >= trip.max_guests,
+      // Merge fresh operator config (bypasses Redis cache)
+      addonPaymentMode: addonPaymentMode as 'stripe' | 'external' | 'free',
+      hasPropertyCodes,
     },
   }
 }

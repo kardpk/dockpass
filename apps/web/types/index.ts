@@ -192,6 +192,13 @@ export interface AddonItem {
   emoji: string;
   priceCents: number;
   maxQuantity: number;
+  // Resort fields (Phase 4D)
+  category:      string;           // 'food' | 'beverage' | 'gear' | 'safety' | 'experience' | 'seasonal' | 'other' | 'general'
+  cutoffHours:   number;           // hours before departure when ordering closes
+  prepTimeHours: number;           // lead time needed by kitchen/dock staff
+  isSeasonal:    boolean;          // true = only available in seasonal window
+  seasonalFrom:  string | null;    // YYYY-MM-DD
+  seasonalUntil: string | null;    // YYYY-MM-DD
 }
 
 // ── Add-on Order (guest orders) ──
@@ -200,6 +207,15 @@ export interface AddonOrder {
   quantity: number;
   unitPriceCents: number;
   totalCents: number;
+}
+
+// ── Applied property/hotel code discount (Phase 4D) ──
+export interface AppliedPropertyCode {
+  id:                   string
+  code:                 string
+  discountType:         'percent' | 'fixed_cents' | 'unlock_addons'
+  discountValue:        number
+  applicableCategories: string[] | null   // null = all categories
 }
 
 // ─── Phase 3A: Trip Creation ──────────────────────────────────────────────────
@@ -376,6 +392,12 @@ export interface JoinFlowState {
 
   // Step 5 — addons
   addonQuantities: Record<string, number>  // addonId → qty
+
+  // Step 5 — property code + payment (Phase 4D)
+  appliedPropertyCode:   AppliedPropertyCode | null  // validated hotel/resort discount code
+  addonPaymentMode:      'stripe' | 'external' | 'free'  // from operator config
+  stripeClientSecret:    string | null  // returned from addons API when mode = stripe
+  stripePaymentIntentId: string | null  // used to call addons/confirm
 
   // Result
   guestId: string

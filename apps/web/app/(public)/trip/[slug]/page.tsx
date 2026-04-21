@@ -215,6 +215,12 @@ export default async function TripPage({
           minExperienceYears:    trip.minExperienceYears,
           requiresBoatOwnership: trip.requiresBoatOwnership,
           qualificationNotes:    trip.qualificationNotes,
+          // Resort add-on config (Phase 4D)
+          addonPaymentMode:      trip.addonPaymentMode,
+          hasPropertyCodes:      trip.hasPropertyCodes,
+          operatorId:            trip.operator.id,
+          tripDepartureIso:      trip.tripDepartureIso,
+
         }}
       />
 

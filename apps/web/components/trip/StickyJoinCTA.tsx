@@ -22,14 +22,25 @@ interface TripDataForJoin {
     emoji: string
     priceCents: number
     maxQuantity: number
+    category: string
+    cutoffHours: number
+    prepTimeHours: number
+    isSeasonal: boolean
+    seasonalFrom: string | null
+    seasonalUntil: string | null
   }[]
   isEU: boolean
-  // Self-drive qualification settings
+  // Self-drive qualification settings (from boat/trip)
   requiresQualification: boolean
   requiresBoaterCard: boolean
   minExperienceYears: number
   requiresBoatOwnership: boolean
   qualificationNotes: string | null
+  // Resort add-on config (Phase 4D)
+  addonPaymentMode:  'stripe' | 'external' | 'free'
+  hasPropertyCodes:  boolean
+  operatorId:        string
+  tripDepartureIso:  string
 }
 
 interface StickyJoinCTAProps {

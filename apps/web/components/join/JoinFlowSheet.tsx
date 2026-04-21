@@ -10,6 +10,7 @@ import { StepSafety } from './StepSafety'
 import { StepWaiver } from './StepWaiver'
 import { StepBoarding } from './StepBoarding'
 import { StepQualification } from './StepQualification'
+import { StepAddons } from './StepAddons'
 import type { JoinStep, JoinFlowState } from '@/types'
 import type { GuestSafetyCardData } from '@/lib/trip/getTripPageData'
 import { getComplianceRules } from '@/lib/compliance/rules'
@@ -36,6 +37,12 @@ interface JoinFlowSheetProps {
       emoji: string
       priceCents: number
       maxQuantity: number
+      category: string
+      cutoffHours: number
+      prepTimeHours: number
+      isSeasonal: boolean
+      seasonalFrom: string | null
+      seasonalUntil: string | null
     }[]
     isEU: boolean
     // Self-drive qualification settings (from boat/trip)
@@ -44,17 +51,21 @@ interface JoinFlowSheetProps {
     minExperienceYears: number
     requiresBoatOwnership: boolean
     qualificationNotes: string | null
+    // Resort add-on config (Phase 4D)
+    addonPaymentMode:  'stripe' | 'external' | 'free'
+    hasPropertyCodes:  boolean
+    operatorId:        string
+    tripDepartureIso:  string
   }
   currentLang: string
 }
 
-// Beta: simplified flow — no insurance, no addons
-// Safety is ALWAYS required (legal) — only fast-track may skip
-const STEPS: JoinStep[]             = ['code', 'details', 'safety', 'waiver', 'boarding']
-const FAST_TRACK_STEPS: JoinStep[]  = ['code', 'details', 'waiver', 'boarding']
-const RELAXED_STEPS: JoinStep[]     = ['code', 'details', 'safety', 'waiver', 'boarding']
+// Beta: simplified flow — addons re-enabled in 4D
+const STEPS: JoinStep[]             = ['code', 'details', 'safety', 'waiver', 'addons', 'boarding']
+const FAST_TRACK_STEPS: JoinStep[]  = ['code', 'details', 'waiver', 'addons', 'boarding']
+const RELAXED_STEPS: JoinStep[]     = ['code', 'details', 'safety', 'waiver', 'addons', 'boarding']
 // Self-drive: adds qualification step between details and safety
-const SELF_DRIVE_STEPS: JoinStep[]  = ['code', 'details', 'qualification', 'safety', 'waiver', 'boarding']
+const SELF_DRIVE_STEPS: JoinStep[]  = ['code', 'details', 'qualification', 'safety', 'waiver', 'addons', 'boarding']
 
 const INITIAL_STATE: JoinFlowState = {
   step: 'code',
@@ -85,6 +96,11 @@ const INITIAL_STATE: JoinFlowState = {
   waiverScrolled: false, waiverAgreed: false,
   signatureText: '', waiverTextHash: '',
   addonQuantities: {},
+  // Step 5 — property code + payment (Phase 4D)
+  appliedPropertyCode:   null,
+  addonPaymentMode:      'external' as const,
+  stripeClientSecret:    null,
+  stripePaymentIntentId: null,
   guestId: '', qrToken: '',
   approvalStatus: null,
   requiresCourse: false,
@@ -98,6 +114,8 @@ export function JoinFlowSheet({
     ...INITIAL_STATE,
     languagePreference: currentLang,
     isEU: tripData.isEU,
+    // Initialise payment mode from operator config immediately
+    addonPaymentMode: tripData.addonPaymentMode,
   })
 
   // Data received after step 1 validates the code
@@ -297,7 +315,23 @@ export function JoinFlowSheet({
                 />
               )}
 
-              {/* Insurance and Addons removed for Beta */}
+              {/* Insurance removed for Beta */}
+
+              {state.step === 'addons' && (
+                <StepAddons
+                  addons={tripData.addons}
+                  guestId={state.guestId}
+                  tripSlug={tripSlug}
+                  state={state}
+                  onUpdate={updateState}
+                  onComplete={() => goToStep('boarding')}
+                  onSkip={() => goToStep('boarding')}
+                  addonPaymentMode={tripData.addonPaymentMode}
+                  hasPropertyCodes={tripData.hasPropertyCodes}
+                  operatorId={tripData.operatorId}
+                  tripDepartureIso={tripData.tripDepartureIso}
+                />
+              )}
 
               {state.step === 'boarding' && (
                 <StepBoarding
