@@ -15,7 +15,7 @@ export const CACHE_KEYS = {
   weatherCache: (lat: string, lng: string, date: string) =>
     `cache:weather:${lat}:${lng}:${date}` as const,
   tripCache: (slug: string) =>
-    `cache:trip:${slug}` as const,
+    `cache:trip:v2:${slug}` as const,
   operatorSession: (id: string) =>
     `session:operator:${id}` as const,
   scrapeLock: (operatorId: string) =>

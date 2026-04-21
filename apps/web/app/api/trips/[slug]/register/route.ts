@@ -8,7 +8,6 @@ import { verifyWaiverHash } from '@/lib/security/waiver'
 import { auditLog } from '@/lib/security/audit'
 import { sanitiseText } from '@/lib/security/sanitise'
 import { guestRegistrationSchema } from '@/lib/security/sanitise'
-import { getTripBySlug } from '@/lib/trip/data'
 import { generateQRToken } from '@/lib/security/tokens'
 import { queueCaptainSnapshot } from '@/lib/notifications/smsQueue'
 import { smsTemplates } from '@/lib/notifications/sms-templates'
@@ -101,7 +100,7 @@ export async function POST(
     .select(`
       id, trip_code, max_guests, status,
       operator_id, boat_id, requires_approval,
-      charter_type, trip_date,
+      charter_type, trip_date, departure_time,
       boats ( waiver_text )
     `)
     .eq('slug', slug)

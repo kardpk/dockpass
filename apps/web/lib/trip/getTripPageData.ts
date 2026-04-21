@@ -232,21 +232,28 @@ export async function getTripPageData(slug: string): Promise<GetTripResult> {
 
   // ── Parallel: operator payment config + property codes existence ──────────────
   // NOT cached — these are operator config, can change at any time
-  const [{ data: opConfig }, { count: propCodeCount }] = await Promise.all([
-    supabase
-      .from('operators')
-      .select('addon_payment_mode')
-      .eq('id', operator?.id ?? '')
-      .single(),
-    supabase
-      .from('property_codes')
-      .select('id', { count: 'exact', head: true })
-      .eq('operator_id', operator?.id ?? '')
-      .eq('is_active', true),
-  ])
+  // Wrapped in try/catch: config query failure must NEVER cause a trip 404
+  let addonPaymentMode: 'stripe' | 'external' | 'free' = 'external'
+  let hasPropertyCodes = false
+  try {
+    const [{ data: opConfig }, { count: propCodeCount }] = await Promise.all([
+      supabase
+        .from('operators')
+        .select('addon_payment_mode')
+        .eq('id', operator?.id ?? '')
+        .maybeSingle(),                        // maybeSingle: no error if 0 rows
+      supabase
+        .from('property_codes')
+        .select('id', { count: 'exact', head: true })
+        .eq('operator_id', operator?.id ?? '')
+        .eq('is_active', true),
+    ])
+    addonPaymentMode = ((opConfig as Record<string, unknown> | null)?.addon_payment_mode as string | null) as 'stripe' | 'external' | 'free' ?? 'external'
+    hasPropertyCodes  = (propCodeCount ?? 0) > 0
+  } catch (configErr) {
+    console.warn('[getTripPageData] config fetch failed (non-fatal):', configErr)
+  }
 
-  const addonPaymentMode = ((opConfig as Record<string, unknown> | null)?.addon_payment_mode as string | null) ?? 'external'
-  const hasPropertyCodes  = (propCodeCount ?? 0) > 0
   const tripDepartureIso  = `${trip.trip_date}T${trip.departure_time ?? '09:00:00'}`
 
   // ── Shape data ─────────────────────────────────────────────────────────────

@@ -56,7 +56,12 @@ type AuditAction =
   | "multi_day_check_in"
   | "multi_day_check_out"
   | "stripe_connect_linked"
-  | "property_code_created";
+  | "property_code_created"
+  // Phase 4E: condition photos, return inspection
+  | "condition_photo_upload"
+  | "return_inspection"
+  | "guest_qualified";
+
 
 
 interface AuditParams {

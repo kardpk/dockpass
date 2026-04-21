@@ -11,7 +11,8 @@ export async function invalidateTripCache(slug: string): Promise<void> {
   try {
     await Promise.all([
       redis.del(`cache:trip:exists:${slug}`),
-      redis.del(`cache:trip:${slug}`),
+      redis.del(`cache:trip:${slug}`),         // v1 — legacy
+      redis.del(`cache:trip:v2:${slug}`),      // v2 — current
     ])
   } catch {
     // Cache invalidation failure is non-fatal
