@@ -12,7 +12,7 @@ export default async function BoatsPage() {
   const { operator } = await requireOperator();
   const supabase = createServiceClient();
 
-  const [boatsResult, tripsResult, guestsResult] = await Promise.all([
+  const [boatsResult, tripsResult] = await Promise.all([
     supabase
       .from("boats")
       .select("id, boat_name, boat_type, charter_type, max_capacity, marina_name, slip_number, is_active, created_at")
@@ -26,13 +26,6 @@ export default async function BoatsPage() {
       .eq("operator_id", operator.id)
       .in("status", ["upcoming", "active"])
       .gte("trip_date", getToday()),
-
-    supabase
-      .from("guests")
-      .select("trip_id", { count: "exact", head: false })
-      .eq("operator_id", operator.id)
-      .is("deleted_at", null)
-      .eq("trips.trip_date", getToday()),
   ]);
 
   const activeBoats = boatsResult.data ?? [];
@@ -46,6 +39,7 @@ export default async function BoatsPage() {
   // KPI data
   const totalTripsThisWeek = (tripsResult.data ?? []).length;
   const boatsWithTrips = activeBoats.filter(b => (tripsByBoat[b.id] ?? 0) > 0).length;
+
 
   return (
     <div style={{ padding: 'var(--s-4)', display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
