@@ -227,56 +227,121 @@ export function CrewRosterClient({
         </div>
       )}
 
-      {/* ── Detail slide sheet — full CaptainCard in overlay ── */}
+      {/* ── Crew detail sheet ── */}
       {detailCaptain && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 50,
-          display: 'flex', alignItems: 'flex-end',
-          background: 'rgba(11, 30, 45, 0.4)',
-        }}
-          onClick={() => setDetailCaptain(null)}
-        >
+        <>
+          {/* Slide-up animation keyframe */}
+          <style>{`
+            @keyframes slideUp {
+              from { transform: translateY(100%); }
+              to   { transform: translateY(0); }
+            }
+          `}</style>
+
+          {/* Backdrop */}
+          <div
+            onClick={() => setDetailCaptain(null)}
+            style={{
+              position: 'fixed', inset: 0,
+              zIndex: 200,
+              background: 'rgba(11, 30, 45, 0.55)',
+              backdropFilter: 'blur(2px)',
+              WebkitBackdropFilter: 'blur(2px)',
+            }}
+          />
+
+          {/* Sheet panel */}
           <div
             style={{
-              width: '100%',
-              maxHeight: '85vh',
-              overflowY: 'auto',
+              position: 'fixed',
+              bottom: 0, left: 0, right: 0,
+              zIndex: 201,
               background: 'var(--color-paper)',
               borderTop: '2px solid var(--color-ink)',
-              borderRadius: 'var(--r-1) var(--r-1) 0 0',
-              padding: 'var(--s-4)',
+              borderRadius: '6px 6px 0 0',
+              /* Slide up animation */
+              animation: 'slideUp 260ms cubic-bezier(0.32, 0.72, 0, 1)',
+              /* Scroll inside the sheet — NOT on the whole viewport */
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
             }}
-            onClick={e => e.stopPropagation()}
           >
-            {/* Sheet handle */}
+            {/* ── Handle + close row ── */}
             <div style={{
-              width: 40, height: 4, background: 'var(--color-line-soft)',
-              borderRadius: 'var(--r-pill)', margin: '0 auto var(--s-4)',
-            }} />
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 16px 0',
+              flexShrink: 0,
+            }}>
+              {/* Drag handle — centered */}
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+              }}>
+                <div style={{
+                  width: 36, height: 4,
+                  background: 'var(--color-line-soft)',
+                  borderRadius: 'var(--r-pill)',
+                }} />
+              </div>
+              {/* Close button */}
+              <button
+                onClick={() => setDetailCaptain(null)}
+                style={{
+                  position: 'absolute', right: 14, top: 10,
+                  width: 32, height: 32,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'var(--color-bone)',
+                  border: '1px solid var(--color-line-soft)',
+                  borderRadius: 'var(--r-1)',
+                  cursor: 'pointer',
+                  fontSize: 18,
+                  color: 'var(--color-ink-muted)',
+                  lineHeight: 1,
+                }}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
 
-            <CaptainCard
-              captain={detailCaptain}
-              operatorBoats={operatorBoats}
-              onEdit={c => { handleEdit(c); }}
-              onDeactivate={handleDeactivate}
-              onBoatLinked={(cid, bid, bname) => {
-                handleBoatLinked(cid, bid, bname)
-                setDetailCaptain(prev => prev ? {
-                  ...prev,
-                  linkedBoats: [...prev.linkedBoats, { boatId: bid, boatName: bname }],
-                } : null)
-              }}
-              onBoatUnlinked={(cid, bid) => {
-                handleBoatUnlinked(cid, bid)
-                setDetailCaptain(prev => prev ? {
-                  ...prev,
-                  linkedBoats: prev.linkedBoats.filter(lb => lb.boatId !== bid),
-                } : null)
-              }}
-            />
+            {/* ── Scrollable content — padding-bottom clears bottom nav ── */}
+            <div style={{
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              padding: '12px 16px',
+              /* Clear the 56px bottom nav + 16px buffer + safe area */
+              paddingBottom: 'calc(56px + 24px + env(safe-area-inset-bottom, 0px))',
+              flex: 1,
+            }}>
+              <CaptainCard
+                captain={detailCaptain}
+                operatorBoats={operatorBoats}
+                onEdit={c => { handleEdit(c) }}
+                onDeactivate={handleDeactivate}
+                onBoatLinked={(cid, bid, bname) => {
+                  handleBoatLinked(cid, bid, bname)
+                  setDetailCaptain(prev => prev ? {
+                    ...prev,
+                    linkedBoats: [...prev.linkedBoats, { boatId: bid, boatName: bname }],
+                  } : null)
+                }}
+                onBoatUnlinked={(cid, bid) => {
+                  handleBoatUnlinked(cid, bid)
+                  setDetailCaptain(prev => prev ? {
+                    ...prev,
+                    linkedBoats: prev.linkedBoats.filter(lb => lb.boatId !== bid),
+                  } : null)
+                }}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
+
 
       {/* ── Add/edit form sheet ── */}
       {showForm && (
