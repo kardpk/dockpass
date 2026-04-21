@@ -37,7 +37,7 @@ function formatTime(t: string) {
 }
 
 export function CompactTripRow({
-  slug, tripCode, departureTime,
+  id, slug, tripCode, departureTime,
   boatName, slipNumber, guestCount, maxGuests, status,
 }: CompactTripRowProps) {
   const color = STATUS_COLOR[status] ?? 'var(--color-ink-secondary)'
@@ -45,7 +45,7 @@ export function CompactTripRow({
 
   return (
     <Link
-      href={`/dashboard/trips/${slug}`}
+      href={`/dashboard/trips/${id}`}
       style={{
         display:        'grid',
         gridTemplateColumns: '56px 1fr 80px 48px 80px',
