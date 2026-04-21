@@ -31,7 +31,7 @@ export default async function DashboardLayout({
   const showTrialBanner = trialDays !== null && trialDays <= 7;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-bone)" }}>
+    <div className="min-h-screen" style={{ background: "var(--color-paper)" }}>
       {/* Navy top bar — all viewports */}
       <TopBar operatorName={operatorName} operatorId={operator.id} />
 
