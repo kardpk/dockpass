@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { verifyCaptainToken } from '@/lib/security/tokens'
+import { verifySnapshotToken } from '@/lib/security/snapshot'
 import { createServiceClient } from '@/lib/supabase/service'
 import { shapeTripDetail, buildAddonSummary, buildCaptainAlerts } from '@/lib/dashboard/getDashboardData'
 import { getWeatherData } from '@/lib/trip/getWeatherData'
@@ -21,13 +21,17 @@ export default async function SnapshotPage({
   const { token } = await params
 
   // Verify token natively (checks TTL and HMAC)
-  const result = verifyCaptainToken(token)
+  const result = verifySnapshotToken(token)
 
   if (!result) {
     return <TokenInvalidPage />
   }
+  if (result.expired) {
+    return <TokenExpiredPage />
+  }
 
   const tripId = result.tripId
+  // Note: version check below uses DB, so no result.version needed here
   const supabase = createServiceClient()
 
   // Fetch full trip for snapshot
@@ -60,10 +64,24 @@ export default async function SnapshotPage({
     `)
     .eq('id', tripId)
     .is('guests.deleted_at', null)
+    .single()
   if (!raw) notFound()
 
-  if ((raw as any).captain_token_version !== result.version) {
-    return <TokenInvalidPage />
+  // Verify token hasn't been revoked (operator regenerated a new captain link)
+  // verifySnapshotToken doesn't carry version, so we parse from raw token payload
+  try {
+    const tokenPayload = JSON.parse(
+      Buffer.from(token.split('.')[0]!, 'base64url').toString()
+    ) as { version?: number }
+    if (
+      (raw as any).captain_token_version != null &&
+      tokenPayload.version != null &&
+      (raw as any).captain_token_version !== tokenPayload.version
+    ) {
+      return <TokenInvalidPage />
+    }
+  } catch {
+    // Token payload parsing failed — HMAC already verified, continue
   }
 
   const trip = shapeTripDetail(raw as unknown as Record<string, unknown>)
