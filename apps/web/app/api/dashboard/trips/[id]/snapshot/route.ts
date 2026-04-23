@@ -3,8 +3,7 @@ import 'server-only'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireOperator } from '@/lib/security/auth'
 import { createClient } from '@/lib/supabase/server'
-import { generateSnapshotToken } from '@/lib/security/snapshot'
-import { calculateSnapshotExpiry } from '@/lib/security/tokens'
+import { generateCaptainToken, calculateSnapshotExpiry } from '@/lib/security/tokens'
 import { rateLimit } from '@/lib/security/rate-limit'
 import { getRedis } from '@/lib/redis/upstash'
 import type { CaptainSnapshotData } from '@/types'
@@ -36,6 +35,7 @@ export async function POST(
     .select(`
       id, slug, trip_date, departure_time, duration_hours,
       max_guests, status, charter_type, trip_purpose, force_full_compliance,
+      captain_token_version,
       safety_briefing_confirmed_at, safety_briefing_confirmed_by, safety_briefing_type,
       trip_type, requires_qualification,
       boats (
@@ -72,7 +72,9 @@ export async function POST(
   const addonSummary = buildAddonSummary(trip.guests)
 
   const expires = calculateSnapshotExpiry((raw as Record<string, unknown>).trip_date as string, (raw as Record<string, unknown>).departure_time as string, 3)
-  const token = generateSnapshotToken(id, expires)
+  // Use the current captain_token_version so the URL is never immediately revoked
+  const currentVersion = ((raw as Record<string, unknown>).captain_token_version as number) ?? 1
+  const { token } = generateCaptainToken(id, currentVersion, expires)
 
   const now = new Date()
 

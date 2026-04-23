@@ -65,7 +65,10 @@ export default async function SnapshotPage({
     .eq('id', tripId)
     .is('guests.deleted_at', null)
     .single()
-  if (!raw) notFound()
+  if (!raw) {
+    // Show 'revoked/invalid' for any DB miss — avoids exposing internals via notFound()
+    return <TokenInvalidPage />
+  }
 
   // Verify token hasn't been revoked (operator regenerated a new captain link)
   // verifySnapshotToken doesn't carry version, so we parse from raw token payload
