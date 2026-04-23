@@ -249,9 +249,9 @@ async function handleTripCode(req: NextRequest, slug: string) {
     state_code: string | null
   } | null
 
-  const waiverHash = boat?.waiver_text
-    ? hashWaiverText(boat.waiver_text)
-    : ''
+  // Always produce a 64-char SHA-256 hex so schema validation passes.
+  // The register route skips hash verification when waiverText is null.
+  const waiverHash = hashWaiverText(boat?.waiver_text ?? '')
 
   return NextResponse.json({
     valid: true,
