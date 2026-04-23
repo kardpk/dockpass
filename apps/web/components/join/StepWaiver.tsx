@@ -72,6 +72,7 @@ export function StepWaiver({
           tripSlug,
           tripCode: s.tripCode,
           fullName: s.fullName,
+          phone: s.phone,
           emergencyContactName: s.emergencyContactName,
           emergencyContactPhone: s.emergencyContactPhone,
           dietaryRequirements: s.dietaryRequirements || undefined,
