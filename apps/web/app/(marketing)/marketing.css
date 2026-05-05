@@ -554,11 +554,9 @@ img { max-width: 100%; display: block; }
    PHASE 1C — TARGETED FIXES
    ══════════════════════════════════════════════════════ */
 
-/* ── Section isolation — prevents card bleed into adjacent dark sections */
-.marketing-page section { isolation: isolate; }
-.marketing-page section.block,
-.marketing-page section.block-tight,
-.marketing-page section.practice-light,
+/* ── Explicit backgrounds — prevent transparent section bleed */
+.marketing-page section.block { background: var(--paper); }
+.marketing-page section.block-tight { background: var(--paper); }
 .marketing-page section.not-block { background: var(--paper); }
 .marketing-page section.practice-light { background: var(--paper-warm); }
 

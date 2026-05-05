@@ -52,7 +52,7 @@ export default function SecurityPage() {
 </section>
 
 {/*  ═══ PRINCIPLES GRID ═══  */}
-<section className="block-tight" style={{ paddingTop: '0', background: 'var(--paper)', isolation: 'isolate', position: 'relative', zIndex: 1 }}>
+<section style={{ padding: '48px 0 64px', background: 'var(--paper)', position: 'relative', zIndex: 2 }}>
   <div className="container">
     <div className="section-header">
       <span className="eyebrow">Principles we build to</span>
@@ -60,7 +60,7 @@ export default function SecurityPage() {
      <p className="section-sub">These are the structural commitments that shape every feature we ship. They are not aspirational they are how the code gets reviewed.</p>
     </div>
 
-    <div className="principle-grid">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', background: 'var(--paper)' }}>
       <div className="pr-cell">
         <span className="pr-num">Principle I</span>
         <div className="pr-title">Least privilege, <em>by default.</em></div>
