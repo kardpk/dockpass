@@ -321,10 +321,12 @@ export default function SecurityPage() {
     <div style={{ maxWidth: '820px' }}>
       <span className="eyebrow brass">If something goes wrong</span>
       <h2 className="section-title">Incident communication,<br/>before we <em>need</em> it.</h2>
-     <p style={{ fontSize: '17px', lineHeight: '1.7', color: 'var(--ink-soft)', maxWidth: '720px', marginBottom: '20px' }}>Any platform in production for long enough eventually has an incident. Writing down our communication posture <strong>in advance</strong> rather than when we're in the middle of one is part of being a serious operator ourselves.</p>
-     <p style={{ fontSize: '17px', lineHeight: '1.7', color: 'var(--ink-soft)', maxWidth: '720px', marginBottom: '20px' }}>If a security incident occurs that affects operator or guest data, affected operators receive direct email notice without waiting for a public announcement. Where the statute in the operator's jurisdiction requires downstream notification to guests or to regulators, we support operators with the technical details they need to meet those obligations. Our timelines in each category are designed to meet or exceed applicable breach-notification windows including US state laws, and where applicable, GDPR's 72-hour rule.</p>
-     <p style={{ fontSize: '17px', lineHeight: '1.7', color: 'var(--ink-soft)', maxWidth: '720px', marginBottom: '20px' }}>For service-availability incidents downtime, degraded performance we publish updates to a status page so operators don't need to file a ticket just to learn whether the issue is on our side.</p>
-      <p style={{ fontSize: '17px', lineHeight: '1.7', color: 'var(--ink-soft)', maxWidth: '720px', marginBottom: '0' }}>In every case, we prefer <strong>direct, specific, and early</strong> communication over polished marketing language after the fact.</p>
+      <div className="prose" style={{ maxWidth: '720px' }}>
+       <p>Any platform in production for long enough eventually has an incident. Writing down our communication posture <strong>in advance</strong> rather than when we&apos;re in the middle of one is part of being a serious operator ourselves.</p>
+       <p>If a security incident occurs that affects operator or guest data, affected operators receive direct email notice without waiting for a public announcement. Where the statute in the operator&apos;s jurisdiction requires downstream notification to guests or to regulators, we support operators with the technical details they need to meet those obligations. Our timelines in each category are designed to meet or exceed applicable breach-notification windows including US state laws, and where applicable, GDPR&apos;s 72-hour rule.</p>
+       <p>For service-availability incidents downtime, degraded performance we publish updates to a status page so operators don&apos;t need to file a ticket just to learn whether the issue is on our side.</p>
+       <p>In every case, we prefer <strong>direct, specific, and early</strong> communication over polished marketing language after the fact.</p>
+      </div>
     </div>
   </div>
 </section>

@@ -373,11 +373,11 @@ export default function StandardsPage() {
         <span className="v-value">On statute change · min. annually</span>
       </div>
     </div>
-    <p style={{ marginTop: '24px', fontSize: '13px', lineHeight: '1.65', color: 'var(--ink-soft)', maxWidth: '900px' }}>
+    <p>
       This page is reviewed whenever a cited statute is materially amended and at minimum annually.
-      If you believe a statute has been amended in a way that changes what this page describes, email
+      If you believe a statute has been amended in a way that changes what this page describes, email{' '}
       <a href="mailto:hello@boatcheckin.com" style={{ color: 'var(--rust)', fontWeight: '600' }}>hello@boatcheckin.com</a>
- the original text of the statute on its issuing body's website is always authoritative, and we'll correct the page to match.
+      {' '}— the original text of the statute on its issuing body&apos;s website is always authoritative, and we&apos;ll correct the page to match.
     </p>
   </div>
 </section>

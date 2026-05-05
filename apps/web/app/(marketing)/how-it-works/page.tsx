@@ -41,17 +41,17 @@ export default function HowItWorksPage() {
             <p className="section-sub">Before Boatcheckin, those hours lived in text messages, scribbled paper waivers, and the captain asking &quot;which one of you is Karen?&quot; at the slip. We built Boatcheckin for that exact gap.</p>
           </div>
 
-          {/* Before / After viz — using existing not-grid + not-list pattern */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
-            <div style={{ background: 'var(--paper)', border: '1.5px solid var(--ink)', padding: '28px 32px' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 600, marginBottom: 16 }}>Before</div>
-              <div style={{ fontFamily: 'var(--display)', fontSize: 18, fontWeight: 600, marginBottom: 10 }}>Booking confirmed <span style={{ color: 'var(--rust)' }}>→ chaos →</span> at the dock</div>
-              <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-soft)' }}>Texts, paper waivers on a clipboard, chasing signatures morning-of, and a captain reading names off a list at the slip.</p>
+          {/* Before / After viz */}
+          <div className="compare-cols">
+            <div className="compare-before">
+              <div className="cb-label">Before</div>
+              <div className="cb-title">Booking confirmed <span style={{ color: 'var(--rust)' }}>→ chaos →</span> at the dock</div>
+              <p className="cb-body">Texts, paper waivers on a clipboard, chasing signatures morning-of, and a captain reading names off a list at the slip.</p>
             </div>
-            <div style={{ background: 'var(--paper-warm)', border: '1.5px solid var(--ink)', padding: '28px 32px' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--status-ok)', fontWeight: 600, marginBottom: 16 }}>With Boatcheckin</div>
-              <div style={{ fontFamily: 'var(--display)', fontSize: 18, fontWeight: 600, marginBottom: 10 }}>Booking confirmed <span style={{ color: 'var(--status-ok)' }}>→ one link →</span> every guest cleared</div>
-              <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-soft)' }}>One link, sent by the booker, every guest signs before they arrive. Captain sees green checks. Trip starts.</p>
+            <div className="compare-after">
+              <div className="cb-label">With Boatcheckin</div>
+              <div className="cb-title">Booking confirmed <span style={{ color: 'var(--status-ok)' }}>→ one link →</span> every guest cleared</div>
+              <p className="cb-body">One link, sent by the booker, every guest signs before they arrive. Captain sees green checks. Trip starts.</p>
             </div>
           </div>
         </div>
@@ -138,11 +138,10 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          {/* Outcome bar */}
-          <div style={{ marginTop: 48, background: 'var(--ink)', color: 'var(--bone)', padding: '28px 36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--brass)', fontWeight: 600 }}>Outcome</div>
-            <div style={{ fontFamily: 'var(--display)', fontSize: 20, fontWeight: 500, color: 'var(--bone)' }}>Your account is ready. <em style={{ color: 'var(--brass)' }}>The next trip you create is live in thirty seconds.</em></div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(244,239,230,0.6)' }}>SETUP COMPLETE · ~15 MIN</div>
+          <div className="outcome-bar">
+            <span className="ob-tag">Outcome</span>
+            <span className="ob-msg">Your account is ready. <em>The next trip you create is live in thirty seconds.</em></span>
+            <span className="ob-meta">Setup Complete · ~15 min</span>
           </div>
         </div>
       </section>
@@ -187,10 +186,10 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          <div style={{ marginTop: 48, background: 'var(--ink)', color: 'var(--bone)', padding: '28px 36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--brass)', fontWeight: 600 }}>Outcome</div>
-            <div style={{ fontFamily: 'var(--display)', fontSize: 20, fontWeight: 500, color: 'var(--bone)' }}>Your 10am charter is <em style={{ color: 'var(--brass)' }}>already live before 8am.</em></div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(244,239,230,0.6)' }}>OPERATOR TIME · &lt; 60 SEC</div>
+          <div className="outcome-bar">
+            <span className="ob-tag">Outcome</span>
+            <span className="ob-msg">Your 10am charter is <em>already live before 8am.</em></span>
+            <span className="ob-meta">Operator Time · &lt; 60 sec</span>
           </div>
         </div>
       </section>
@@ -242,10 +241,10 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          <div style={{ marginTop: 48, background: 'rgba(244,239,230,0.08)', border: '1px solid rgba(244,239,230,0.2)', padding: '28px 36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--brass)', fontWeight: 600 }}>Outcome</div>
-            <div style={{ fontFamily: 'var(--display)', fontSize: 20, fontWeight: 500, color: 'var(--bone)' }}>Every guest is <em style={{ color: 'var(--brass)' }}>verified, signed, and briefed</em> — before they arrive.</div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(244,239,230,0.5)' }}>GUEST TIME · ~3 MIN TOTAL</div>
+          <div className="outcome-bar outcome-bar-dark">
+            <span className="ob-tag">Outcome</span>
+            <span className="ob-msg">Every guest is <em>verified, signed, and briefed</em> — before they arrive.</span>
+            <span className="ob-meta">Guest Time · ~3 min</span>
           </div>
         </div>
       </section>
@@ -290,10 +289,10 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          <div style={{ marginTop: 48, background: 'rgba(244,239,230,0.08)', border: '1px solid rgba(244,239,230,0.2)', padding: '28px 36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--brass)', fontWeight: 600 }}>Outcome</div>
-            <div style={{ fontFamily: 'var(--display)', fontSize: 20, fontWeight: 500, color: 'var(--bone)' }}>The captain&apos;s go/no-go is based on <em style={{ color: 'var(--brass)' }}>what is actually true</em> at this moment.</div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(244,239,230,0.5)' }}>CAPTAIN TIME · &lt; 60 SEC</div>
+          <div className="outcome-bar outcome-bar-dark">
+            <span className="ob-tag">Outcome</span>
+            <span className="ob-msg">The captain&apos;s go/no-go is based on <em>what is actually true</em> at this moment.</span>
+            <span className="ob-meta">Captain Time · &lt; 60 sec</span>
           </div>
         </div>
       </section>
