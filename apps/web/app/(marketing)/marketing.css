@@ -95,7 +95,7 @@ img { max-width: 100%; display: block; }
 .dl-dot { color: var(--rust); margin-right: 6px; }
 
 /* ── HERO & SUBPAGE HERO ──────────────────────────── */
-.hero, .page-hero, .doc-hero { padding: 96px 0 80px; }
+.hero, .page-hero, .doc-hero { padding: 64px 0 56px; }
 .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
 @media(max-width:900px){ .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
 
@@ -109,12 +109,43 @@ img { max-width: 100%; display: block; }
 .hs-value { font-size: 15px; font-weight: 600; color: var(--ink); }
 
 /* ── SECTIONS ─────────────────────────────────────── */
-.block { padding: 112px 0; }
-.block-tight { padding: 64px 0; }
-.section-header { max-width: 640px; margin-bottom: 64px; }
-.section-title { font-size: clamp(32px, 5vw, 48px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 24px; color: var(--ink); }
+.block { padding: 72px 0; }
+.block-tight { padding: 48px 0; }
+.section-header { max-width: 680px; margin-bottom: 48px; }
+.section-title { font-size: clamp(28px, 4.5vw, 44px); font-weight: 700; line-height: 1.12; letter-spacing: -0.025em; margin-bottom: 20px; color: var(--ink); }
 .section-title em { font-style: italic; color: var(--rust); }
-.section-sub { font-size: 18px; line-height: 1.6; color: var(--ink-soft); }
+.section-sub { font-size: 17px; line-height: 1.65; color: var(--ink-soft); }
+
+/* ── DARK SECTION TEXT OVERRIDES ──────────────────────
+   All dark backgrounds must override section-title/sub   
+   because those classes hardcode light-theme colors.     */
+.compliance-section .section-title,
+.principles .section-title,
+.practice-section .section-title,
+.statute-section .section-title,
+.vdp .section-title,
+.not-claimed .section-title { color: var(--bone) !important; }
+
+.compliance-section .section-title em,
+.principles .section-title em,
+.practice-section .section-title em,
+.statute-section .section-title em,
+.vdp .section-title em,
+.not-claimed .section-title em { color: var(--brass) !important; }
+
+.compliance-section .section-sub,
+.principles .section-sub,
+.practice-section .section-sub,
+.statute-section .section-sub,
+.vdp .section-sub,
+.not-claimed .section-sub { color: rgba(244,239,230,0.8) !important; }
+
+.compliance-section .eyebrow,
+.principles .eyebrow,
+.practice-section .eyebrow,
+.statute-section .eyebrow,
+.vdp .eyebrow,
+.not-claimed .eyebrow { color: var(--brass) !important; }
 
 .two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 80px; align-items: start; }
 @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; gap: 48px; } }
@@ -180,7 +211,7 @@ img { max-width: 100%; display: block; }
 .aud-list li::before { content: "→"; position: absolute; left: 0; color: var(--rust); font-weight: 700; }
 
 /* ── COMPLIANCE & DARK SECTIONS ───────────────────── */
-.compliance-section, .principles { background: var(--ink); color: var(--bone); padding: 112px 0; }
+.compliance-section, .principles { background: var(--ink); color: var(--bone); padding: 72px 0; }
 .statute-item { display: grid; grid-template-columns: 240px 1fr; gap: 64px; padding: 48px 0; border-top: 1px solid rgba(244,239,230,0.1); align-items: start; }
 @media(max-width:800px){ .statute-item { grid-template-columns: 1fr; gap: 24px; } }
 .statute-badge { background: var(--brass); color: var(--ink); padding: 4px 10px; font-family: var(--mono); font-size: 10px; font-weight: 700; border-radius: 4px; display: inline-block; margin-bottom: 16px; }
@@ -188,15 +219,15 @@ img { max-width: 100%; display: block; }
 .statute-body { font-size: 16px; line-height: 1.6; color: rgba(244,239,230,0.8); margin-bottom: 20px; }
 .statute-tag { font-family: var(--mono); font-size: 11px; text-transform: uppercase; color: var(--brass); font-weight: 600; }
 
-.principle-stack { border-top: 1px solid rgba(244, 239, 230, 0.2); margin-top: 48px; }
-.principle-item { display: grid; grid-template-columns: 120px 1fr; gap: 48px; padding: 48px 0; border-bottom: 1px solid rgba(244, 239, 230, 0.2); align-items: start; }
-@media (max-width: 720px) { .principle-item { grid-template-columns: 1fr; gap: 16px; } }
-.p-num { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--brass); }
-.p-title { font-size: 24px; font-weight: 700; color: var(--bone); margin-bottom: 16px; }
-.p-body { font-size: 16px; line-height: 1.7; color: rgba(244, 239, 230, 0.7); }
+.principle-stack { border-top: 1px solid rgba(244,239,230,0.2); margin-top: 40px; }
+.principle-item { display: grid; grid-template-columns: 100px 1fr; gap: 40px; padding: 36px 0; border-bottom: 1px solid rgba(244,239,230,0.15); align-items: start; }
+@media (max-width: 720px) { .principle-item { grid-template-columns: 1fr; gap: 12px; } }
+.p-num { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--brass); }
+.p-title { font-size: 21px; font-weight: 700; color: var(--bone); margin-bottom: 12px; }
+.p-body { font-size: 15px; line-height: 1.7; color: rgba(244,239,230,0.82); }
 
 /* ── NOT GRID (About Page) ────────────────────────── */
-.not-block { background: var(--paper); padding: 112px 0; border-top: 1.5px solid var(--line); }
+.not-block { background: var(--paper); padding: 72px 0; border-top: 1.5px solid var(--line); }
 .not-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
 @media (max-width: 900px) { .not-grid { grid-template-columns: 1fr; gap: 48px; } }
 .not-list { display: flex; flex-direction: column; gap: 48px; }
@@ -338,10 +369,7 @@ img { max-width: 100%; display: block; }
 
 /* ── GLOBAL SPACING TIGHTENING ────────────────────────
    Reduce excessive vertical gaps across all doc pages   */
-section.block { padding: 80px 0; }
-section.block-tight { padding: 48px 0; }
-.block { padding: 80px 0; }
-.block-tight { padding: 48px 0; }
+/* spacing handled by base .block rule above (72px) */
 
 /* ── POSTURE PANEL (Security hero callout) ────────────  */
 .posture-panel { background: var(--paper-warm); border: 1.5px solid var(--line); border-radius: var(--r-card); padding: 40px 48px; }
@@ -355,13 +383,13 @@ section.block-tight { padding: 48px 0; }
 .pp-body strong { color: var(--ink); font-weight: 600; }
 
 /* ── PRACTICE SECTIONS (Dark + Light) ────────────────  */
-.practice-section { background: var(--ink); color: var(--bone); padding: 80px 0; }
+.practice-section { background: var(--ink); color: var(--bone); padding: 72px 0; }
 .practice-section .section-title { color: var(--bone); }
 .practice-section .section-title em { color: var(--brass); }
 .practice-section .section-sub { color: rgba(244,239,230,0.7); }
 .practice-section .eyebrow { color: var(--brass); }
 
-.practice-light { background: var(--paper-warm); padding: 80px 0; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+.practice-light { background: var(--paper-warm); padding: 72px 0; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
 
 /* ── PRACTICE STACK (rows within practice sections) ───  */
 .practice-stack { margin-top: 48px; border-top: 1px solid rgba(244,239,230,0.15); }
@@ -392,7 +420,7 @@ section.block-tight { padding: 48px 0; }
 .pr-cell .pr-body { font-size: 14px; line-height: 1.7; color: var(--ink-soft); }
 
 /* ── VDP — Vulnerability Disclosure (Dark) ────────────  */
-.vdp { background: var(--ink); color: var(--bone); padding: 80px 0; }
+.vdp { background: var(--ink); color: var(--bone); padding: 72px 0; }
 .vdp .section-title { color: var(--bone); }
 .vdp .section-title em { color: var(--brass); }
 .vdp .section-sub { color: rgba(244,239,230,0.7); }
@@ -416,7 +444,7 @@ section.block-tight { padding: 48px 0; }
 .vdp-email-bar-addr { font-size: 20px; font-weight: 700; color: var(--bone); }
 
 /* ── TIMELINE SECTION ─────────────────────────────────  */
-.timeline-section { background: var(--bone); border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line); padding: 80px 0; }
+.timeline-section { background: var(--bone); border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line); padding: 72px 0; }
 .tl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
 @media(max-width:900px) { .tl-grid { grid-template-columns: repeat(2, 1fr); } }
 @media(max-width:500px) { .tl-grid { grid-template-columns: 1fr; } }
@@ -434,13 +462,13 @@ section.block-tight { padding: 48px 0; }
 .toc-inner a:hover { color: var(--rust); border-bottom-color: var(--rust); }
 
 /* ── STATUTE SECTION (Dark + Light variants) ──────────  */
-.statute-section { background: var(--ink); color: var(--bone); padding: 80px 0; }
+.statute-section { background: var(--ink); color: var(--bone); padding: 72px 0; }
 .statute-section .section-title { color: var(--bone); }
 .statute-section .section-title em { color: var(--brass); }
 .statute-section .section-sub { color: rgba(244,239,230,0.7); }
 .statute-section .eyebrow { color: var(--brass); }
 
-.statute-light { background: var(--paper-warm); padding: 80px 0; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+.statute-light { background: var(--paper-warm); padding: 72px 0; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
 .statute-light .eyebrow { color: var(--sea); }
 
 /* ── STATUTE STACK (items within statute sections) ────  */
@@ -471,7 +499,7 @@ section.block-tight { padding: 48px 0; }
 .dp-body strong { color: var(--ink); font-weight: 600; }
 
 /* ── NOT-CLAIMED SECTION (Standards — dark) ──────────  */
-.not-claimed { background: var(--ink); color: var(--bone); padding: 80px 0; }
+.not-claimed { background: var(--ink); color: var(--bone); padding: 72px 0; }
 .not-claimed .section-title { color: var(--bone); }
 .not-claimed .section-title em { color: var(--brass); }
 .not-claimed .section-sub { color: rgba(244,239,230,0.7); }
@@ -513,10 +541,10 @@ section.block-tight { padding: 48px 0; }
 .cb-body { font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
 
 /* ── NOT-BLOCK override (ensure bg on how-it-works) ──  */
-.not-block { background: var(--paper); padding: 80px 0; }
+.not-block { background: var(--paper); padding: 72px 0; }
 
 /* ── PRINCIPLE STACK (dark sections) — shared ────────  */
-.principles { background: var(--ink); color: var(--bone); padding: 80px 0; }
+.principles { background: var(--ink); color: var(--bone); padding: 72px 0; }
 .principles .eyebrow { color: var(--brass); }
 .principles .section-title { color: var(--bone); }
 .principles .section-title em { color: var(--brass); }
