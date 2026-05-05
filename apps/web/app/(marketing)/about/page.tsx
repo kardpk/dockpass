@@ -91,7 +91,7 @@ export default function AboutPage() {
 </section>
 
 {/*  ═══ WHO WE SERVE ═══  */}
-<section className="block-tight" style={{ paddingBottom: '112px' }}>
+<section style={{ padding: '48px 0 72px', background: 'var(--paper)', position: 'relative', zIndex: 1 }}>
   <div className="container">
     <div className="section-header">
       <span className="eyebrow brass">Who we serve</span>
