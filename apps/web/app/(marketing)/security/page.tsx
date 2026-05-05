@@ -52,7 +52,7 @@ export default function SecurityPage() {
 </section>
 
 {/*  ═══ PRINCIPLES GRID ═══  */}
-<section className="block-tight" style={{ paddingTop: '0' }}>
+<section className="block-tight" style={{ paddingTop: '0', background: 'var(--paper)', isolation: 'isolate', position: 'relative', zIndex: 1 }}>
   <div className="container">
     <div className="section-header">
       <span className="eyebrow">Principles we build to</span>
