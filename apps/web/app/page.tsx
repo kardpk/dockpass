@@ -3,13 +3,13 @@ import './(marketing)/marketing.css'
 import HomepageBody from './HomepageBody'
 
 export const metadata: Metadata = {
-  title: 'Boatcheckin — The record of every charter trip, kept in order',
+  title: 'Boatcheckin — Compliance records for every charter trip',
   description:
-    'Recordkeeping software for Florida charter operators. Document waivers, safety briefings, manifests, and the audit trail regulators ask for. Free for solo captains and small charters.',
+    'Compliance recordkeeping software for Florida charter operators. Signed waivers, safety briefings, manifests, and audit trails. Hash-verified, retained for years, exportable on demand. Free for solo captains.',
   openGraph: {
-    title: 'Boatcheckin — The record of every charter trip, kept in order',
+    title: 'Boatcheckin — Compliance records for every charter trip',
     description:
-      'One link. Every guest documented, every waiver hashed, every briefing recorded.',
+      'The complete compliance record for every trip you run. Hash-verified. Retained. Defensible.',
     type: 'website',
     url: 'https://boatcheckin.com',
     siteName: 'Boatcheckin',
@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Boatcheckin — The record of every charter trip',
+    title: 'Boatcheckin — Compliance records for every charter trip',
     description:
-      'Documentation software for Florida charter operators. Aligned with SB 606, 46 CFR §185.506, FWC Ch. 327. Free for solo captains.',
+      'Compliance recordkeeping for Florida charter operators. Free for solo captains and charters up to 3 boats.',
   },
 }
 
