@@ -3,325 +3,270 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'About — Boatcheckin',
-  description: 'Boatcheckin is recordkeeping software for charter operators. Built for captains who want a clean record of every trip — before anyone has to ask.',
+  description:
+    'Boatcheckin is a compliance recordkeeping platform for charter operators. What we do, what we don\'t do, and the operating principles that guide both.',
+  openGraph: {
+    title: 'About Boatcheckin',
+    description: 'Compliance recordkeeping for charter operators. The record is the product.',
+    type: 'website',
+    url: 'https://boatcheckin.com/about',
+  },
 }
 
 export default function AboutPage() {
   return (
     <>
-      {/*  ═══ DATELINE ═══  */}
-<div className="dateline">
-  <div className="container">
-    <div className="dateline-inner">
-      <div><span className="dl-dot">●</span> ABOUT — BOATCHECKIN</div>
-      <div>ST. PETERSBURG · FLORIDA</div>
-      <div id="todayDate">CAPTAIN'S LOG — TODAY</div>
-    </div>
-  </div>
-</div>
-
-{/*  ═══ HERO ═══  */}
-<section className="page-hero">
-  <div className="container">
-    <span className="eyebrow">About Boatcheckin</span>
-    <h1>
-      A clean record<br/>
-      of every trip.<br/>
-      <em>That's the whole idea.</em>
-    </h1>
-    <p className="lede">
-      Boatcheckin is recordkeeping software for charter operators. We help captains document the waivers, safety briefings, manifests, and audit trail that a regulator, an insurer, or an attorney might eventually ask to see without paper clipboards, without chaos at the dock, and without handing an operator's discretion over to a piece of software.
-    </p>
-  </div>
-</section>
-
-{/*  ═══ WHAT WE ARE ═══  */}
-<section className="block" style={{ paddingTop: '48px' }}>
-  <div className="container">
-    <div className="two-col">
-      <div>
-        <span className="eyebrow sea">What Boatcheckin is</span>
-        <h2 className="section-title">Documentation,<br/><em>not a replacement</em><br/>for the captain.</h2>
-      </div>
-      <div className="prose">
-        <p><strong>Boatcheckin is a purpose-built recordkeeping layer for the moments between a booking confirmation and lines off the dock.</strong> One shareable trip link goes out; every guest self-registers, signs a waiver the operator chose, and acknowledges each safety item before boarding. The captain starts the trip when the record is clean.</p>
-       <p>Everything a regulator, insurer, or attorney might ask about who was aboard, what they were told, what they agreed to, and when is captured, hashed, timestamped, and retained on file. The software doesn't draft waivers, interpret statutes, or make operational calls. Operators direct; Boatcheckin records.</p>
-        <p>We are a software platform, not a law firm, not an insurance broker, and not a certifying body. The captain is still the captain of the vessel. We just make sure nothing about the trip disappears into a damp clipboard.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-{/*  ═══ WHAT WE DO — 2x2 FLOW ═══  */}
-<section className="block" style={{ paddingTop: '32px' }}>
-  <div className="container">
-    <div className="section-header">
-      <span className="eyebrow">What we do, in four verbs</span>
-      <h2 className="section-title">Document. Organize. Retain. <em>Prove.</em></h2>
-      <p className="section-sub">Every feature in Boatcheckin maps to one of these four. If a feature doesn't strengthen the record, it doesn't ship.</p>
-    </div>
-
-    <div className="flow-grid">
-      <div className="flow-cell">
-        <span className="fc-num">01</span>
-        <span className="fc-label">Document</span>
-        <div className="fc-title">Capture the trip, the people, and their consent.</div>
-       <div className="fc-body">Guest identity, emergency contact, waiver signature, safety-card acknowledgments, captain attestations. Collected once, per trip, from the guest's own phone no app install, no friction.</div>
-      </div>
-      <div className="flow-cell">
-        <span className="fc-num">02</span>
-        <span className="fc-label">Organize</span>
-        <div className="fc-title">Keep the record shaped the way an auditor reads it.</div>
-        <div className="fc-body">Per trip. Per vessel. Per operator. Manifests generated in USCG format. Per-card briefing delivery with timestamps. Everything exportable as PDF or CSV on demand, without support tickets.</div>
-      </div>
-      <div className="flow-cell">
-        <span className="fc-num">03</span>
-        <span className="fc-label">Retain</span>
-        <div className="fc-title">Hold the record as long as the operator's statute requires.</div>
-        <div className="fc-body">Compliance-relevant records are retained for the period the operator's jurisdiction specifies. Marketing-linked data is cleared on a rolling 90-day cycle unless guests opt in. Every retention window is exportable before it closes.</div>
-      </div>
-      <div className="flow-cell">
-        <span className="fc-num">04</span>
-        <span className="fc-label">Prove</span>
-        <div className="fc-title">Show the record is what it was when the trip happened.</div>
-       <div className="fc-body">Waiver and attestation records are cryptographically hashed any modification is detectable. Every state change is logged. When a question comes two years later, the answer is already on file, with its integrity intact.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{/*  ═══ WHO WE SERVE ═══  */}
-<section style={{ padding: '48px 0 72px', background: 'var(--paper)', position: 'relative', zIndex: 1 }}>
-  <div className="container">
-    <div className="section-header">
-      <span className="eyebrow brass">Who we serve</span>
-      <h2 className="section-title">Operators who carry<br/>the <em>responsibility</em> themselves.</h2>
-     <p className="section-sub">Boatcheckin is built for the small end of the charter fleet where the captain, the owner, and the compliance officer are often the same person. The tooling scales up, but the first user we design for is the one standing on the dock at 0630 with a clipboard in one hand and coffee in the other.</p>
-    </div>
-
-    <div className="audience-grid">
-      <div className="aud-card">
-        <span className="aud-tag">Tier One</span>
-        <div className="aud-title">Solo <em>captains.</em></div>
-       <div className="aud-body">Licensed captains running one vessel, often charter-by-charter through a booking platform. They carry every obligation personally and they get Boatcheckin free, without time limit.</div>
-        <ul className="aud-list">
-          <li>Unlimited trips and guests</li>
-          <li>Core recordkeeping features</li>
-          <li>No credit card, no expiration</li>
-        </ul>
-      </div>
-
-      <div className="aud-card featured">
-        <span className="aud-tag">Tier Two</span>
-        <div className="aud-title">Small charter <em>companies.</em></div>
-       <div className="aud-body">Two to ten vessels, a small dispatch operation, multiple captains on the schedule. The record has to be consistent across crew which is where clipboards start to show gaps.</div>
-        <ul className="aud-list">
-          <li>Multi-boat, multi-captain dashboards</li>
-          <li>Role-based access within the operator</li>
-          <li>Branded guest-facing experience</li>
-        </ul>
-      </div>
-
-      <div className="aud-card">
-        <span className="aud-tag">Tier Three</span>
-        <div className="aud-title">Marinas &amp; <em>fleets.</em></div>
-       <div className="aud-body">Marinas and fleet operators who need a trip record across many captains and many hulls and who answer to a commercial insurer, a property owner, or a port authority when something happens.</div>
-        <ul className="aud-list">
-          <li>Fleet-level reporting &amp; exports</li>
-          <li>Single record across all vessels</li>
-          <li>Commercial pilot program on request</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-{/*  ═══ WHY WE BUILT IT ═══  */}
-<section className="block" style={{ background: 'var(--paper-warm)', borderTop: '1px solid var(--line-soft)', borderBottom: '1px solid var(--line-soft)', zIndex: 1, position: 'relative' }}>
-  <div className="container">
-    <div className="two-col">
-      <div>
-        <span className="eyebrow">Why we built it</span>
-        <h2 className="section-title">The answer to<br/>&quot;where is the paperwork&quot;<br/><em>should never be</em><br/>&quot;somewhere on the boat.&quot;</h2>
-      </div>
-      <div className="prose">
-       <p>Most charter operators we've talked to can describe, in detail, the one bad moment that changed how they think about documentation. A guest made a claim months after a trip. An insurer asked for the signed waiver. A regulator wanted the manifest from a specific date. And the record if it existed at all was a water-stained page in a binder under the helm seat, or a photo buried in a captain's camera roll.</p>
-       <p>Charter operators don't lack diligence. They lack <strong>a place for the diligence to land</strong> something that captures the briefing, the signature, and the head count at the moment they happen, and keeps them in a shape the next person who asks can actually read.</p>
-       <p>That's the gap Boatcheckin fills. Not insurance. Not legal advice. Not a replacement for good judgment on the water. Just a clean record, kept the way a small operation needs it kept before anyone has to ask.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-{/*  ═══ PRINCIPLES (DARK) ═══  */}
-<section className="principles">
-  <div className="container">
-    <div className="section-header">
-      <span className="eyebrow light">How we think about our work</span>
-      <h2 className="section-title">Five principles<br/>we hold to <em>on purpose.</em></h2>
-      <p className="section-sub">These aren't values in the brochure sense. They're the decisions we've had to make more than once, written down so we don't have to make them again.</p>
-    </div>
-
-    <div className="principle-stack">
-      <div className="principle-item">
-        <div className="p-num">I.</div>
-        <div>
-          <div className="p-title">Operator-first, always.</div>
-         <div className="p-body">The captain is the operator of record. We don't route around that. Every feature either serves the captain's judgment or gets out of the way. Guests are served because the operator chooses to serve them not because Boatcheckin demands it.</div>
-        </div>
-      </div>
-
-      <div className="principle-item">
-        <div className="p-num">II.</div>
-        <div>
-          <div className="p-title">Evidence, not advice.</div>
-          <div className="p-body">We record what operators direct. We don't draft waivers, interpret statutes, or tell a captain what to say at the briefing. Those are the operator's decisions, reviewed with the operator's attorney. Our job is to hold the record of what was decided.</div>
-        </div>
-      </div>
-
-      <div className="principle-item">
-        <div className="p-num">III.</div>
-        <div>
-          <div className="p-title">Free where it matters.</div>
-         <div className="p-body">Solo captains the tier carrying the most personal exposure with the least commercial cushion get Boatcheckin free, with no time limit and no artificial feature gates. That's a structural commitment. Pricing lives further up the stack.</div>
-        </div>
-      </div>
-
-      <div className="principle-item">
-        <div className="p-num">IV.</div>
-        <div>
-          <div className="p-title">Built to survive two years of silence.</div>
-         <div className="p-body">Most records are looked at once, if ever and when they are, it's long after the trip. We design the record to hold up under that kind of delay: hashed for integrity, exportable without us, legible without training, retained for the statutory window.</div>
-        </div>
-      </div>
-
-      <div className="principle-item">
-        <div className="p-num">V.</div>
-        <div>
-          <div className="p-title">Boring where it counts.</div>
-         <div className="p-body">Compliance tooling that tries to feel like a consumer app usually ends up serving neither. We make the dramatic parts fast and the important parts boring manifests look like manifests, waivers look like waivers, and the record reads the way the next person expects it to read.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{/*  ═══ WHAT WE DON'T DO ═══  */}
-<section className="not-block">
-  <div className="container">
-    <div className="section-header" style={{ marginBottom: '40px' }}>
-      <span className="eyebrow">What Boatcheckin is not</span>
-      <h2 className="section-title">As important as<br/>what <em>we do.</em></h2>
-      <p className="section-sub">A lot of the clarity in this product comes from the work we've chosen not to take on. This section is how we state that out loud.</p>
-    </div>
-
-    <div className="not-grid">
-      <div className="not-list">
-        <div className="not-row">
-          <div className="not-x">✕</div>
-          <div>
-            <div className="not-title">Not a law firm.</div>
-            <div className="not-body">Nothing on this site is legal advice. Waiver text, briefing content, and operational decisions remain the operator's to author and review with a licensed attorney. Statutory references on our pages are descriptive, not interpretive.</div>
+      {/* ═══ HERO ═══ */}
+      <section className="hero" style={{ paddingBottom: 72 }}>
+        <div className="w">
+          <div style={{ maxWidth: 800 }}>
+            <div className="lbl lbl-inv" style={{ marginBottom: 16 }}>About Boatcheckin</div>
+            <h1 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(32px,4.8vw,52px)', fontWeight: 700, color: '#e8e8e0', lineHeight: 1.12, letterSpacing: '-0.02em', marginBottom: 20 }}>
+              The record is what we do.<br />Everything else is someone else&rsquo;s job.
+            </h1>
+            <p style={{ fontSize: 18, lineHeight: 1.6, color: 'rgba(232,232,224,0.65)', maxWidth: 620, marginBottom: 10 }}>
+              Boatcheckin is a compliance recordkeeping platform for charter operators. We capture waivers, safety briefings, manifests, and audit trails for every trip you run. We do not offer legal advice, insurance, compliance certification, or booking services.
+            </p>
+            <p style={{ fontSize: 14, color: 'rgba(232,232,224,0.35)', marginBottom: 30 }}>
+              That last sentence is not a disclaimer. It is how we stay useful.
+            </p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <Link href="/signup" className="btn btn-gold btn-lg">Start Free</Link>
+              <a href="#scope" className="btn btn-ghost btn-lg">Read more</a>
+            </div>
           </div>
         </div>
-        <div className="not-row">
-          <div className="not-x">✕</div>
-          <div>
-            <div className="not-title">Not an insurance broker or carrier.</div>
-           <div className="not-body">Boatcheckin does not sell, solicit, negotiate, bind, or service insurance. Where insurance partners are referenced, they are licensed agents and carriers we receive a fixed referral fee per qualifying lead, paid regardless of policy outcome.</div>
+      </section>
+
+      {/* ═══ SCOPE — WHAT WE DO ═══ */}
+      <section className="sec" id="scope">
+        <div className="w">
+          <div className="lbl">What we do</div>
+          <h2>A recordkeeping layer for the hours between booking and boarding.</h2>
+          <p className="sec-sub">Positioned after the reservation, before the trip. Built for the documentation moment that most platforms skip entirely.</p>
+          <div className="scope-grid">
+            <div className="scope-block">
+              <h3>The operator directs. Boatcheckin records.</h3>
+              <p>One shareable trip link goes out to the booker. Every guest self-registers, signs the waiver the operator chose, and acknowledges each safety item individually before boarding. The captain reviews the manifest at the dock and confirms departure. At that moment, the record is complete and sealed.</p>
+              <p>The software captures decisions operators make. It does not make decisions on their behalf. Waiver text, briefing content, go/no-go calls, and passenger-count decisions remain entirely with the operator and captain.</p>
+            </div>
+            <div className="scope-block">
+              <h3>Hash-verified. Retained. Available when asked.</h3>
+              <p>Every waiver is SHA-256 hashed at the moment of signing. The exact text the guest saw, their signature, the timestamp, and the device metadata are bound together. Any modification after signing is detectable.</p>
+              <p>Compliance records are retained for the period the operator&rsquo;s jurisdiction requires. Default minimum is five years. Every record is exportable as a complete PDF package on demand. When a regulator, insurer, or attorney asks for the documentation from a specific trip 18 months ago, the answer is not in a filing cabinet. It is one search away.</p>
+            </div>
           </div>
         </div>
-        <div className="not-row">
-          <div className="not-x">✕</div>
-          <div>
-            <div className="not-title">Not a certifying body.</div>
-           <div className="not-body">Using Boatcheckin does not certify an operator as compliant with any statute. Compliance is the operator's responsibility. Our tooling supports the documentation that compliance requires it does not attest to it on the operator's behalf.</div>
+      </section>
+
+      {/* ═══ WHAT IT IS NOT ═══ */}
+      <section className="sec sec-alt" id="not">
+        <div className="w">
+          <div className="lbl">Scope limits</div>
+          <h2>What Boatcheckin is not.</h2>
+          <p className="sec-sub">These are stated early because they matter to operators making a compliance decision. Clarity about limits is part of the product.</p>
+          <div className="not-card-grid">
+            {[
+              ['Not a law firm', 'Nothing on this site is legal advice. Waiver text, briefing content, and compliance decisions remain yours, reviewed with your licensed attorney. We capture what you decide. We do not decide for you.'],
+              ['Not an insurance broker', 'Boatcheckin does not sell, solicit, negotiate, bind, or service insurance. Where insurance partners appear, they are licensed agents and carriers. Boatcheckin receives a fixed referral fee per qualifying lead, regardless of whether a policy is purchased.'],
+              ['Not a certifying body', 'Using Boatcheckin does not certify an operator as compliant with any statute. Compliance is the operator\'s responsibility. Our tooling supports the documentation that compliance requires. It does not attest to compliance on your behalf.'],
+              ['Not a booking platform', 'Boatcheckin sits after the booking, not in it. We connect to the platforms operators already use for reservations. The trip arrives in our system with a confirmed guest list. What follows is recordkeeping, not sales.'],
+              ['Not a substitute for the captain', 'No software makes the go/no-go call. No software signs the manifest. No software takes responsibility for what happens on the water. The captain directs. Boatcheckin records. That boundary is designed to be unambiguous.'],
+              ['Not a data broker', 'Guest information belongs to the operator of record and to the guest. We do not sell it, license it, or build advertising profiles from it. Retention follows the statutory window for compliance records and a short rolling cycle for everything else.'],
+            ].map(([title, desc]) => (
+              <div className="not-card" key={title}>
+                <div className="not-x-icon">✕</div>
+                <h4>{title}</h4>
+                <p>{desc}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="not-list">
-        <div className="not-row">
-          <div className="not-x">✕</div>
-          <div>
-            <div className="not-title">Not a booking platform.</div>
-            <div className="not-body">Boatcheckin sits after the booking, not in it. We integrate with the platforms operators already use for reservations. The trip arrives in our system with a confirmed guest list; what happens next is recordkeeping, not sales.</div>
+      {/* ═══ FOUR VERBS ═══ */}
+      <section className="sec sec-dark" id="verbs">
+        <div className="w">
+          <div className="lbl lbl-inv">The product in four words</div>
+          <h2>Document. Organize. Retain. Prove.</h2>
+          <p className="sec-sub">Every feature in Boatcheckin maps to one of these four. If a feature does not strengthen the record, it does not ship.</p>
+          <div className="verb-strip">
+            <div className="verb-cell">
+              <div className="verb-n">01</div>
+              <div className="verb-word">Document</div>
+              <p>Capture the trip, the people, and their consent. Guest identity, emergency contact, waiver signature, safety-card acknowledgments, captain attestation. Collected from the guest&rsquo;s own phone. No clipboard, no duplicate entry.</p>
+            </div>
+            <div className="verb-cell">
+              <div className="verb-n">02</div>
+              <div className="verb-word">Organize</div>
+              <p>Keep the record in the shape an auditor expects to read it. Per trip, per vessel, per operator. Manifests in USCG format. Per-card briefing delivery with timestamps. Exportable as PDF or CSV on demand, without support tickets.</p>
+            </div>
+            <div className="verb-cell">
+              <div className="verb-n">03</div>
+              <div className="verb-word">Retain</div>
+              <p>Hold the record as long as the statute requires. Compliance records retained for the window the operator&rsquo;s jurisdiction specifies, with a five-year minimum default. Marketing-linked data cleared on a rolling 90-day cycle unless guests opt in.</p>
+            </div>
+            <div className="verb-cell">
+              <div className="verb-n">04</div>
+              <div className="verb-word">Prove</div>
+              <p>Show the record is exactly what it was when the trip happened. Waiver records are SHA-256 hashed. Every state change is logged. When a question arrives two years later, the answer is already on file with its integrity intact.</p>
+            </div>
           </div>
         </div>
-        <div className="not-row">
-          <div className="not-x">✕</div>
-          <div>
-            <div className="not-title">Not a substitute for the captain.</div>
-           <div className="not-body">No software makes the go/no-go call. No software signs the manifest. No software takes responsibility for what happens on the water. A clean record supports the captain's judgment it does not replace it, and we design so that boundary is never ambiguous.</div>
+      </section>
+
+      {/* ═══ WHO WE SERVE ═══ */}
+      <section className="sec" id="operators">
+        <div className="w">
+          <div className="lbl">Who we serve</div>
+          <h2>Operators who carry the responsibility themselves.</h2>
+          <p className="sec-sub">Built for the small end of the charter fleet, where the captain, owner, and compliance officer are often the same person. The tooling scales, but the first user we design for is the one with the most personal exposure and the least institutional support.</p>
+          <div className="tier-grid">
+            <div className="tier-card">
+              <div className="tier-tag">Solo captains</div>
+              <h3>One boat. Free, forever.</h3>
+              <p>Licensed captains running one vessel through a booking platform or direct. Carrying every compliance obligation personally. Solo tier has no time limit and no artificial feature gates. The tier with the highest personal exposure gets the lowest price.</p>
+              <ul className="tier-list">
+                <li>Unlimited trips and guests</li>
+                <li>Full guest flow, waivers, captain snapshot</li>
+                <li>No credit card required</li>
+              </ul>
+            </div>
+            <div className="tier-card">
+              <div className="tier-tag">Charter companies</div>
+              <h3>Up to 3 boats. Also free.</h3>
+              <p>Small charter operations running two to three vessels with a crew on the schedule. The record has to be consistent across captains. Multi-boat dashboard, captain roster per vessel, seven guest languages with audio briefings.</p>
+              <ul className="tier-list">
+                <li>Multi-boat dashboard</li>
+                <li>Captain roster and credentials</li>
+                <li>7 guest languages + audio briefings</li>
+              </ul>
+            </div>
+            <div className="tier-card">
+              <div className="tier-tag">Fleets and marinas</div>
+              <h3>4+ boats. From $99/month.</h3>
+              <p>Resort properties, rental marinas, and commercial fleet operations running 8 or more vessels daily. Dock staff fulfillment, qualification checks for self-drive renters, pre-trip add-on ordering, and FareHarbor webhook integration.</p>
+              <ul className="tier-list">
+                <li>Unified fleet dashboard</li>
+                <li>FareHarbor and booking platform integration</li>
+                <li>Dock fulfillment, self-drive qualification</li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div className="not-row">
-          <div className="not-x">✕</div>
-          <div>
-            <div className="not-title">Not a data broker.</div>
-            <div className="not-body">Guest information belongs to the operator of record and to the guest. We don't sell it. We don't license it. We don't build lookalike audiences from it. Retention follows the statutory window for compliance records and a short cycle for everything else.</div>
+      </section>
+
+      {/* ═══ ORIGIN / WHY THIS EXISTS ═══ */}
+      <section className="sec sec-mid" id="origin">
+        <div className="w">
+          <div className="lbl">Why this exists</div>
+          <h2>The record that should have been there.</h2>
+          <div className="origin-inner">
+            <p>Most charter operators can describe, precisely, the moment that changed how they think about documentation. Not in general terms. In specific ones.</p>
+            <div className="scenario-strip">
+              <div className="scenario-row">
+                <div className="sr-tag">Scenario 01</div>
+                <div className="sr-body">A guest files a personal injury claim four months after a trip. The operator&rsquo;s insurer asks for the signed release and the safety briefing record. The paper waiver is in a binder somewhere on the boat. The guest disputes whether they were told about the no-swimming rule.</div>
+              </div>
+              <div className="scenario-row">
+                <div className="sr-tag">Scenario 02</div>
+                <div className="sr-body">A USCG inspection at the dock. The officer asks for the passenger manifest for the previous voyage. The captain has a handwritten list of names. Whether it satisfies 46 CFR §185.506 is now a question the captain has to answer in real time.</div>
+              </div>
+              <div className="scenario-row">
+                <div className="sr-tag">Scenario 03</div>
+                <div className="sr-body">An insurer requests documentation for a trip from 14 months ago while evaluating a policy renewal. The relevant paperwork is gone, illegible, or was never created in a form anyone outside the operation could interpret.</div>
+              </div>
+            </div>
+            <p>Charter operators do not lack diligence. They lack <strong>a place for the diligence to land</strong>: something that captures the briefing, the signature, and the head count at the moment they happen, and holds them in a shape the next person who asks can actually use.</p>
+            <p>Boatcheckin is that place. Not an improvement on paper. A replacement for it, built around the legal standards the record is eventually measured against.</p>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
-{/*  ═══ CORPORATE ═══  */}
-<section style={{ padding: '64px 0', background: 'var(--off, #f5f7fa)', borderTop: '1px solid var(--border, #dde2ea)', borderBottom: '1px solid var(--border, #dde2ea)' }}>
-  <div className="w">
-    <div className="lbl">Corporate</div>
-    <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(22px, 2.8vw, 28px)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.015em', marginBottom: 24 }}>
-      The entity behind the product.
-    </h2>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
-      <div className="card">
-        <div className="lbl" style={{ marginBottom: 8 }}>Legal entity</div>
-        <p style={{ fontSize: 15, color: 'var(--ink)', fontWeight: 600, marginBottom: 4 }}>Oakmont Logic LLC</p>
-        <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
-          A Wyoming-registered limited liability company with a Florida mailing address.
-          Boatcheckin is a product of Oakmont Logic LLC.
-        </p>
-      </div>
-      <div className="card">
-        <div className="lbl" style={{ marginBottom: 8 }}>Mailing address</div>
-        <address style={{ fontStyle: 'normal', fontSize: 14, color: 'var(--body)', lineHeight: 1.7 }}>
-          Oakmont Logic LLC<br/>
-          7901 4th St N, Suite 8722<br/>
-          St. Petersburg, FL 33702<br/>
-          United States
-        </address>
-      </div>
-      <div className="card">
-        <div className="lbl" style={{ marginBottom: 8 }}>Contact</div>
-        <p style={{ fontSize: 14, color: 'var(--body)', lineHeight: 1.7 }}>
-          General: <a href="mailto:hello@boatcheckin.com" style={{ color: 'var(--gold-text)' }}>hello@boatcheckin.com</a><br/>
-          Support: <a href="mailto:support@boatcheckin.com" style={{ color: 'var(--gold-text)' }}>support@boatcheckin.com</a><br/>
-          Phone: <a href="tel:+17865097869" style={{ color: 'var(--gold-text)' }}>+1 (786) 509-7869</a>
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+      {/* ═══ PRINCIPLES ═══ */}
+      <section className="sec sec-dark" id="principles">
+        <div className="w">
+          <div className="lbl lbl-inv">Operating principles</div>
+          <h2>Five decisions we have made more than once.</h2>
+          <p className="sec-sub">These are not values in the brochure sense. They are decisions written down so they do not have to be made again.</p>
+          <div className="prin-grid">
+            <div className="prin-card">
+              <div className="prin-n">Principle I</div>
+              <h4>Operator-first, always</h4>
+              <p>The captain is the operator of record. Boatcheckin does not route around that. Every feature either serves the captain&rsquo;s judgment or gets out of the way. Guests are documented because the operator chooses to document them.</p>
+            </div>
+            <div className="prin-card">
+              <div className="prin-n">Principle II</div>
+              <h4>Evidence, not advice</h4>
+              <p>We record what operators direct. We do not draft waivers, interpret statutes, or tell a captain what to say at the briefing. Those are the operator&rsquo;s decisions, reviewed with their attorney. Our job is to hold the record of what was decided.</p>
+            </div>
+            <div className="prin-card">
+              <div className="prin-n">Principle III</div>
+              <h4>Free where it matters most</h4>
+              <p>Solo captains carry the most personal exposure with the least commercial cushion. They get Boatcheckin free, without time limit, without artificial feature gates. That is a structural commitment, not a promotional tactic. Pricing lives further up the stack.</p>
+            </div>
+            <div className="prin-card">
+              <div className="prin-n">Principle IV</div>
+              <h4>Built to survive two years of silence</h4>
+              <p>Most records are looked at once, if ever. When they are, it is long after the trip. We design the record to hold up under that delay: hashed for integrity, exportable without us, legible without training, retained for the full statutory window.</p>
+            </div>
+            <div className="prin-card prin-full">
+              <div className="prin-n">Principle V</div>
+              <h4>Boring where it counts</h4>
+              <p>Compliance tooling that tries to feel like a consumer app usually ends up serving neither purpose. We make the dramatic parts fast and the important parts boring. Manifests look like manifests. Waivers look like waivers. The record reads the way the next person who asks for it expects it to read.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-{/*  ═══ FINAL CTA ═══  */}
-<section className="final-cta">
-  <div className="container">
-    <div className="fca-grid">
-      <div>
-        <h2 className="fca-h">Now you know us.<br/><em>Let us meet the boat.</em></h2>
-        <p className="fca-sub">Set up your first vessel in under 10 minutes. Send your first guest link by tonight. Start the record on a clean page.</p>
-      </div>
-      <div className="fca-stack">
-       <a href="/signup" className="btn">Start Free · 10-min Setup →</a>
-        <a href="/contact" className="btn btn-outline">Talk to Us First</a>
-      </div>
-    </div>
-  </div>
-</section>
+      {/* ═══ THE ENTITY ═══ */}
+      <section className="sec" id="entity">
+        <div className="w">
+          <div className="lbl">The company</div>
+          <h2>Oakmont Logic LLC, doing business as Boatcheckin.</h2>
+          <div className="entity-grid">
+            <div className="entity-item">
+              <h4>Legal entity</h4>
+              <p>Oakmont Logic LLC is a limited liability company organized under the laws of Wyoming. Boatcheckin is a product of Oakmont Logic LLC. The company has a Florida mailing address and operates primarily in the Florida charter operator market.</p>
+            </div>
+            <div className="entity-item">
+              <h4>Mailing address</h4>
+              <address>
+                Oakmont Logic LLC<br />
+                7901 4th St N, #8722<br />
+                St. Petersburg, FL 33702<br />
+                United States
+              </address>
+            </div>
+            <div className="entity-item">
+              <h4>Contact</h4>
+              <p>
+                General: <a href="mailto:hello@boatcheckin.com">hello@boatcheckin.com</a><br />
+                Support: <a href="mailto:support@boatcheckin.com">support@boatcheckin.com</a><br />
+                Legal: <a href="mailto:legal@boatcheckin.com">legal@boatcheckin.com</a><br />
+                Phone: <a href="tel:+17865097869">+1 (786) 509-7869</a>
+              </p>
+            </div>
+          </div>
+          <div className="entity-divider" />
+          <p style={{ fontSize: 13.5, color: 'var(--muted)', maxWidth: 700, lineHeight: 1.65 }}>
+            The legal pages on this site (Privacy Policy, Terms of Service, Acceptable Use Policy, Guest Notice, Cookie Notice, DMCA Policy) govern the use of Boatcheckin and the handling of operator and guest data. Those pages are available in the footer and at each linked URL.
+          </p>
+        </div>
+      </section>
 
-
-{/*  ═══ FOOTER ═══  */}
+      {/* ═══ CTA ═══ */}
+      <section className="cta">
+        <div className="w">
+          <div className="lbl lbl-inv" style={{ display: 'block', textAlign: 'center', marginBottom: 12 }}>Ready to start</div>
+          <h2>Set up the record. Ready for your next booking.</h2>
+          <p>Free for solo captains and charter operators with up to three boats. No credit card required.</p>
+          <div className="cta-btns">
+            <Link href="/signup" className="btn btn-gold btn-lg">Start Free</Link>
+            <Link href="/contact" className="btn btn-ghost btn-lg">Contact us</Link>
+          </div>
+        </div>
+      </section>
     </>
   )
 }
