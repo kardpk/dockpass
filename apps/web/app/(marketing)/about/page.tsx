@@ -267,6 +267,43 @@ export default function AboutPage() {
   </div>
 </section>
 
+{/*  ═══ CORPORATE ═══  */}
+<section style={{ padding: '64px 0', background: 'var(--off, #f5f7fa)', borderTop: '1px solid var(--border, #dde2ea)', borderBottom: '1px solid var(--border, #dde2ea)' }}>
+  <div className="w">
+    <div className="lbl">Corporate</div>
+    <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(22px, 2.8vw, 28px)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.015em', marginBottom: 24 }}>
+      The entity behind the product.
+    </h2>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
+      <div className="card">
+        <div className="lbl" style={{ marginBottom: 8 }}>Legal entity</div>
+        <p style={{ fontSize: 15, color: 'var(--ink)', fontWeight: 600, marginBottom: 4 }}>Oakmont Logic LLC</p>
+        <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
+          A Wyoming-registered limited liability company with a Florida mailing address.
+          Boatcheckin is a product of Oakmont Logic LLC.
+        </p>
+      </div>
+      <div className="card">
+        <div className="lbl" style={{ marginBottom: 8 }}>Mailing address</div>
+        <address style={{ fontStyle: 'normal', fontSize: 14, color: 'var(--body)', lineHeight: 1.7 }}>
+          Oakmont Logic LLC<br/>
+          7901 4th St N, Suite 8722<br/>
+          St. Petersburg, FL 33702<br/>
+          United States
+        </address>
+      </div>
+      <div className="card">
+        <div className="lbl" style={{ marginBottom: 8 }}>Contact</div>
+        <p style={{ fontSize: 14, color: 'var(--body)', lineHeight: 1.7 }}>
+          General: <a href="mailto:hello@boatcheckin.com" style={{ color: 'var(--gold-text)' }}>hello@boatcheckin.com</a><br/>
+          Support: <a href="mailto:support@boatcheckin.com" style={{ color: 'var(--gold-text)' }}>support@boatcheckin.com</a><br/>
+          Phone: <a href="tel:+17865097869" style={{ color: 'var(--gold-text)' }}>+1 (786) 509-7869</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 {/*  ═══ FINAL CTA ═══  */}
 <section className="final-cta">
   <div className="container">
@@ -282,6 +319,7 @@ export default function AboutPage() {
     </div>
   </div>
 </section>
+
 
 {/*  ═══ FOOTER ═══  */}
     </>
