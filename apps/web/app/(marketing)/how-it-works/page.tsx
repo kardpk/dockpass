@@ -1,433 +1,394 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { HowItWorksFAQ } from '@/components/marketing/HowItWorksFAQ'
 
 export const metadata: Metadata = {
   title: 'How it Works — Boatcheckin',
-  description: 'From booking confirmation to cleared to board. How Boatcheckin fits into a charter day — setup, per-trip flow, guest experience, captain snapshot, and the sealed record.',
+  description:
+    'How a complete compliance record gets built for every charter trip. Setup, per-trip flow, guest experience, captain snapshot, and the sealed record — in plain language.',
+  openGraph: {
+    title: 'How it Works — Boatcheckin',
+    description:
+      'Five steps. Two are yours. Here is how the compliance record gets built for every trip you run.',
+    type: 'website',
+    url: 'https://boatcheckin.com/how-it-works',
+  },
+}
+
+function CheckSVG() {
+  return (
+    <svg viewBox="0 0 12 12" fill="none" style={{ width: 11, height: 11 }}>
+      <path d="M2 6l3 3 5-6" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
 export default function HowItWorksPage() {
   return (
     <>
-      {/* ═══ DATELINE ═══ */}
-      <div className="dateline">
-        <div className="container">
-          <div className="dateline-inner">
-            <div><span className="dl-dot">●</span> HOW IT WORKS — BOATCHECKIN</div>
-            <div>SETUP · PER TRIP · GUEST · CAPTAIN · SEAL</div>
-            <div id="todayDate">CAPTAIN&apos;S LOG — TODAY</div>
-          </div>
-        </div>
-      </div>
-
       {/* ═══ HERO ═══ */}
-      <section className="page-hero">
-        <div className="container">
-          <span className="eyebrow">How it works</span>
-          <h1>Between booking<br />and boarding,<br /><em>one link does the work.</em></h1>
-          <p className="lede">
-            Boatcheckin fills the gap between a booking confirmation and the moment a captain is ready to slip lines.
-            {' '}<strong>Setup takes about fifteen minutes. Per-trip operator time is under a minute.</strong>
-          </p>
-        </div>
-      </section>
-
-      {/* ═══ THE GAP ═══ */}
-      <section className="not-block" style={{ padding: '72px 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">The space we sit in</span>
-            <h2 className="section-title">The booking platform hands off.<br />The captain picks up at the dock.<br /><em>Everything in between was chaos.</em></h2>
-            <p className="section-sub">Before Boatcheckin, those hours lived in text messages, scribbled paper waivers, and the captain asking &quot;which one of you is Karen?&quot; at the slip. We built Boatcheckin for that exact gap.</p>
-          </div>
-
-          {/* Before / After viz */}
-          <div className="compare-cols">
-            <div className="compare-before">
-              <div className="cb-label">Before</div>
-              <div className="cb-title">Booking confirmed <span style={{ color: 'var(--rust)' }}>→ chaos →</span> at the dock</div>
-              <p className="cb-body">Texts, paper waivers on a clipboard, chasing signatures morning-of, and a captain reading names off a list at the slip.</p>
-            </div>
-            <div className="compare-after">
-              <div className="cb-label">With Boatcheckin</div>
-              <div className="cb-title">Booking confirmed <span style={{ color: 'var(--status-ok)' }}>→ one link →</span> every guest cleared</div>
-              <p className="cb-body">One link, sent by the booker, every guest signs before they arrive. Captain sees green checks. Trip starts.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ AT-A-GLANCE — 5 STEPS ═══ */}
-      <section className="timeline-section">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow brass">The whole flow in 30 seconds</span>
-            <h2 className="section-title">Five steps. <em>Most of them run on their own.</em></h2>
-            <p className="section-sub">The rest of this page is a closer look at each step. If you only read the strip below, you understand most of the product.</p>
-          </div>
-
-          <div className="tl-grid">
-            <div className="tl-item">
-              <div className="tl-label">Step 01 · One-time</div>
-              <div className="tl-target" style={{ fontSize: 22 }}>Set up</div>
-              <div className="tl-desc">Boat Wizard, your waiver, your safety briefing — configured once, used forever.</div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-label">Step 02 · Per trip</div>
-              <div className="tl-target" style={{ fontSize: 22 }}>Create</div>
-              <div className="tl-desc">A few fields: date, vessel, guests. One link is generated in seconds.</div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-label">Step 03 · Per guest</div>
-              <div className="tl-target" style={{ fontSize: 22 }}>Register</div>
-              <div className="tl-desc">No app, no account. Guests tap the link, fill in, sign, acknowledge safety.</div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-label">Step 04 · At the dock</div>
-              <div className="tl-target" style={{ fontSize: 22 }}>Review</div>
-              <div className="tl-desc">Captain sees one snapshot. Green checkmarks. Slide to start the trip.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PHASE 1 — SETUP ═══ */}
-      <section className="practice-light">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">Part 01 — Setup</span>
-            <h2 className="section-title">Fifteen minutes, <em>and you never do it again.</em></h2>
-            <p className="section-sub">Setup is front-loaded on purpose. Configure Boatcheckin once — your vessel details, the waiver your operation uses, the safety briefing you already give — and every future trip pulls from those defaults.</p>
-          </div>
-
-          <div className="practice-stack">
-            <div className="practice-row">
-              <div className="pr-meta">Takes ~4 min</div>
-              <div>
-                <div className="pr-h">Boat Wizard — <em>add your vessel.</em></div>
-                <div className="pr-p">A short guided flow captures vessel name and registration, hailing port, documented length, passenger capacity, propulsion, and operating area. For multi-vessel fleets, you add each boat once; trips reference them by name.</div>
-                <div className="pr-p">If you have your vessel documents handy, you can upload them for your own records. They live in your account, not on anyone else&apos;s server.</div>
-              </div>
-            </div>
-
-            <div className="practice-row">
-              <div className="pr-meta">Takes ~4 min</div>
-              <div>
-                <div className="pr-h">Waiver — <em>yours, word for word.</em></div>
-                <div className="pr-p">Paste in the waiver text your operation already uses — the one your insurer reviewed, the one your attorney blessed. That is the waiver every guest will sign. <strong>We do not rewrite it. We do not interpret it. We capture it precisely.</strong></div>
-                <div className="pr-p">A starter template is available as scaffolding, clearly marked as a starting point — not legal advice and not a substitute for your own review.</div>
-              </div>
-            </div>
-
-            <div className="practice-row">
-              <div className="pr-meta">Takes ~4 min</div>
-              <div>
-                <div className="pr-h">Safety briefing — <em>one card per item.</em></div>
-                <div className="pr-p">Your pre-departure safety briefing — PFD location, fire extinguisher, man-overboard procedure, emergency contacts — goes in as a series of short cards. Guests see each card individually and acknowledge it with a tap.</div>
-                <div className="pr-p">This is the structural alignment with <strong>46 CFR §185.506</strong> and equivalent state rules: each guest sees each item, and each acknowledgment is recorded with timestamp and attribution.</div>
-              </div>
-            </div>
-
-            <div className="practice-row">
-              <div className="pr-meta">Takes ~3 min</div>
-              <div>
-                <div className="pr-h">Compliance settings — <em>set once, forget it.</em></div>
-                <div className="pr-p">Set your operating jurisdiction, your retention window (compliance records default to a five-year minimum), and electronic-signature consent language.</div>
-                <div className="pr-p">The defaults are conservative. Most operators never touch these settings again.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="outcome-bar">
-            <span className="ob-tag">Outcome</span>
-            <span className="ob-msg">Your account is ready. <em>The next trip you create is live in thirty seconds.</em></span>
-            <span className="ob-meta">Setup Complete · ~15 min</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PHASE 2 — PER TRIP ═══ */}
-      <section className="not-block" style={{ padding: '96px 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">Part 02 — Every trip</span>
-            <h2 className="section-title">Create the trip. Send the link. <em>That&apos;s it.</em></h2>
-            <p className="section-sub">Every trip starts the same way — a few fields, one generated link, one message sent to the booker. The rest happens on its own.</p>
-          </div>
-
-          <div className="practice-stack">
-            <div className="practice-row" style={{ borderColor: 'var(--line-soft)' }}>
-              <div className="pr-meta" style={{ color: 'var(--rust)' }}>~20 seconds</div>
-              <div>
-                <div className="pr-h" style={{ color: 'var(--ink)' }}>Create — <em style={{ color: 'var(--rust)' }}>or auto-create.</em></div>
-                <div className="pr-p" style={{ color: 'var(--ink-soft)' }}>Enter the trip date, select the vessel, set the expected guest count, and pick the captain. Optional fields for the booker contact, departure point, and any trip-specific notes.</div>
-              </div>
-            </div>
-            <div className="practice-row" style={{ borderColor: 'var(--line-soft)' }}>
-              <div className="pr-meta" style={{ color: 'var(--rust)' }}>Instant</div>
-              <div>
-                <div className="pr-h" style={{ color: 'var(--ink)' }}>The trip link is <em style={{ color: 'var(--rust)' }}>generated.</em></div>
-                <div className="pr-p" style={{ color: 'var(--ink-soft)' }}>One cryptographically signed URL — unique to this trip, scoped to this trip, configured for the number of guests expected. The link carries the waiver, the safety cards, and the questions your compliance settings require.</div>
-              </div>
-            </div>
-            <div className="practice-row" style={{ borderColor: 'var(--line-soft)' }}>
-              <div className="pr-meta" style={{ color: 'var(--rust)' }}>~10 seconds</div>
-              <div>
-                <div className="pr-h" style={{ color: 'var(--ink)' }}>Send to the booker.</div>
-                <div className="pr-p" style={{ color: 'var(--ink-soft)' }}>One message, one link. The booker shares it with their party the same way they would share a restaurant reservation. <strong>You do not collect guest phone numbers. You do not chase.</strong></div>
-              </div>
-            </div>
-            <div className="practice-row" style={{ borderColor: 'var(--line-soft)' }}>
-              <div className="pr-meta" style={{ color: 'var(--rust)' }}>Automatic</div>
-              <div>
-                <div className="pr-h" style={{ color: 'var(--ink)' }}>Watch the manifest fill.</div>
-                <div className="pr-p" style={{ color: 'var(--ink-soft)' }}>As guests tap the link and complete registration, the manifest in your dashboard populates in real time. You see who is signed, who is outstanding, and how close you are to ready-to-board.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="outcome-bar">
-            <span className="ob-tag">Outcome</span>
-            <span className="ob-msg">Your 10am charter is <em>already live before 8am.</em></span>
-            <span className="ob-meta">Operator Time · &lt; 60 sec</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PHASE 3 — GUEST FLOW (DARK) ═══ */}
-      <section className="principles">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow light">The guest</span>
-            <h2 className="section-title">No app. No account. <em>No captain chasing signatures.</em></h2>
-            <p className="section-sub">The guest experience was the feature we fought hardest to keep simple. A paying guest on a Saturday morning should not be installing an app to sign a waiver.</p>
-          </div>
-
-          <div className="principle-stack">
-            <div className="principle-item">
-              <div className="p-num" style={{ fontSize: 34 }}>01</div>
-              <div>
-                <div className="p-title">Tap the link.</div>
-                <div className="p-body">The trip link opens in any browser on any phone. No download. No sign-up. No password. The page is localized automatically — the guest sees it in their phone language, not the operator language.</div>
-              </div>
-            </div>
-            <div className="principle-item">
-              <div className="p-num" style={{ fontSize: 34 }}>02</div>
-              <div>
-                <div className="p-title">Identify and verify.</div>
-                <div className="p-body">Name, email, phone, date of birth where the law requires it. A one-time code sent to the phone confirms identity — so the signature on the waiver actually belongs to the guest. <strong style={{ color: 'var(--bone)' }}>The data goes to the operator, not to advertisers.</strong></div>
-              </div>
-            </div>
-            <div className="principle-item">
-              <div className="p-num" style={{ fontSize: 34 }}>03</div>
-              <div>
-                <div className="p-title">Read and sign the waiver.</div>
-                <div className="p-body">The guest sees the waiver you wrote, in full. They draw or type their signature. The exact text they saw, their signature, the timestamp, their IP, and a cryptographic hash are captured together — the combination that makes an electronic signature hold up under ESIGN and UETA.</div>
-              </div>
-            </div>
-            <div className="principle-item">
-              <div className="p-num" style={{ fontSize: 34 }}>04</div>
-              <div>
-                <div className="p-title">Acknowledge each safety card.</div>
-                <div className="p-body">One card at a time. PFD location, fire extinguisher, man-overboard procedure — each with its own tap-to-acknowledge. Each tap is attributed. No blanket &quot;I&apos;ve read the terms&quot; box pretending to be a briefing.</div>
-              </div>
-            </div>
-            <div className="principle-item">
-              <div className="p-num" style={{ fontSize: 34 }}>05</div>
-              <div>
-                <div className="p-title">Done — <em>confirmation sent.</em></div>
-                <div className="p-body">The guest gets a clean confirmation with their trip details and a copy of what they signed. The operator manifest updates. The captain snapshot updates. Nobody had to type anything twice.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="outcome-bar outcome-bar-dark">
-            <span className="ob-tag">Outcome</span>
-            <span className="ob-msg">Every guest is <em>verified, signed, and briefed</em> — before they arrive.</span>
-            <span className="ob-meta">Guest Time · ~3 min</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PHASE 4 — CAPTAIN SNAPSHOT ═══ */}
-      <section className="practice-section">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow light">The captain</span>
-            <h2 className="section-title">The cleanest pre-departure view <em>of your life.</em></h2>
-            <p className="section-sub">The captain arrives at the slip. Opens one link on a phone — no login, because captains should not be typing passwords on a pier with salt spray on the screen. What they see is the cleanest go/no-go sheet they have ever had.</p>
-          </div>
-
-          <div className="practice-stack">
-            <div className="practice-row">
-              <div className="pr-meta">Manifest</div>
-              <div>
-                <div className="pr-h">Every guest registered for this trip, with status flags at a glance.</div>
-                <div className="pr-p">Who is signed. Who is outstanding. Who registered at 2am, whose signature came in during the drive over. Every acknowledgment is a tap away from its full record.</div>
-              </div>
-            </div>
-            <div className="practice-row">
-              <div className="pr-meta">Waivers</div>
-              <div>
-                <div className="pr-h">Green if signed and verified. Red if missing.</div>
-                <div className="pr-p">One tap opens the signed document. The captain can see the full text the guest saw, the signature, and the hash — right on the phone at the dock.</div>
-              </div>
-            </div>
-            <div className="practice-row">
-              <div className="pr-meta">Safety cards</div>
-              <div>
-                <div className="pr-h">Per-guest acknowledgment status — visible at a glance.</div>
-                <div className="pr-p">A missing card is visible immediately. The captain sees which guest has not acknowledged which item, with a one-tap path to that guest record.</div>
-              </div>
-            </div>
-            <div className="practice-row">
-              <div className="pr-meta">Start control</div>
-              <div>
-                <div className="pr-h">A slide-to-start gate. Intentional, attestable, hard to trigger by accident.</div>
-                <div className="pr-p"><strong>The software does not auto-start. The software does not clear a missing waiver. The captain directs. Boatcheckin records.</strong> That single action is the attested departure — timestamped, cryptographically recorded, and sealed as the trip starting state.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="outcome-bar outcome-bar-dark">
-            <span className="ob-tag">Outcome</span>
-            <span className="ob-msg">The captain&apos;s go/no-go is based on <em>what is actually true</em> at this moment.</span>
-            <span className="ob-meta">Captain Time · &lt; 60 sec</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ THE SEALED RECORD ═══ */}
-      <section className="not-block" style={{ padding: '96px 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">What you walk away with</span>
-            <h2 className="section-title">A sealed record —<br /><em>intact, attributable, available.</em></h2>
-            <p className="section-sub">The point of the whole flow is the record the flow produces. Two years from now, when an insurer asks, when a regulator audits, when a lawyer writes a letter — this is what is there to answer.</p>
-          </div>
-
-          <div className="flow-grid">
-            <div className="flow-cell">
-              <span className="fc-num" style={{ fontSize: 36 }}>01</span>
-              <span className="fc-label">Hashed at signing</span>
-              <div className="fc-title">SHA-256 — any modification is detectable.</div>
-              <div className="fc-body">At the moment of signing, the waiver text, signature, timestamp, IP, and user agent are combined and hashed. Any subsequent modification produces a different digest.</div>
-            </div>
-            <div className="flow-cell">
-              <span className="fc-num" style={{ fontSize: 36 }}>02</span>
-              <span className="fc-label">Attributable</span>
-              <div className="fc-title">Every action has an actor.</div>
-              <div className="fc-body">Creation, signing, acknowledgment, captain start, trip completion — each produces an audit entry with who, when, and how. Not a log file. A record.</div>
-            </div>
-            <div className="flow-cell">
-              <span className="fc-num" style={{ fontSize: 36 }}>03</span>
-              <span className="fc-label">Sealed at completion</span>
-              <div className="fc-title">Trip is locked after the fact.</div>
-              <div className="fc-body">When the captain marks the trip complete, the audit trail is sealed. No row can be silently altered. Corrections require a new, attributed entry.</div>
-            </div>
-            <div className="flow-cell">
-              <span className="fc-num" style={{ fontSize: 36 }}>04</span>
-              <span className="fc-label">Retained</span>
-              <div className="fc-title">5 years minimum. Exportable always.</div>
-              <div className="fc-body">Default retention is five years. Every trip record exports as a complete PDF — waivers, acknowledgments, manifest, audit trail. One attachment for your insurer or attorney.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ TIME MATH ═══ */}
-      <section className="timeline-section">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow brass">The time you get back</span>
-            <h2 className="section-title">Same trip. <em>A lot less of your Saturday.</em></h2>
-            <p className="section-sub">We ran the numbers with working charter captains — not on a spreadsheet, at actual docks. Here is what a typical six-guest half-day trip looks like before and after Boatcheckin.</p>
-          </div>
-
-          <div className="tl-grid">
-            <div className="tl-item">
-              <div className="tl-label">Chasing waivers by text</div>
-              <div className="tl-target">15–30 <span className="unit">min before</span></div>
-              <div className="tl-desc">Now: 0. Booker shares the link once.</div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-label">Safety briefing at dock</div>
-              <div className="tl-target">10–15 <span className="unit">min before</span></div>
-              <div className="tl-desc">Now: 2 min reinforcement. Guests pre-briefed.</div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-label">Assembling the manifest</div>
-              <div className="tl-target">5–10 <span className="unit">min before</span></div>
-              <div className="tl-desc">Now: 0. Auto-populated as guests register.</div>
-            </div>
-            <div className="tl-item">
-              <div className="tl-label">Filing after the trip</div>
-              <div className="tl-target">10 <span className="unit">min before</span></div>
-              <div className="tl-desc">Now: 0. Already sealed and stored automatically.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ WHO SEES WHAT ═══ */}
-      <section className="not-block" style={{ padding: '96px 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow brass">Three perspectives, one record</span>
-            <h2 className="section-title">Who sees what — <em>at a glance.</em></h2>
-            <p className="section-sub">The operator, the captain, and the guest each see the slice of Boatcheckin that matches their role. Access is enforced at the database tier, not just the UI.</p>
-          </div>
-
-          <div className="not-grid">
-            <div className="not-list">
-              <div className="not-row">
-                <div className="not-x" style={{ color: 'var(--status-ok)' }}>✓</div>
-                <div>
-                  <div className="not-title">Operator</div>
-                  <div className="not-body">Full dashboard — fleet, trips, exports, settings. Creates trips, generates links, configures waivers and safety briefings. Exports any trip record as PDF.</div>
-                </div>
-              </div>
-              <div className="not-row">
-                <div className="not-x" style={{ color: 'var(--sea)' }}>✓</div>
-                <div>
-                  <div className="not-title">Captain</div>
-                  <div className="not-body">Trip snapshot only — current trip, manifest, waiver status, safety card acknowledgments, emergency contacts, and the slide-to-start control. No password needed at the dock.</div>
-                </div>
-              </div>
-            </div>
-            <div className="not-list">
-              <div className="not-row">
-                <div className="not-x" style={{ color: 'var(--brass-deep)' }}>~</div>
-                <div>
-                  <div className="not-title">Guest</div>
-                  <div className="not-body">Their own registration only — their identity, their waiver, their safety acknowledgments. They get a confirmation copy. They cannot see other guests records or the operator dashboard.</div>
-                </div>
-              </div>
-              <div className="not-row">
-                <div className="not-x">✕</div>
-                <div>
-                  <div className="not-title">No app required — for anyone.</div>
-                  <div className="not-body">All three roles work entirely in the browser. No download, no account required for guests or captains. Operators sign in once; after that the dashboard is always ready.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ FINAL CTA ═══ */}
-      <section className="final-cta">
-        <div className="container">
-          <div className="fca-grid">
+      <section className="hero">
+        <div className="w">
+          <div className="hero-grid">
             <div>
-              <h2 className="fca-h">Set up takes <em>fifteen minutes.</em><br />Your next trip is <em>live tomorrow.</em></h2>
-              <p className="fca-sub">Free tier for solo captains. Get started, configure your boat, run a test trip. If it does not earn its place by the end of the week, close the account — nothing is billed on the free tier.</p>
+              <div className="lbl lbl-inv" style={{ marginBottom: 14 }}>How the record gets built</div>
+              <h1>Five steps. Two of them are yours.</h1>
+              <p className="hero-sub">Here is exactly what happens from the moment you create a trip to the moment the captain slides to start. The compliance record builds itself along the way.</p>
+              <p className="hero-note">Setup takes about 15 minutes, once. Every trip after that is under a minute of your time.</p>
+              <div className="hero-btns">
+                <a href="/signup" className="btn btn-gold btn-lg">Start Free</a>
+                <a href="#glance" className="btn btn-ghost btn-lg">See the steps</a>
+              </div>
             </div>
-            <div className="fca-stack">
-              <Link href="/signup" className="btn">Start Free · 10-min Setup →</Link>
-              <Link href="/contact" className="btn btn-outline">Talk to Us First</Link>
-              <Link href="/about" className="btn btn-outline">About Boatcheckin</Link>
+
+            {/* Time panel */}
+            <div className="time-panel">
+              <div className="tp-head"><div className="tp-label">Time breakdown per trip</div></div>
+              <div className="tp-rows">
+                {[
+                  ['Operator', 'Create trip, send link, review manifest', '< 60 sec'],
+                  ['Each guest', 'Register, sign waiver, acknowledge safety cards', '~3 min'],
+                  ['Captain', 'Review manifest, confirm departure', '< 60 sec'],
+                  ['Setup', 'Boat, waiver, safety briefing · once only', '~15 min'],
+                ].map(([role, action, time]) => (
+                  <div className="tp-row" key={role}>
+                    <div className="tp-role">{role}</div>
+                    <div className="tp-action">{action}</div>
+                    <div className="tp-time">{time}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="tp-foot">Operator does nothing between guest link and captain snapshot</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ AT A GLANCE ═══ */}
+      <section className="sec" id="glance">
+        <div className="w">
+          <div className="lbl">The whole flow</div>
+          <h2>Five steps, in order.</h2>
+          <p className="sec-sub">Each step produces a component of the compliance record. By the time the captain confirms departure, the record is complete.</p>
+          <div className="step-strip">
+            {[
+              ['Step 01', 'Operator · once only', 'Configure', 'Vessel, waiver text, safety briefing. Configured once. Every future trip pulls from these defaults.', '~15 min total'],
+              ['Step 02', 'Operator · every trip', 'Create trip, send link', 'Pick the boat, set the date. One link is generated and sent to the booker. Nothing else required.', '< 60 seconds'],
+              ['Step 03', 'Each guest', 'Register on their phone', 'No app. They tap the link, enter details, sign the waiver, and acknowledge safety cards. QR boarding pass issued on completion.', '~3 min per guest'],
+              ['Step 04', 'Captain · at the dock', 'Review manifest, depart', 'One link on their phone. No login. Manifest, waiver status, safety acknowledgments. Slide to start. Record sealed.', '< 60 seconds'],
+              ['Step 05', 'Automatic', 'Record sealed', 'Hash-verified, audit trail locked, retained for five years. Exportable on demand. No filing required.', 'Automatic'],
+            ].map(([num, role, title, body, time]) => (
+              <div className="ss-cell" key={num}>
+                <div className="ss-num">{num}</div>
+                <div className="ss-role">{role}</div>
+                <div className="ss-title">{title}</div>
+                <div className="ss-body">{body}</div>
+                <div className="ss-time">{time}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PART 01: SETUP ONCE ═══ */}
+      <section className="sec sec-dark" id="setup">
+        <div className="w">
+          <div className="lbl lbl-inv">Part 01</div>
+          <h2>Setup once. Use for every trip.</h2>
+          <p className="sec-sub">Configuration is front-loaded deliberately. You spend 15 minutes now, and every trip after this is automatic.</p>
+          <div className="setup-grid">
+            <div className="setup-card">
+              <div className="sc-time">Boat Wizard &nbsp;&middot;&nbsp; ~4 min</div>
+              <h3>Add your vessel</h3>
+              <p>Vessel name and registration, hailing port, documented length, passenger capacity, propulsion, and operating area. Multi-vessel fleets add each boat once; trips reference them by name.</p>
+            </div>
+            <div className="setup-card">
+              <div className="sc-time">Waiver text &nbsp;&middot;&nbsp; ~4 min</div>
+              <h3>Paste in your waiver</h3>
+              <p>The waiver your insurer reviewed and your attorney approved. Paste it in. We capture it exactly. We do not rewrite it, interpret it, or attest to its enforceability. A starter template is available if you do not yet have one.</p>
+            </div>
+            <div className="setup-card">
+              <div className="sc-time">Safety briefing &nbsp;&middot;&nbsp; ~4 min</div>
+              <h3>One card per safety item</h3>
+              <p>PFD location, fire extinguisher, man-overboard procedure, emergency contacts — entered as individual cards. Guests acknowledge each one separately with its own timestamp. This is the structural alignment with 46 CFR §185.506.</p>
+            </div>
+            <div className="setup-card">
+              <div className="sc-time">Compliance settings &nbsp;&middot;&nbsp; ~3 min</div>
+              <h3>Jurisdiction and retention</h3>
+              <p>Operating jurisdiction, retention window (default: five-year minimum), and electronic-signature consent language. The defaults are conservative. Most operators never change these after initial setup.</p>
+            </div>
+          </div>
+          <div className="outcome-bar">
+            <span className="ob-text">Account ready. Next trip goes live in under a minute.</span>
+            <span className="ob-meta">Setup complete &nbsp;&middot;&nbsp; ~15 min</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PART 02: PER TRIP ═══ */}
+      <section className="sec" id="per-trip">
+        <div className="w">
+          <div className="lbl">Part 02</div>
+          <h2>Your role per trip: three actions.</h2>
+          <p className="sec-sub">The operator is mostly a reviewer, not a doer. Everything between sending the link and reviewing the manifest runs without you.</p>
+          <div className="how-strip">
+            <div className="how-cell">
+              <div className="hc-n">Action 01 &nbsp;&middot;&nbsp; ~20 seconds</div>
+              <h3>Create the trip</h3>
+              <p>Date, vessel, expected guest count, captain. Optional: booker contact, departure slip, trip notes. A cryptographically signed URL is generated immediately — scoped to this trip only.</p>
+              <div className="hc-time">~20 seconds</div>
+            </div>
+            <div className="how-cell">
+              <div className="hc-n">Action 02 &nbsp;&middot;&nbsp; ~10 seconds</div>
+              <h3>Send the link</h3>
+              <p>One message to the booker. They share it with their party the same way they would share a restaurant reservation. You do not collect guest phone numbers. You do not chase anyone.</p>
+              <div className="hc-time">~10 seconds</div>
+            </div>
+            <div className="how-cell">
+              <div className="hc-n">Action 03 &nbsp;&middot;&nbsp; optional</div>
+              <h3>Watch the manifest fill</h3>
+              <p>Guests register in real time. Your dashboard shows who is signed, who is outstanding, and the trip status. If everyone completes early, you know before you arrive at the dock.</p>
+              <div className="hc-time">Optional monitoring</div>
+            </div>
+          </div>
+          <div className="outcome-bar-light">
+            <span className="ob-text-light">Your 10am charter is ready before 8am. You did nothing.</span>
+            <span className="ob-meta-light">Operator time &nbsp;&middot;&nbsp; &lt; 60 seconds</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PART 03: GUEST EXPERIENCE ═══ */}
+      <section className="sec sec-dark" id="guest">
+        <div className="w">
+          <div className="lbl lbl-inv">Part 03</div>
+          <h2>What your guest sees when they tap the link.</h2>
+          <p className="sec-sub">No app to download. No account to create. No password to remember. The guest opens a browser link and completes everything in about three minutes.</p>
+          <div className="guest-grid">
+            {[
+              ['01', 'Open the link', 'Works in any browser on any phone. English, Spanish, Portuguese, French, German, Italian, or Arabic. Auto-detected from device settings.', 'No app download'],
+              ['02', 'Identity and verification', 'Name, email, phone, date of birth where required. A one-time code confirms the identity. The signature is linked to a verified person, not an anonymous browser.', 'OTP verified'],
+              ['03', 'Read and sign the waiver', 'The full waiver text, in the guest\'s language. Drawn or typed signature. Timestamp, IP, user agent, and SHA-256 hash captured together. This is the ESIGN and UETA compliant record.', 'SHA-256 hashed'],
+              ['04', 'Safety card acknowledgment', 'One card per safety item. PFD location, fire extinguisher, man-overboard, and any items you configured. Each acknowledged individually with its own timestamp and attribution.', 'Per-card record'],
+              ['05', 'QR boarding pass issued', 'Confirmation sent with trip details and a copy of what the guest signed. The operator manifest updates instantly. The captain snapshot updates instantly.', 'Record updated'],
+            ].map(([num, title, desc, tag]) => (
+              <div className="g-step" key={num}>
+                <div className="g-num">{num}</div>
+                <div>
+                  <h4>{title}</h4>
+                  <p>{desc}</p>
+                  <span className="g-tag">{tag}</span>
+                </div>
+              </div>
+            ))}
+            <div className="g-step" style={{ alignItems: 'center' }}>
+              <div className="g-num" style={{ color: 'rgba(201,162,39,0.4)', fontSize: 28 }}>~3</div>
+              <div>
+                <h4 style={{ color: 'rgba(232,232,224,0.5)' }}>Total time per guest</h4>
+                <p>Three minutes of their time. They can complete it from home, from the car on the way to the marina, or at the dock. Most complete it the evening before the trip.</p>
+              </div>
+            </div>
+          </div>
+          <div className="outcome-bar">
+            <span className="ob-text">Every guest verified, signed, and briefed before they arrive.</span>
+            <span className="ob-meta">Guest time &nbsp;&middot;&nbsp; ~3 min</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PART 04: CAPTAIN AT THE DOCK ═══ */}
+      <section className="sec" id="captain">
+        <div className="w">
+          <div className="lbl">Part 04</div>
+          <h2>What the captain sees on their phone.</h2>
+          <p className="sec-sub">One link. No login. The captain arrives at the slip, opens the snapshot, reviews the manifest, and confirms departure. Under a minute.</p>
+          <div className="cap-layout">
+            <div>
+              <div className="cap-features">
+                {[
+                  ['Manifest', 'Every guest registered for this trip. Who has signed, who is outstanding, who registered at 2am — visible at a glance. One tap to see any guest\'s full record.'],
+                  ['Waivers', 'Green if signed and hash-verified. Red if missing. One tap opens the signed document with the full text the guest saw, the signature, and the SHA-256 hash.'],
+                  ['Safety cards', 'Per-guest acknowledgment status. A missing card is visible immediately. The captain can see exactly which guest has not acknowledged which item.'],
+                  ['Emergency', 'Every guest\'s emergency contact. One tap to dial. USCG VHF Ch. 16 and FWC hotline always present on the screen.'],
+                  ['Start control', ''],
+                ].map(([label, body], i) => (
+                  <div className="cap-feat" key={label} style={i === 4 ? { borderBottom: 'none' } : {}}>
+                    <div className="cf-label">{label}</div>
+                    <div className="cf-body">
+                      {label === 'Start control'
+                        ? <><strong>The software does not auto-start. The captain directs. Boatcheckin records.</strong> The slide-to-start is intentional, timestamped, and seals the departure as the trip&rsquo;s attested starting state.</>
+                        : body
+                      }
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Captain manifest card */}
+            <div className="manifest-card">
+              <div className="mc-head">
+                <div className="mc-label">Captain snapshot</div>
+                <div className="mc-vessel">Wild Child</div>
+                <div className="mc-meta">Tue Jul 7 &nbsp;&middot;&nbsp; 08:00 &nbsp;&middot;&nbsp; Slip B-14</div>
+              </div>
+              <div className="mc-status-strip">
+                <div className="mc-stat"><div className="mc-stat-n">4</div><div className="mc-stat-l">Registered</div></div>
+                <div className="mc-stat"><div className="mc-stat-n">4</div><div className="mc-stat-l">Waivers</div></div>
+                <div className="mc-stat"><div className="mc-stat-n">4</div><div className="mc-stat-l">Safety</div></div>
+              </div>
+              <div className="mc-list">
+                {[
+                  ['Karen Martinez', 'Signed 07:12 · Verified', 'Booker'],
+                  ['James Chen', 'Signed 07:48 · Verified', ''],
+                  ['María Alonso', 'Signed 08:05 · Verified', ''],
+                  ['Tomás Alonso', 'Signed 08:05 · Guardian', 'Minor'],
+                ].map(([name, sub, badge], i) => (
+                  <div className="mc-row" key={name} style={i === 3 ? { borderBottom: 'none' } : {}}>
+                    <div className="mc-ok">✓</div>
+                    <div><div className="mc-name">{name}</div><div className="mc-sub">{sub}</div></div>
+                    <div className="mc-badge">{badge}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mc-start">Slide to start trip</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PART 05: THE SEALED RECORD ═══ */}
+      <section className="sec sec-dark" id="record">
+        <div className="w">
+          <div className="lbl lbl-inv">Part 05</div>
+          <h2>The record that results from every trip.</h2>
+          <p className="sec-sub">Every step above produces a component of this record. When the captain slides to start, the components are combined, sealed, and retained. This is what you have when someone asks.</p>
+          <div className="rec-layout">
+            <div className="compliance-doc">
+              <div className="cd-head">
+                <div>
+                  <div className="cd-lbl">Compliance Record</div>
+                  <div className="cd-vessel">M/V Dockside</div>
+                  <div className="cd-trip">Trip #4417 &middot; July 7, 2026</div>
+                </div>
+                <span className="cd-seal">Sealed</span>
+              </div>
+              <div className="cd-rows">
+                {[
+                  ['6 of 6 guest waivers signed and hashed', 'Verified'],
+                  ['Safety briefing acknowledged per card', 'Verified'],
+                  ['Head count confirmed: 6 / 6 aboard', 'Verified'],
+                  ['USCG manifest PDF generated and filed', 'Filed'],
+                  ['Captain departure attested', 'Attested'],
+                  ['Audit trail sealed at trip completion', 'Sealed'],
+                ].map(([text, status]) => (
+                  <div className="cd-row" key={text}>
+                    <div className="cd-check">✓</div>
+                    <span>{text}</span>
+                    <span className="cd-status">{status}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="cd-foot">
+                <div className="cd-hash"><strong>SHA-256</strong>&nbsp; a3f2c8e1...d91e7b04</div>
+                <div>
+                  <span className="cd-cleared">Cleared to Depart</span>
+                  <span className="cd-time">0814 EDT</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="rec-components">
+                {[
+                  ['Signed waivers', 'SHA-256 hashed at signing. Exact text, signature, timestamp, and IP bound together. Modification is detectable.'],
+                  ['Safety briefing', 'Per-card acknowledgment. Each item separately timestamped and attributed to the individual guest.'],
+                  ['Passenger manifest', 'USCG-format PDF. Names, count, emergency contacts. Downloadable before and after the trip.'],
+                  ['Audit trail', 'Every state change logged: creation, signing, departure, completion. Append-only. Sealed at trip end.'],
+                  ['Captain attestation', 'Departure confirmed and timestamped. The captain\'s name and credential are part of the sealed record.'],
+                  ['Five-year retention', 'Default minimum retention. Operator-configurable. Exportable as a complete PDF at any time.'],
+                ].map(([title, desc]) => (
+                  <div className="rc-item" key={title}>
+                    <h4>{title}</h4>
+                    <p>{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="outcome-bar" style={{ marginTop: 32 }}>
+            <span className="ob-text">Two years later, when someone asks, the record is complete and retrievable in seconds.</span>
+            <span className="ob-meta">Automatic &nbsp;&middot;&nbsp; Every trip</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ TIME COMPARISON ═══ */}
+      <section className="sec sec-alt" id="time">
+        <div className="w">
+          <div className="lbl">What changes</div>
+          <h2>The same trip. Far less of your morning.</h2>
+          <p className="sec-sub">Time estimates from conversations with working charter captains. Six-guest half-day trip, before and after Boatcheckin.</p>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="time-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '32%' }}>Task</th>
+                  <th style={{ width: '34%' }}>Before Boatcheckin</th>
+                  <th>With Boatcheckin</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Chasing waivers</td>
+                  <td><span className="tag-before">15–30 min</span><br/>Texts, emails, clipboard morning-of.</td>
+                  <td><span className="tag-after">0</span><br/>Booker shares link. Guests self-register.</td>
+                </tr>
+                <tr>
+                  <td>Safety briefing at dock</td>
+                  <td><span className="tag-before">10–15 min</span><br/>Repeated verbally for every group.</td>
+                  <td><span className="tag-after">2 min</span><br/>Guests pre-briefed. Captain reinforces key points only.</td>
+                </tr>
+                <tr>
+                  <td>Building the manifest</td>
+                  <td><span className="tag-before">5–10 min</span><br/>Paper list. Asking names at the slip.</td>
+                  <td><span className="tag-after">0</span><br/>Auto-populated as guests register.</td>
+                </tr>
+                <tr>
+                  <td>Filing after the trip</td>
+                  <td><span className="tag-before">10 min</span><br/>Scanning, labeling, physical storage.</td>
+                  <td><span className="tag-after">0</span><br/>Sealed and stored automatically.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>Per trip</td>
+                  <td style={{ color: '#b91c1c' }}>40–65 min of operator and captain time</td>
+                  <td style={{ color: 'var(--verified)' }}>Under 2 min of oversight</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FAQ ═══ */}
+      <section className="sec sec-mid" id="faq">
+        <div className="w">
+          <div className="lbl">Questions about the flow</div>
+          <h2>What operators ask before signing up.</h2>
+          <br />
+          <HowItWorksFAQ />
+        </div>
+      </section>
+
+      {/* ═══ CTA ═══ */}
+      <section className="cta">
+        <div className="w">
+          <div className="lbl lbl-inv" style={{ display: 'block', textAlign: 'center', marginBottom: 12 }}>Ready to start</div>
+          <h2>Set up in 15 minutes. Ready for your next booking.</h2>
+          <p>Free for solo captains and charter operators with up to three boats.</p>
+          <div className="cta-btns">
+            <a href="/signup" className="btn btn-gold btn-lg">Start Free</a>
+            <a href="/contact" className="btn btn-ghost btn-lg">Contact us</a>
           </div>
         </div>
       </section>
