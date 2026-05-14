@@ -97,25 +97,25 @@ export function GuestManagementTable({
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingBottom: 'var(--s-3)',
-          borderBottom: 'var(--border-w) solid var(--color-ink)',
+          borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
           marginBottom: 'var(--s-4)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
-          <Users size={14} strokeWidth={2} style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }} />
+          <Users size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
           <span
-            className="font-mono"
             style={{
-              fontSize: '13px', fontWeight: 700,
+              fontFamily: 'var(--mono, monospace)',
+              fontSize: 11, fontWeight: 600,
               letterSpacing: '0.14em', textTransform: 'uppercase',
-              color: 'var(--color-ink)',
+              color: 'var(--muted, #6b7280)',
             }}
           >
             Guests
           </span>
           <span
             className="font-mono"
-            style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ink-muted)' }}
+            style={{ fontSize: '13px', fontWeight: 600, color: 'var(--muted, #6b7280)' }}
           >
             {total} / {maxGuests}
           </span>
@@ -128,7 +128,7 @@ export function GuestManagementTable({
                 ? '#1F6B52'
                 : dotState === 'ALL_IN' || dotState === 'PARTIAL'
                   ? '#B5822A'
-                  : 'var(--color-ink-muted)'
+                  : 'var(--muted, #6b7280)'
             const pendingWaivers = total - signed
             const tooltip =
               dotState === 'ALL_SIGNED'
@@ -171,7 +171,7 @@ export function GuestManagementTable({
         <div
           style={{
             height: 4,
-            background: 'var(--color-line-soft)',
+            background: 'var(--border, #dde2ea)',
             borderRadius: 'var(--r-1)',
             overflow: 'hidden',
             marginBottom: 'var(--s-2)',
@@ -182,8 +182,8 @@ export function GuestManagementTable({
               height: '100%',
               width: `${progressPct}%`,
               background: signed === total && total > 0
-                ? 'var(--color-status-ok)'
-                : 'var(--color-ink)',
+                ? 'var(--verified, #059669)'
+                : 'var(--ink, #111c2d)',
               transition: 'width 0.4s var(--ease)',
               borderRadius: 'var(--r-1)',
             }}
@@ -192,14 +192,14 @@ export function GuestManagementTable({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span
             className="font-mono"
-            style={{ fontSize: '11px', color: 'var(--color-ink-muted)' }}
+            style={{ fontSize: '11px', color: 'var(--muted, #6b7280)' }}
           >
             {signed} waiver{signed !== 1 ? 's' : ''} signed
           </span>
           {total - signed > 0 && (
             <span
               className="font-mono"
-              style={{ fontSize: '11px', color: 'var(--color-status-warn)' }}
+              style={{ fontSize: '11px', color: 'var(--warning, #d97706)' }}
             >
               {total - signed} unsigned
             </span>
@@ -229,15 +229,12 @@ export function GuestManagementTable({
           <Users
             size={32}
             strokeWidth={1.5}
-            style={{ color: 'var(--color-ink-muted)', opacity: 0.4 }}
+            style={{ color: 'var(--muted, #6b7280)', opacity: 0.4 }}
           />
-          <p
-            className="font-display"
-            style={{ fontSize: '15px', fontWeight: 500, color: 'var(--color-ink)' }}
-          >
+          <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink, #111c2d)', fontFamily: 'var(--sans, sans-serif)' }}>
             No guests yet
           </p>
-          <p style={{ fontSize: '13px', color: 'var(--color-ink-muted)' }}>
+          <p style={{ fontSize: '13px', color: 'var(--muted, #6b7280)' }}>
             Share the trip link to start receiving check-ins
           </p>
         </div>
@@ -253,17 +250,17 @@ export function GuestManagementTable({
             const isLast = idx === guests.length - 1
 
             // Left accent stripe color
-            let accentColor = 'var(--color-line-soft)'
-            if (guest.approvalStatus === 'declined') accentColor = 'var(--color-status-err)'
-            else if (guest.approvalStatus === 'pending') accentColor = 'var(--color-status-warn)'
-            else if (isWaiverSigned) accentColor = 'var(--color-status-ok)'
+            let accentColor = 'var(--border, #dde2ea)'
+            if (guest.approvalStatus === 'declined') accentColor = 'var(--danger, #dc2626)'
+            else if (guest.approvalStatus === 'pending') accentColor = 'var(--warning, #d97706)'
+            else if (isWaiverSigned) accentColor = 'var(--verified, #059669)'
 
             return (
               <div
                 key={guest.id}
                 style={{
                   borderLeft: `4px solid ${accentColor}`,
-                  borderBottom: isLast ? 'none' : '1px solid var(--color-line-soft)',
+                  borderBottom: isLast ? 'none' : '1px solid var(--border, #dde2ea)',
                   transition: 'border-left-color 0.2s',
                 }}
               >
@@ -271,17 +268,18 @@ export function GuestManagementTable({
                 <div style={{ padding: 'var(--s-3) var(--s-4)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)' }}>
 
-                    {/* Initials */}
+                    {/* Guest avatar */}
                     <div
                       style={{
                         width: 36, height: 36,
-                        borderRadius: 'var(--r-1)',
-                        background: 'var(--color-ink)',
-                        color: 'var(--color-bone)',
+                        borderRadius: 4,
+                        background: 'var(--navy-2, #0f1e35)',
+                        border: '1px solid var(--gold-border, rgba(201,162,39,0.18))',
+                        color: '#e8e8e0',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: '12px', fontWeight: 700,
                         flexShrink: 0,
-                        fontFamily: 'var(--font-mono)',
+                        fontFamily: 'var(--mono, monospace)',
                       }}
                     >
                       {initials(guest.fullName)}
@@ -293,7 +291,7 @@ export function GuestManagementTable({
                         <span
                           style={{
                             fontSize: '14px', fontWeight: 600,
-                            color: 'var(--color-ink)',
+                            color: 'var(--ink, #111c2d)',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           }}
                         >
@@ -358,9 +356,9 @@ export function GuestManagementTable({
                             disabled={actioning === guest.id}
                             className="btn btn--sm"
                             style={{
-                              background: 'var(--color-status-ok)',
-                              borderColor: 'var(--color-status-ok)',
-                              color: 'var(--color-paper)',
+                              background: 'var(--verified, #059669)',
+                              borderColor: 'var(--verified, #059669)',
+                              color: 'var(--off, #f5f7fa)',
                               padding: '4px 10px',
                             }}
                             aria-label="Approve"
@@ -370,7 +368,7 @@ export function GuestManagementTable({
                           <button
                             onClick={() => decline(guest.id)}
                             disabled={actioning === guest.id}
-                            className="btn btn--sm btn--danger"
+                            className="btn btn--sm btn-danger"
                             style={{ padding: '4px 10px' }}
                             aria-label="Decline"
                           >
@@ -385,7 +383,7 @@ export function GuestManagementTable({
                             setLiveryVerifierName('')
                           }}
                           disabled={actioning === guest.id}
-                          className="btn btn--sm btn--rust"
+                          className="btn btn-sm btn-gold"
                           style={{ fontSize: '11px' }}
                         >
                           Verify briefing
@@ -397,7 +395,7 @@ export function GuestManagementTable({
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           width: 28, height: 28, borderRadius: 'var(--r-1)',
                           background: 'none', border: 'none', cursor: 'pointer',
-                          color: 'var(--color-ink-muted)',
+                          color: 'var(--muted, #6b7280)',
                         }}
                         aria-label="Toggle details"
                       >
@@ -412,7 +410,7 @@ export function GuestManagementTable({
                       style={{
                         marginTop: 'var(--s-3)',
                         paddingTop: 'var(--s-3)',
-                        borderTop: '1px dashed var(--color-line-soft)',
+                        borderTop: '1px dashed var(--border, #dde2ea)',
                         paddingLeft: 48,
                         display: 'flex',
                         flexDirection: 'column',
@@ -420,19 +418,19 @@ export function GuestManagementTable({
                       }}
                     >
                       {guest.dietaryRequirements && (
-                        <p style={{ fontSize: '12px', color: 'var(--color-ink-muted)' }}>
-                          <span style={{ fontWeight: 600, color: 'var(--color-ink)' }}>Dietary: </span>
+                        <p style={{ fontSize: '12px', color: 'var(--muted, #6b7280)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--ink, #111c2d)' }}>Dietary: </span>
                           {guest.dietaryRequirements}
                         </p>
                       )}
                       {guest.waiverSignedAt && (
-                        <p className="font-mono" style={{ fontSize: '11px', color: 'var(--color-ink-muted)' }}>
+                        <p className="font-mono" style={{ fontSize: '11px', color: 'var(--muted, #6b7280)' }}>
                           Waiver signed: {new Date(guest.waiverSignedAt).toLocaleString()}
                         </p>
                       )}
                       {guest.addonOrders.length > 0 && (
-                        <p style={{ fontSize: '12px', color: 'var(--color-ink-muted)' }}>
-                          <span style={{ fontWeight: 600, color: 'var(--color-ink)' }}>Add-ons: </span>
+                        <p style={{ fontSize: '12px', color: 'var(--muted, #6b7280)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--ink, #111c2d)' }}>Add-ons: </span>
                           {guest.addonOrders.map(o => `${o.addonName} ×${o.quantity}`).join(', ')}
                         </p>
                       )}
@@ -443,8 +441,8 @@ export function GuestManagementTable({
                           rel="noopener noreferrer"
                           style={{
                             display: 'inline-flex', alignItems: 'center', gap: 'var(--s-1)',
-                            fontSize: '12px', color: 'var(--color-ink)', fontWeight: 500,
-                            textDecoration: 'underline', textDecorationColor: 'var(--color-line)',
+                            fontSize: '12px', color: 'var(--ink, #111c2d)', fontWeight: 500,
+                            textDecoration: 'underline', textDecorationColor: 'var(--border, #dde2ea)',
                           }}
                         >
                           <ExternalLink size={11} strokeWidth={2} />
@@ -456,7 +454,7 @@ export function GuestManagementTable({
                         disabled={actioning === guest.id}
                         style={{
                           display: 'inline-flex', alignItems: 'center', gap: 'var(--s-1)',
-                          fontSize: '12px', color: 'var(--color-status-err)', background: 'none',
+                          fontSize: '12px', color: 'var(--danger, #dc2626)', background: 'none',
                           border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500,
                         }}
                       >
@@ -493,9 +491,9 @@ export function GuestManagementTable({
                               className="btn btn--sm"
                               style={{
                                 flex: 1,
-                                background: 'var(--color-status-ok)',
-                                borderColor: 'var(--color-status-ok)',
-                                color: 'var(--color-paper)',
+                                background: 'var(--verified, #059669)',
+                                borderColor: 'var(--verified, #059669)',
+                                color: 'var(--off, #f5f7fa)',
                               }}
                             >
                               <Check size={12} strokeWidth={2.5} />

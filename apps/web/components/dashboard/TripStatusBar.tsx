@@ -132,7 +132,7 @@ export function TripStatusBar({
           style={{
             fontSize: '13px', fontWeight: 700,
             letterSpacing: '0.14em', textTransform: 'uppercase',
-            color: 'var(--color-ink)',
+            color: 'var(--ink, #111c2d)',
           }}
         >
           Trip control
@@ -149,7 +149,7 @@ export function TripStatusBar({
               <Check size={16} strokeWidth={2.5} />
               <div>
                 <strong>Ready for departure</strong>
-                <div style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)', marginTop: 2 }}>
+                <div style={{ fontSize: 'var(--t-body-sm)', color: 'var(--muted, #6b7280)', marginTop: 2 }}>
                   {guests.length} guest{guests.length !== 1 ? 's' : ''} · All waivers signed · Safety briefing complete
                 </div>
               </div>
@@ -159,7 +159,7 @@ export function TripStatusBar({
               <AlertTriangle size={16} strokeWidth={2} />
               <div>
                 <strong>Waiting on guests</strong>
-                <div style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink-muted)', marginTop: 2 }}>
+                <div style={{ fontSize: 'var(--t-body-sm)', color: 'var(--muted, #6b7280)', marginTop: 2 }}>
                   {nonCompliantCount} guest{nonCompliantCount !== 1 ? 's' : ''} still need to sign the waiver or complete the safety briefing
                 </div>
               </div>
@@ -196,13 +196,13 @@ export function TripStatusBar({
             {/* Panel header */}
             <div
               style={{
-                background: 'var(--color-ink)',
+                background: 'var(--ink, #111c2d)',
                 padding: 'var(--s-3) var(--s-5)',
               }}
             >
               <span
                 className="font-mono"
-                style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-bone)' }}
+                style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--off, #f5f7fa)' }}
               >
                 Pre-departure confirmation
               </span>
@@ -217,7 +217,7 @@ export function TripStatusBar({
                 </div>
                 <div className="meta-row">
                   <span className="label">Waivers signed</span>
-                  <span className="value" style={{ fontSize: 'var(--t-body-md)', color: 'var(--color-status-ok)' }}>
+                  <span className="value" style={{ fontSize: 'var(--t-body-md)', color: 'var(--verified, #059669)' }}>
                     {guests.filter(g => g.waiverSigned || g.waiverTextHash === 'firma_template').length} / {guests.length}
                   </span>
                 </div>
@@ -227,14 +227,14 @@ export function TripStatusBar({
               <div
                 style={{
                   padding: 'var(--s-4)',
-                  background: 'var(--color-bone)',
+                  background: 'var(--off, #f5f7fa)',
                   borderRadius: 'var(--r-2)',
                   display: 'flex', flexDirection: 'column', gap: 'var(--s-3)',
                 }}
               >
                 <span
                   className="font-mono"
-                  style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-ink-muted)' }}
+                  style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted, #6b7280)' }}
                 >
                   46 CFR 185.506 Safety briefing
                 </span>
@@ -244,9 +244,9 @@ export function TripStatusBar({
                     type="checkbox"
                     checked={captainBriefedAll}
                     onChange={() => setCaptainBriefedAll(!captainBriefedAll)}
-                    style={{ marginTop: 3, width: 18, height: 18, accentColor: 'var(--color-rust)', flexShrink: 0 }}
+                    style={{ marginTop: 3, width: 18, height: 18, accentColor: 'var(--gold, #c9a227)', flexShrink: 0 }}
                   />
-                  <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink)', lineHeight: 1.5 }}>
+                  <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--ink, #111c2d)', lineHeight: 1.5 }}>
                     The captain has verbally briefed all passengers on life jacket locations,
                     emergency exits, and safety procedures
                   </span>
@@ -257,9 +257,9 @@ export function TripStatusBar({
                     type="checkbox"
                     checked={briefingConfirmed}
                     onChange={() => setBriefingConfirmed(!briefingConfirmed)}
-                    style={{ marginTop: 3, width: 18, height: 18, accentColor: 'var(--color-rust)', flexShrink: 0 }}
+                    style={{ marginTop: 3, width: 18, height: 18, accentColor: 'var(--gold, #c9a227)', flexShrink: 0 }}
                   />
-                  <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--color-ink)', lineHeight: 1.5 }}>
+                  <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--ink, #111c2d)', lineHeight: 1.5 }}>
                     Insurance will be activated and passengers will be notified
                   </span>
                 </label>
@@ -278,12 +278,12 @@ export function TripStatusBar({
                 <button
                   onClick={handleStartTrip}
                   disabled={loading || !briefingConfirmed || !captainBriefedAll}
-                  className="btn btn--primary"
+                  className="btn btn-navy"
                   style={{
                     flex: 1,
-                    background: (briefingConfirmed && captainBriefedAll) ? 'var(--color-status-ok)' : 'var(--color-line)',
-                    borderColor: (briefingConfirmed && captainBriefedAll) ? 'var(--color-status-ok)' : 'var(--color-line)',
-                    color: (briefingConfirmed && captainBriefedAll) ? 'var(--color-bone)' : 'var(--color-ink-muted)',
+                    background: (briefingConfirmed && captainBriefedAll) ? 'var(--verified, #059669)' : 'var(--border, #dde2ea)',
+                    borderColor: (briefingConfirmed && captainBriefedAll) ? 'var(--verified, #059669)' : 'var(--border, #dde2ea)',
+                    color: (briefingConfirmed && captainBriefedAll) ? 'var(--off, #f5f7fa)' : 'var(--muted, #6b7280)',
                     cursor: (briefingConfirmed && captainBriefedAll) ? 'pointer' : 'not-allowed',
                   }}
                 >
@@ -302,9 +302,9 @@ export function TripStatusBar({
             className="btn"
             style={{
               width: '100%', height: 52, justifyContent: 'center',
-              background: isReadyToDepart ? 'var(--color-status-ok)' : 'var(--color-bone)',
-              borderColor: isReadyToDepart ? 'var(--color-status-ok)' : 'var(--color-line)',
-              color: isReadyToDepart ? 'var(--color-bone)' : 'var(--color-ink-muted)',
+              background: isReadyToDepart ? 'var(--navy, #0a1628)' : 'var(--off, #f5f7fa)',
+              borderColor: isReadyToDepart ? 'var(--navy, #0a1628)' : 'var(--border, #dde2ea)',
+              color: isReadyToDepart ? '#e8e8e0' : 'var(--muted, #6b7280)',
               fontSize: 'var(--t-body-md)', fontWeight: 700,
               cursor: isReadyToDepart ? 'pointer' : 'not-allowed',
             }}
@@ -322,7 +322,7 @@ export function TripStatusBar({
             {/* Panel header */}
             <div
               style={{
-                background: 'var(--color-status-err)',
+                background: 'var(--danger, #dc2626)',
                 padding: 'var(--s-3) var(--s-5)',
               }}
             >
@@ -359,7 +359,7 @@ export function TripStatusBar({
                   border: '1px solid rgba(180,60,60,0.2)',
                   borderRadius: 'var(--r-1)',
                   fontSize: 'var(--t-body-sm)',
-                  color: 'var(--color-status-err)',
+                  color: 'var(--danger, #dc2626)',
                   lineHeight: 1.5,
                 }}
               >
@@ -382,8 +382,8 @@ export function TripStatusBar({
                   className="btn"
                   style={{
                     flex: 1,
-                    background: 'var(--color-status-err)',
-                    borderColor: 'var(--color-status-err)',
+                    background: 'var(--danger, #dc2626)',
+                    borderColor: 'var(--danger, #dc2626)',
                     color: '#fff',
                     fontWeight: 700,
                     opacity: loading ? 0.6 : 1,
@@ -401,7 +401,7 @@ export function TripStatusBar({
           <button
             onClick={() => setShowEndConfirm(true)}
             disabled={loading}
-            className="btn btn--danger"
+            className="btn btn-danger"
             style={{ width: '100%', height: 52, justifyContent: 'center', fontSize: 'var(--t-body-md)', fontWeight: 700 }}
           >
             End trip

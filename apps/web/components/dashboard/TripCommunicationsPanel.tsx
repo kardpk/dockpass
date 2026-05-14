@@ -77,14 +77,14 @@ export function TripCommunicationsPanel({
           alignItems: 'center',
           gap: 'var(--s-2)',
           paddingBottom: 'var(--s-3)',
-          borderBottom: 'var(--border-w) solid var(--color-ink)',
+          borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
           marginBottom: 'var(--s-4)',
         }}
       >
         <Mail
           size={14}
           strokeWidth={2}
-          style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }}
+          style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }}
         />
         <span
           className="font-mono"
@@ -93,7 +93,7 @@ export function TripCommunicationsPanel({
             fontWeight: 700,
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
-            color: 'var(--color-ink)',
+            color: 'var(--ink, #111c2d)',
           }}
         >
           Communications
@@ -111,8 +111,8 @@ export function TripCommunicationsPanel({
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: 'var(--s-3) var(--s-5)',
-              background: 'var(--color-bone)',
-              borderBottom: '1px solid var(--color-line-soft)',
+              background: 'var(--off, #f5f7fa)',
+              borderBottom: '1px solid var(--border, #dde2ea)',
             }}
           >
             <span
@@ -122,7 +122,7 @@ export function TripCommunicationsPanel({
                 fontWeight: 600,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'var(--color-ink-muted)',
+                color: 'var(--muted, #6b7280)',
               }}
             >
               Guest invitation message
@@ -137,7 +137,7 @@ export function TripCommunicationsPanel({
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--color-ink-muted)',
+                  color: 'var(--muted, #6b7280)',
                   fontSize: '12px',
                   fontWeight: 500,
                   padding: 0,
@@ -156,7 +156,7 @@ export function TripCommunicationsPanel({
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--color-ink-muted)',
+                  color: 'var(--muted, #6b7280)',
                   fontSize: '12px',
                   fontWeight: 500,
                   padding: 0,
@@ -182,7 +182,7 @@ export function TripCommunicationsPanel({
                   fontFamily: 'var(--font-mono)',
                   fontSize: '12px',
                   lineHeight: 1.6,
-                  color: 'var(--color-ink)',
+                  color: 'var(--ink, #111c2d)',
                 }}
               />
             ) : (
@@ -191,7 +191,7 @@ export function TripCommunicationsPanel({
                 style={{
                   fontSize: '12px',
                   lineHeight: 1.7,
-                  color: 'var(--color-ink)',
+                  color: 'var(--ink, #111c2d)',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                   margin: 0,
@@ -207,7 +207,7 @@ export function TripCommunicationsPanel({
             style={{
               display: 'grid',
               gridTemplateColumns: editingMessage ? '1fr 1fr' : '1fr 1fr',
-              borderTop: '1px solid var(--color-line-soft)',
+              borderTop: '1px solid var(--border, #dde2ea)',
             }}
           >
             {editingMessage ? (
@@ -222,10 +222,10 @@ export function TripCommunicationsPanel({
                     height: 44,
                     fontSize: '13px',
                     fontWeight: 500,
-                    background: copiedMsg ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
-                    color: copiedMsg ? 'var(--color-status-ok)' : 'var(--color-ink-muted)',
+                    background: copiedMsg ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
+                    color: copiedMsg ? 'var(--verified, #059669)' : 'var(--muted, #6b7280)',
                     border: 'none',
-                    borderRight: '1px solid var(--color-line-soft)',
+                    borderRight: '1px solid var(--border, #dde2ea)',
                     cursor: 'pointer',
                   }}
                 >
@@ -250,8 +250,8 @@ export function TripCommunicationsPanel({
                     height: 44,
                     fontSize: '13px',
                     fontWeight: 600,
-                    background: messageSaved ? 'var(--color-status-ok-soft)' : 'var(--color-ink)',
-                    color: messageSaved ? 'var(--color-status-ok)' : 'var(--color-bone)',
+                    background: messageSaved ? 'var(--v-soft, #ecfdf5)' : 'var(--ink, #111c2d)',
+                    color: messageSaved ? 'var(--verified, #059669)' : 'var(--off, #f5f7fa)',
                     border: 'none',
                     cursor: 'pointer',
                   }}
@@ -274,10 +274,10 @@ export function TripCommunicationsPanel({
                     height: 44,
                     fontSize: '13px',
                     fontWeight: 600,
-                    background: copiedMsg ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
-                    color: copiedMsg ? 'var(--color-status-ok)' : 'var(--color-ink)',
+                    background: copiedMsg ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
+                    color: copiedMsg ? 'var(--verified, #059669)' : 'var(--ink, #111c2d)',
                     border: 'none',
-                    borderRight: '1px solid var(--color-line-soft)',
+                    borderRight: '1px solid var(--border, #dde2ea)',
                     cursor: 'pointer',
                     transition: 'background var(--dur-fast) var(--ease)',
                   }}
@@ -295,8 +295,8 @@ export function TripCommunicationsPanel({
                     height: 44,
                     fontSize: '13px',
                     fontWeight: 500,
-                    background: copiedLink ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
-                    color: copiedLink ? 'var(--color-status-ok)' : 'var(--color-ink-muted)',
+                    background: copiedLink ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
+                    color: copiedLink ? 'var(--verified, #059669)' : 'var(--muted, #6b7280)',
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'background var(--dur-fast) var(--ease)',
@@ -318,8 +318,8 @@ export function TripCommunicationsPanel({
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: 'var(--s-3) var(--s-5)',
-              background: 'var(--color-bone)',
-              borderBottom: '1px solid var(--color-line-soft)',
+              background: 'var(--off, #f5f7fa)',
+              borderBottom: '1px solid var(--border, #dde2ea)',
             }}
           >
             <span
@@ -329,7 +329,7 @@ export function TripCommunicationsPanel({
                 fontWeight: 600,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'var(--color-ink-muted)',
+                color: 'var(--muted, #6b7280)',
               }}
             >
               Captain notes
@@ -337,7 +337,7 @@ export function TripCommunicationsPanel({
             {notesSaved && (
               <span
                 className="font-mono"
-                style={{ fontSize: '11px', color: 'var(--color-status-ok)' }}
+                style={{ fontSize: '11px', color: 'var(--verified, #059669)' }}
               >
                 <Check size={10} strokeWidth={2.5} style={{ display: 'inline', marginRight: 4 }} />
                 Saved
@@ -349,7 +349,7 @@ export function TripCommunicationsPanel({
                 style={{
                   display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-ink-muted)', fontSize: '12px', fontWeight: 500, padding: 0,
+                  color: 'var(--muted, #6b7280)', fontSize: '12px', fontWeight: 500, padding: 0,
                 }}
               >
                 <Pencil size={12} strokeWidth={2} />
@@ -361,7 +361,7 @@ export function TripCommunicationsPanel({
                 style={{
                   display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-ink-muted)', fontSize: '12px', fontWeight: 500, padding: 0,
+                  color: 'var(--muted, #6b7280)', fontSize: '12px', fontWeight: 500, padding: 0,
                 }}
               >
                 <X size={12} strokeWidth={2} />
@@ -390,7 +390,7 @@ export function TripCommunicationsPanel({
                 style={{
                   fontSize: '13px',
                   lineHeight: 1.6,
-                  color: 'var(--color-ink)',
+                  color: 'var(--ink, #111c2d)',
                   margin: 0,
                   whiteSpace: 'pre-wrap',
                 }}
@@ -401,7 +401,7 @@ export function TripCommunicationsPanel({
               <p
                 style={{
                   fontSize: '13px',
-                  color: 'var(--color-ink-muted)',
+                  color: 'var(--muted, #6b7280)',
                   fontStyle: 'italic',
                   margin: 0,
                 }}
@@ -412,7 +412,7 @@ export function TripCommunicationsPanel({
           </div>
 
           {editingNotes && (
-            <div style={{ borderTop: '1px solid var(--color-line-soft)' }}>
+            <div style={{ borderTop: '1px solid var(--border, #dde2ea)' }}>
               <button
                 onClick={saveNotes}
                 disabled={savingNotes}
@@ -425,8 +425,8 @@ export function TripCommunicationsPanel({
                   height: 44,
                   fontSize: '13px',
                   fontWeight: 600,
-                  background: 'var(--color-ink)',
-                  color: 'var(--color-bone)',
+                  background: 'var(--ink, #111c2d)',
+                  color: 'var(--off, #f5f7fa)',
                   border: 'none',
                   cursor: 'pointer',
                   opacity: savingNotes ? 0.6 : 1,

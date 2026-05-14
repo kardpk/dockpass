@@ -5,28 +5,29 @@ import { TripStatusBadge } from '@/components/ui/TripStatusBadge'
 import type { OperatorTripDetail } from '@/types'
 
 /**
- * TripDetailHeader — MASTER_DESIGN editorial header
+ * TripDetailHeader — V3 Design Language
  *
- * Fraunces boat name, mono trip metadata, proper status pill,
- * rust-colored trip code. Back navigation with ChevronLeft.
+ * Source Serif 4 boat name, JetBrains Mono trip metadata,
+ * V3 badge for status, gold trip code.
  */
 export function TripDetailHeader({ trip }: { trip: OperatorTripDetail }) {
   return (
-    <div style={{ marginBottom: 'var(--s-6)' }}>
-      {/* ── Back nav + kicker ─────────────────────────────── */}
+    <div style={{ marginBottom: 24 }}>
+      {/* ── Back nav + status badge ─────────────────────────── */}
       <div
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: 'var(--s-4) 0',
-          borderBottom: 'var(--border-w) solid var(--color-line-soft)',
+          padding: '16px 0',
+          borderBottom: '1px solid var(--border, #dde2ea)',
         }}
       >
         <Link
           href="/dashboard/trips"
           style={{
-            display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
-            color: 'var(--color-ink)', textDecoration: 'none',
-            fontSize: 'var(--t-body-sm)', fontWeight: 500,
+            display: 'flex', alignItems: 'center', gap: 4,
+            color: 'var(--ink, #111c2d)', textDecoration: 'none',
+            fontSize: 14, fontWeight: 500,
+            fontFamily: 'var(--sans, sans-serif)',
           }}
         >
           <ChevronLeft size={16} strokeWidth={2.5} />
@@ -35,91 +36,101 @@ export function TripDetailHeader({ trip }: { trip: OperatorTripDetail }) {
         <TripStatusBadge status={trip.status} />
       </div>
 
-      {/* ── Boat name + trip info ──────────────────────────── */}
-      <div style={{ paddingTop: 'var(--s-5)' }}>
+      {/* ── Boat name + trip info ────────────────────────────── */}
+      <div style={{ paddingTop: 20 }}>
         <h1
-          className="font-display"
           style={{
+            fontFamily: 'var(--serif, Georgia, serif)',
             fontSize: 'clamp(24px, 4vw, 30px)',
-            fontWeight: 500,
-            letterSpacing: '-0.025em',
-            color: 'var(--color-ink)',
-            lineHeight: 1.1,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: 'var(--ink, #111c2d)',
+            lineHeight: 1.12,
           }}
         >
           {trip.boat.boatName}
         </h1>
 
-        {/* Trip meta row */}
+        {/* Trip meta row — date · time · duration */}
         <div
-          className="font-mono"
           style={{
-            fontSize: '13px',
+            fontFamily: 'var(--mono, monospace)',
+            fontSize: 12,
             fontWeight: 600,
-            color: 'var(--color-ink-soft)',
-            letterSpacing: '0.04em',
-            marginTop: 'var(--s-2)',
+            color: 'var(--body, #374151)',
+            letterSpacing: '0.06em',
+            marginTop: 8,
             display: 'flex',
             alignItems: 'center',
-            gap: 'var(--s-2)',
+            gap: 4,
           }}
         >
           {formatTripDate(trip.tripDate)} · {trip.departureTime.slice(0, 5)} · {formatDuration(trip.durationHours)}
         </div>
+
+        {/* Location row */}
         <div
           style={{
-            display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
-            marginTop: 'var(--s-1)',
-            fontSize: 'var(--t-body-sm)',
-            color: 'var(--color-ink-muted)',
+            display: 'flex', alignItems: 'center', gap: 4,
+            marginTop: 4,
+            fontSize: 13,
+            color: 'var(--muted, #6b7280)',
+            fontFamily: 'var(--sans, sans-serif)',
           }}
         >
-          <MapPin size={13} strokeWidth={2} />
+          <MapPin size={12} strokeWidth={2} />
           {trip.boat.marinaName}
           {trip.boat.slipNumber ? ` · Slip ${trip.boat.slipNumber}` : ''}
         </div>
       </div>
 
-      {/* ── Trip code ──────────────────────────────────────── */}
+      {/* ── Trip code ────────────────────────────────────────── */}
       <div
         style={{
-          display: 'flex', alignItems: 'center', gap: 'var(--s-3)',
-          marginTop: 'var(--s-4)',
-          paddingTop: 'var(--s-4)',
-          borderTop: '1px dashed var(--color-line-soft)',
+          display: 'flex', alignItems: 'center', gap: 12,
+          marginTop: 16,
+          paddingTop: 16,
+          borderTop: '1px dashed var(--border, #dde2ea)',
         }}
       >
         <span
-          className="font-mono"
           style={{
-            fontSize: '12px', fontWeight: 600,
-            letterSpacing: '0.12em', textTransform: 'uppercase',
-            color: 'var(--color-ink-muted)',
+            fontFamily: 'var(--mono, monospace)',
+            fontSize: 11, fontWeight: 600,
+            letterSpacing: '0.14em', textTransform: 'uppercase',
+            color: 'var(--muted, #6b7280)',
           }}
         >
           Code
         </span>
         <span
-          className="font-mono"
           style={{
-            fontSize: '22px', fontWeight: 900,
+            fontFamily: 'var(--mono, monospace)',
+            fontSize: 24, fontWeight: 900,
             letterSpacing: '0.15em',
-            color: 'var(--color-rust)',
+            color: 'var(--gold, #c9a227)',
           }}
         >
           {trip.tripCode}
         </span>
       </div>
 
-      {/* ── Insurance notice (if active) ───────────────────── */}
+      {/* ── Insurance notice (if active) ─────────────────────── */}
       {trip.buoyPolicyId && trip.status === 'active' && (
         <div
-          className="alert alert--ok"
-          style={{ marginTop: 'var(--s-4)' }}
+          style={{
+            marginTop: 12,
+            padding: '10px 14px',
+            background: 'var(--v-soft, #ecfdf5)',
+            border: '1px solid rgba(5,150,105,0.25)',
+            borderLeft: '3px solid var(--verified, #059669)',
+            borderRadius: '0 4px 4px 0',
+            fontSize: 13,
+            color: 'var(--verified, #059669)',
+            fontFamily: 'var(--sans, sans-serif)',
+          }}
         >
-          <div>
-            Insurance active · Policy {trip.buoyPolicyId}
-          </div>
+          Insurance active · Policy {trip.buoyPolicyId}
         </div>
       )}
     </div>

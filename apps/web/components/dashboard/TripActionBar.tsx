@@ -140,17 +140,17 @@ export function TripActionBar({
             alignItems: 'center',
             gap: 'var(--s-2)',
             paddingBottom: 'var(--s-3)',
-            borderBottom: 'var(--border-w) solid var(--color-ink)',
+            borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
             marginBottom: 'var(--s-4)',
           }}
         >
-          <Share2 size={14} strokeWidth={2} style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }} />
+          <Share2 size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
           <span
             className="font-mono"
             style={{
               fontSize: '13px', fontWeight: 700,
               letterSpacing: '0.14em', textTransform: 'uppercase',
-              color: 'var(--color-ink)',
+              color: 'var(--ink, #111c2d)',
             }}
           >
             Share
@@ -164,18 +164,18 @@ export function TripActionBar({
             <div
               style={{
                 padding: 'var(--s-3) var(--s-4)',
-                background: 'var(--color-bone)',
-                borderBottom: '1px solid var(--color-line-soft)',
+                background: 'var(--off, #f5f7fa)',
+                borderBottom: '1px solid var(--border, #dde2ea)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)', marginBottom: 4 }}>
-                <LinkIcon size={11} strokeWidth={2} style={{ color: 'var(--color-ink-muted)' }} />
+                <LinkIcon size={11} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)' }} />
                 <span
                   className="font-mono"
                   style={{
                     fontSize: '11px', fontWeight: 600,
                     letterSpacing: '0.12em', textTransform: 'uppercase',
-                    color: 'var(--color-ink-muted)',
+                    color: 'var(--muted, #6b7280)',
                   }}
                 >
                   Trip link
@@ -184,7 +184,7 @@ export function TripActionBar({
               <p
                 className="font-mono"
                 style={{
-                  fontSize: '12px', color: 'var(--color-ink)',
+                  fontSize: '12px', color: 'var(--ink, #111c2d)',
                   wordBreak: 'break-all', lineHeight: 1.5, margin: 0,
                 }}
               >
@@ -203,9 +203,9 @@ export function TripActionBar({
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   gap: 'var(--s-2)', height: 44,
                   fontSize: '13px', fontWeight: 600,
-                  background: copiedLink ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
-                  color: copiedLink ? 'var(--color-status-ok)' : 'var(--color-ink)',
-                  border: 'none', borderRight: '1px solid var(--color-line-soft)',
+                  background: copiedLink ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
+                  color: copiedLink ? 'var(--verified, #059669)' : 'var(--ink, #111c2d)',
+                  border: 'none', borderRight: '1px solid var(--border, #dde2ea)',
                   cursor: 'pointer',
                   transition: 'background var(--dur-fast) var(--ease)',
                 }}
@@ -221,9 +221,9 @@ export function TripActionBar({
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   gap: 'var(--s-2)', height: 44,
                   fontSize: '13px', fontWeight: 500,
-                  color: 'var(--color-ink-muted)',
+                  color: 'var(--muted, #6b7280)',
                   textDecoration: 'none',
-                  background: 'var(--color-paper)',
+                  background: 'var(--off, #f5f7fa)',
                 }}
               >
                 <ExternalLink size={13} strokeWidth={2} />
@@ -238,8 +238,8 @@ export function TripActionBar({
               <div
                 style={{
                   padding: 'var(--s-3) var(--s-4)',
-                  background: 'var(--color-bone)',
-                  borderBottom: '1px solid var(--color-line-soft)',
+                  background: 'var(--off, #f5f7fa)',
+                  borderBottom: '1px solid var(--border, #dde2ea)',
                 }}
               >
                 <span
@@ -247,7 +247,7 @@ export function TripActionBar({
                   style={{
                     fontSize: '11px', fontWeight: 600,
                     letterSpacing: '0.12em', textTransform: 'uppercase',
-                    color: 'var(--color-ink-muted)',
+                    color: 'var(--muted, #6b7280)',
                     display: 'block', marginBottom: 4,
                   }}
                 >
@@ -256,7 +256,7 @@ export function TripActionBar({
                 <p
                   className="font-mono"
                   style={{
-                    fontSize: '11px', color: 'var(--color-ink)',
+                    fontSize: '11px', color: 'var(--ink, #111c2d)',
                     wordBreak: 'break-all', lineHeight: 1.5, margin: 0,
                   }}
                 >
@@ -270,9 +270,9 @@ export function TripActionBar({
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     gap: 'var(--s-2)', height: 44,
                     fontSize: '13px', fontWeight: 600,
-                    background: copiedSnapshot ? 'var(--color-status-ok-soft)' : 'var(--color-paper)',
-                    color: copiedSnapshot ? 'var(--color-status-ok)' : 'var(--color-ink)',
-                    border: 'none', borderRight: '1px solid var(--color-line-soft)',
+                    background: copiedSnapshot ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
+                    color: copiedSnapshot ? 'var(--verified, #059669)' : 'var(--ink, #111c2d)',
+                    border: 'none', borderRight: '1px solid var(--border, #dde2ea)',
                     cursor: 'pointer',
                   }}
                 >
@@ -286,8 +286,8 @@ export function TripActionBar({
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     gap: 'var(--s-2)', height: 44,
                     fontSize: '13px', fontWeight: 500,
-                    background: 'var(--color-paper)',
-                    color: 'var(--color-status-err)',
+                    background: 'var(--off, #f5f7fa)',
+                    color: 'var(--danger, #dc2626)',
                     border: 'none', cursor: 'pointer',
                     opacity: generatingSnapshot ? 0.5 : 1,
                   }}
@@ -301,7 +301,7 @@ export function TripActionBar({
             <button
               onClick={generateSnapshot}
               disabled={generatingSnapshot}
-              className="btn btn--primary"
+              className="btn btn-navy"
               style={{ width: '100%', justifyContent: 'center', height: 48 }}
             >
               <Share2 size={14} strokeWidth={2.5} />
@@ -317,7 +317,7 @@ export function TripActionBar({
                 onClick={() => setSnapshotError(null)}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-status-err)', fontWeight: 700, flexShrink: 0, padding: 0,
+                  color: 'var(--danger, #dc2626)', fontWeight: 700, flexShrink: 0, padding: 0,
                 }}
                 aria-label="Dismiss error"
               >
@@ -340,17 +340,17 @@ export function TripActionBar({
               alignItems: 'center',
               gap: 'var(--s-2)',
               paddingBottom: 'var(--s-3)',
-              borderBottom: 'var(--border-w) solid var(--color-ink)',
+              borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
               marginBottom: 'var(--s-4)',
             }}
           >
-            <Download size={14} strokeWidth={2} style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }} />
+            <Download size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
             <span
               className="font-mono"
               style={{
                 fontSize: '13px', fontWeight: 700,
                 letterSpacing: '0.14em', textTransform: 'uppercase',
-                color: 'var(--color-ink)',
+                color: 'var(--ink, #111c2d)',
               }}
             >
               Documents
@@ -377,7 +377,7 @@ export function TripActionBar({
                 padding: 'var(--s-4) var(--s-5)',
                 cursor: 'pointer',
                 width: '100%',
-                borderLeft: '4px solid var(--color-ink)',
+                borderLeft: '4px solid var(--border, #dde2ea)',
                 opacity: downloadingPdf ? 0.5 : 1,
                 transition: 'opacity 0.15s',
                 textAlign: 'left',
@@ -386,15 +386,15 @@ export function TripActionBar({
               <Download
                 size={20}
                 strokeWidth={1.8}
-                style={{ color: 'var(--color-ink)', flexShrink: 0 }}
+                style={{ color: 'var(--ink, #111c2d)', flexShrink: 0 }}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ink)', lineHeight: 1.2 }}>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink, #111c2d)', lineHeight: 1.2 }}>
                   {downloadingPdf ? 'Generating...' : 'Passenger Manifest PDF'}
                 </p>
                 <p
                   className="font-mono"
-                  style={{ fontSize: '11px', color: 'var(--color-ink-muted)', marginTop: 2 }}
+                  style={{ fontSize: '11px', color: 'var(--muted, #6b7280)', marginTop: 2 }}
                 >
                   Guest list · waivers · safety status
                 </p>
@@ -414,7 +414,7 @@ export function TripActionBar({
                   padding: 'var(--s-4) var(--s-5)',
                   cursor: 'pointer',
                   width: '100%',
-                  borderLeft: '4px solid var(--color-brass)',
+                  borderLeft: '4px solid var(--gold, #c9a227)',
                   opacity: downloadingCsv ? 0.5 : 1,
                   transition: 'opacity 0.15s',
                   textAlign: 'left',
@@ -423,15 +423,15 @@ export function TripActionBar({
                 <Anchor
                   size={20}
                   strokeWidth={1.8}
-                  style={{ color: 'var(--color-brass)', flexShrink: 0 }}
+                  style={{ color: 'var(--gold, #c9a227)', flexShrink: 0 }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ink)', lineHeight: 1.2 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink, #111c2d)', lineHeight: 1.2 }}>
                     {downloadingCsv ? 'Generating...' : 'USCG Passenger CSV'}
                   </p>
                   <p
                     className="font-mono"
-                    style={{ fontSize: '11px', color: 'var(--color-ink-muted)', marginTop: 2 }}
+                    style={{ fontSize: '11px', color: 'var(--muted, #6b7280)', marginTop: 2 }}
                   >
                     46 CFR §182.530 · all waivers signed
                   </p>
@@ -447,21 +447,21 @@ export function TripActionBar({
                   gap: 'var(--s-4)',
                   padding: 'var(--s-4) var(--s-5)',
                   opacity: 0.5,
-                  borderLeft: '4px solid var(--color-line-soft)',
+                  borderLeft: '4px solid var(--border, #dde2ea)',
                 }}
               >
                 <Anchor
                   size={20}
                   strokeWidth={1.8}
-                  style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }}
+                  style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-ink)', lineHeight: 1.2 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink, #111c2d)', lineHeight: 1.2 }}>
                     USCG Passenger CSV
                   </p>
                   <p
                     className="font-mono"
-                    style={{ fontSize: '11px', color: 'var(--color-status-warn)', marginTop: 2 }}
+                    style={{ fontSize: '11px', color: 'var(--warning, #d97706)', marginTop: 2 }}
                   >
                     Available once all guests have signed waivers
                   </p>

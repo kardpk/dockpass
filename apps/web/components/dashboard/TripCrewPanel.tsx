@@ -104,18 +104,18 @@ export function TripCrewPanel({
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingBottom: 'var(--s-3)',
-          borderBottom: 'var(--border-w) solid var(--color-ink)',
+          borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
           marginBottom: 'var(--s-4)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
-          <UserRound size={14} strokeWidth={2} style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }} />
+          <UserRound size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
           <span
-            className="font-mono"
             style={{
-              fontSize: '13px', fontWeight: 700,
+              fontFamily: 'var(--mono, monospace)',
+              fontSize: 11, fontWeight: 600,
               letterSpacing: '0.14em', textTransform: 'uppercase',
-              color: 'var(--color-ink)',
+              color: 'var(--muted, #6b7280)',
             }}
           >
             Crew assignment
@@ -135,7 +135,7 @@ export function TripCrewPanel({
             style={{
               padding: 0,
               overflow: 'hidden',
-              borderLeft: '4px solid var(--color-ink)',
+              borderLeft: '3px solid var(--navy, #0a1628)',
             }}
           >
             <div
@@ -150,12 +150,13 @@ export function TripCrewPanel({
               <div
                 style={{
                   width: 40, height: 40,
-                  borderRadius: 'var(--r-1)',
-                  background: 'var(--color-ink)',
-                  color: 'var(--color-bone)',
+                  borderRadius: 4,
+                  background: 'var(--navy-2, #0f1e35)',
+                  border: '1px solid var(--gold-border, rgba(201,162,39,0.18))',
+                  color: '#e8e8e0',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '13px', fontWeight: 700,
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'var(--mono, monospace)',
                   flexShrink: 0,
                 }}
               >
@@ -165,8 +166,7 @@ export function TripCrewPanel({
               {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p
-                  className="font-display"
-                  style={{ fontSize: '15px', fontWeight: 500, color: 'var(--color-ink)', lineHeight: 1.2 }}
+                  style={{ fontFamily: 'var(--sans, sans-serif)', fontSize: '15px', fontWeight: 600, color: 'var(--ink, #111c2d)', lineHeight: 1.2 }}
                 >
                   {currentCaptain.captainName}
                 </p>
@@ -175,7 +175,7 @@ export function TripCrewPanel({
                   style={{
                     fontSize: '11px', fontWeight: 600,
                     letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--color-ink-muted)',
+                    color: 'var(--muted, #6b7280)',
                     marginTop: 2,
                   }}
                 >
@@ -190,8 +190,8 @@ export function TripCrewPanel({
                     onClick={() => setShowPicker(true)}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 500, color: 'var(--color-ink)',
-                      textDecoration: 'underline', textDecorationColor: 'var(--color-line)',
+                      fontSize: '13px', fontWeight: 500, color: 'var(--ink, #111c2d)',
+                      textDecoration: 'underline', textDecorationColor: 'var(--border, #dde2ea)',
                       padding: 0,
                     }}
                   >
@@ -201,8 +201,8 @@ export function TripCrewPanel({
                     onClick={() => handleRemove(currentCaptain.captainId)}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 500, color: 'var(--color-status-err)',
-                      textDecoration: 'underline', textDecorationColor: 'var(--color-status-err)',
+                      fontSize: '13px', fontWeight: 500, color: 'var(--danger, #dc2626)',
+                      textDecoration: 'underline', textDecorationColor: 'var(--danger, #dc2626)',
                       padding: 0,
                     }}
                   >
@@ -229,9 +229,9 @@ export function TripCrewPanel({
             <UserRound
               size={24}
               strokeWidth={1.5}
-              style={{ color: 'var(--color-ink-muted)', opacity: 0.5 }}
+              style={{ color: 'var(--muted, #6b7280)', opacity: 0.5 }}
             />
-            <p style={{ fontSize: '13px', color: 'var(--color-ink-muted)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--muted, #6b7280)' }}>
               {isLocked ? 'No captain assigned' : 'No captain assigned yet'}
             </p>
             {!isLocked && (
@@ -255,7 +255,7 @@ export function TripCrewPanel({
             style={{
               padding: 0,
               overflow: 'hidden',
-              borderLeft: '4px solid var(--color-line-soft)',
+              borderLeft: '3px solid var(--border, #dde2ea)',
             }}
           >
             <div
@@ -270,9 +270,9 @@ export function TripCrewPanel({
                 style={{
                   width: 32, height: 32,
                   borderRadius: 'var(--r-1)',
-                  background: 'var(--color-bone)',
-                  border: '1px solid var(--color-line-soft)',
-                  color: 'var(--color-ink)',
+                  background: 'var(--off, #f5f7fa)',
+                  border: '1px solid var(--border, #dde2ea)',
+                  color: 'var(--ink, #111c2d)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '11px', fontWeight: 700,
                   fontFamily: 'var(--font-mono)',
@@ -282,7 +282,7 @@ export function TripCrewPanel({
                 {initials(member.captainName)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-ink)' }}>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink, #111c2d)' }}>
                   {member.captainName}
                 </p>
                 <p
@@ -290,7 +290,7 @@ export function TripCrewPanel({
                   style={{
                     fontSize: '10px', fontWeight: 600,
                     textTransform: 'uppercase', letterSpacing: '0.08em',
-                    color: 'var(--color-ink-muted)', marginTop: 1,
+                    color: 'var(--muted, #6b7280)', marginTop: 1,
                   }}
                 >
                   {member.role.replace(/_/g, ' ')}
@@ -302,7 +302,7 @@ export function TripCrewPanel({
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--color-ink-muted)', flexShrink: 0, padding: 4,
+                    color: 'var(--muted, #6b7280)', flexShrink: 0, padding: 4,
                   }}
                   aria-label="Remove crew member"
                 >
@@ -322,7 +322,7 @@ export function TripCrewPanel({
             <div
               style={{
                 padding: 'var(--s-3) var(--s-4)',
-                background: 'var(--color-ink)',
+                background: 'var(--ink, #111c2d)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -333,7 +333,7 @@ export function TripCrewPanel({
                 style={{
                   fontSize: '11px', fontWeight: 700,
                   letterSpacing: '0.12em', textTransform: 'uppercase',
-                  color: 'var(--color-bone)',
+                  color: 'var(--off, #f5f7fa)',
                 }}
               >
                 Select from roster
@@ -342,7 +342,7 @@ export function TripCrewPanel({
                 onClick={() => setShowPicker(false)}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-bone)', opacity: 0.6, display: 'flex', padding: 0,
+                  color: 'var(--off, #f5f7fa)', opacity: 0.6, display: 'flex', padding: 0,
                 }}
               >
                 <X size={16} strokeWidth={2} />
@@ -350,7 +350,7 @@ export function TripCrewPanel({
             </div>
             <div>
               {captains.length === 0 && (
-                <p style={{ padding: 'var(--s-4)', fontSize: '13px', color: 'var(--color-ink-muted)' }}>
+                <p style={{ padding: 'var(--s-4)', fontSize: '13px', color: 'var(--muted, #6b7280)' }}>
                   Loading roster...
                 </p>
               )}
@@ -368,9 +368,9 @@ export function TripCrewPanel({
                       alignItems: 'center',
                       gap: 'var(--s-3)',
                       padding: 'var(--s-3) var(--s-4)',
-                      borderBottom: idx === captains.length - 1 ? 'none' : '1px solid var(--color-line-soft)',
-                      background: isAssigned ? 'var(--color-bone)' : 'var(--color-paper)',
-                      borderLeft: isAssigned ? '4px solid var(--color-ink)' : '4px solid transparent',
+                      borderBottom: idx === captains.length - 1 ? 'none' : '1px solid var(--border, #dde2ea)',
+                      background: isAssigned ? 'var(--off, #f5f7fa)' : 'var(--off, #f5f7fa)',
+                      borderLeft: isAssigned ? '4px solid var(--border, #dde2ea)' : '4px solid transparent',
                       cursor: 'pointer',
                       opacity: loading ? 0.5 : 1,
                       transition: 'background 0.12s',
@@ -381,8 +381,8 @@ export function TripCrewPanel({
                       style={{
                         width: 32, height: 32,
                         borderRadius: 'var(--r-1)',
-                        background: 'var(--color-ink)',
-                        color: 'var(--color-bone)',
+                        background: 'var(--ink, #111c2d)',
+                        color: 'var(--off, #f5f7fa)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: '11px', fontWeight: 700,
                         fontFamily: 'var(--font-mono)',
@@ -392,24 +392,24 @@ export function TripCrewPanel({
                       {initials(captain.fullName)}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-ink)' }}>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink, #111c2d)' }}>
                         {captain.fullName}
                         {captain.isDefault && (
                           <span
                             className="font-mono"
-                            style={{ marginLeft: 6, fontSize: '10px', color: 'var(--color-brass)' }}
+                            style={{ marginLeft: 6, fontSize: '10px', color: 'var(--gold, #c9a227)' }}
                           >
                             Default
                           </span>
                         )}
                       </p>
                       {captain.licenseType && (
-                        <p className="font-mono" style={{ fontSize: '10px', color: 'var(--color-ink-muted)', marginTop: 1 }}>
+                        <p className="font-mono" style={{ fontSize: '10px', color: 'var(--muted, #6b7280)', marginTop: 1 }}>
                           {captain.licenseType}
                         </p>
                       )}
                     </div>
-                    <ChevronRight size={14} strokeWidth={2} style={{ color: 'var(--color-ink-muted)', flexShrink: 0 }} />
+                    <ChevronRight size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
                   </button>
                 )
               })}
@@ -423,7 +423,7 @@ export function TripCrewPanel({
             href="/dashboard/captains"
             style={{
               display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
-              fontSize: '12px', color: 'var(--color-ink-muted)',
+              fontSize: '12px', color: 'var(--muted, #6b7280)',
               textDecoration: 'none', marginTop: 'var(--s-1)',
               justifyContent: 'center',
             }}
