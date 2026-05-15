@@ -16,67 +16,66 @@ function formatDur(h: number) {
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
-    upcoming:  'td-pill td-pill-gold',
-    active:    'td-pill td-pill-ok',
+    upcoming: 'td-pill td-pill-navy',
+    active: 'td-pill td-pill-ok',
     completed: 'td-pill td-pill-ghost',
     cancelled: 'td-pill td-pill-err',
   }
-  return (
-    <span className={map[status] ?? 'td-pill td-pill-ghost'}>
-      {status}
-    </span>
-  )
+  const labels: Record<string, string> = {
+    upcoming: 'Upcoming', active: '● Active', completed: 'Completed', cancelled: 'Cancelled',
+  }
+  return <span className={map[status] ?? 'td-pill td-pill-ghost'}>{labels[status] ?? status}</span>
 }
 
 export function TripDetailHeader({ trip }: { trip: OperatorTripDetail }) {
   return (
-    <div className="td-header">
-      {/* Nav row */}
+    <header className="td-header">
+      {/* Nav */}
       <div className="td-header-nav">
         <Link href="/dashboard/trips" className="td-header-back">
-          <ChevronLeft size={15} strokeWidth={2.5} />
+          <ChevronLeft size={14} strokeWidth={2.5} />
           All trips
         </Link>
         <StatusPill status={trip.status} />
       </div>
 
-      {/* Boat name + trip code on same row */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-        <h1 className="td-header-boat" style={{ flex: 1 }}>
-          {trip.boat.boatName}
-        </h1>
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'var(--td-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--td-text-faint)', marginBottom: 2 }}>
-            Code
-          </div>
-          <div className="td-header-code">{trip.tripCode}</div>
+      {/* Boat name + code badge */}
+      <div className="td-header-main">
+        <h1 className="td-header-boat">{trip.boat.boatName}</h1>
+
+        {/* ← The ONLY gold-on-navy element on the page */}
+        <div className="td-code-badge">
+          <span className="td-code-badge-label">Code</span>
+          <span className="td-code-badge-value">{trip.tripCode}</span>
         </div>
       </div>
 
-      {/* Date / time / duration */}
-      <div className="td-header-meta" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-        <Calendar size={11} strokeWidth={2} style={{ color: 'var(--td-text-faint)' }} />
+      {/* Meta: date · time · duration */}
+      <div className="td-header-meta">
+        <Calendar size={10} strokeWidth={2} />
         {formatDate(trip.tripDate)}
-        <span style={{ color: 'var(--td-text-faint)' }}>·</span>
-        <Clock size={11} strokeWidth={2} style={{ color: 'var(--td-text-faint)' }} />
+        <span className="td-header-sep">·</span>
+        <Clock size={10} strokeWidth={2} />
         {trip.departureTime.slice(0, 5)}
-        <span style={{ color: 'var(--td-text-faint)' }}>·</span>
+        <span className="td-header-sep">·</span>
         {formatDur(trip.durationHours)}
       </div>
 
       {/* Location */}
       <div className="td-header-location">
-        <MapPin size={11} strokeWidth={2} />
+        <MapPin size={10} strokeWidth={2} />
         {trip.boat.marinaName}
-        {trip.boat.slipNumber && <span style={{ color: 'var(--td-text-faint)' }}>· Slip {trip.boat.slipNumber}</span>}
+        {trip.boat.slipNumber && (
+          <span style={{ color: 'var(--td-navy-faint)' }}>· Slip {trip.boat.slipNumber}</span>
+        )}
       </div>
 
       {/* Insurance notice */}
       {trip.buoyPolicyId && trip.status === 'active' && (
-        <div className="td-alert td-alert-ok" style={{ marginTop: 12 }}>
+        <div className="td-alert td-alert-ok" style={{ marginTop: 10 }}>
           <span style={{ fontSize: 12 }}>Insurance active · Policy {trip.buoyPolicyId}</span>
         </div>
       )}
-    </div>
+    </header>
   )
 }
