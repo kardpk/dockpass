@@ -4,32 +4,23 @@ import { useState, useEffect, useCallback } from 'react'
 import { UserRound, Plus, X, ArrowRight, ChevronRight } from 'lucide-react'
 
 interface CaptainOption {
-  id: string
-  fullName: string
-  photoUrl: string | null
-  licenseType: string | null
-  isDefault: boolean
+  id: string; fullName: string; photoUrl: string | null
+  licenseType: string | null; isDefault: boolean
 }
 
 interface Assignment {
-  captainId: string
-  captainName: string
-  role: string
+  captainId: string; captainName: string; role: string
 }
 
 interface TripCrewPanelProps {
-  tripId: string
-  tripStatus: string
-  initialAssignments: Assignment[]
+  tripId: string; tripStatus: string; initialAssignments: Assignment[]
 }
 
 function initials(name: string) {
   return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 }
 
-export function TripCrewPanel({
-  tripId, tripStatus, initialAssignments,
-}: TripCrewPanelProps) {
+export function TripCrewPanel({ tripId, tripStatus, initialAssignments }: TripCrewPanelProps) {
   const [assignments, setAssignments] = useState(initialAssignments)
   const [captains, setCaptains] = useState<CaptainOption[]>([])
   const [showPicker, setShowPicker] = useState(false)
@@ -38,20 +29,12 @@ export function TripCrewPanel({
 
   useEffect(() => {
     if (showPicker && captains.length === 0) {
-      fetch('/api/dashboard/captains')
-        .then(r => r.json())
-        .then(json => {
-          setCaptains(
-            (json.data ?? []).map((c: Record<string, unknown>) => ({
-              id: c.id,
-              fullName: c.fullName,
-              photoUrl: c.photoUrl,
-              licenseType: c.licenseType,
-              isDefault: c.isDefault,
-            }))
-          )
-        })
-        .catch(() => {})
+      fetch('/api/dashboard/captains').then(r => r.json()).then(json => {
+        setCaptains((json.data ?? []).map((c: Record<string, unknown>) => ({
+          id: c.id, fullName: c.fullName, photoUrl: c.photoUrl,
+          licenseType: c.licenseType, isDefault: c.isDefault,
+        })))
+      }).catch(() => {})
     }
   }, [showPicker, captains.length])
 
@@ -59,251 +42,94 @@ export function TripCrewPanel({
     setLoading(true)
     try {
       const res = await fetch(`/api/dashboard/trips/${tripId}/assign-crew`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ captainId, role: 'captain' }),
       })
       if (res.ok) {
-        setAssignments(prev => {
-          const filtered = prev.filter(a => a.role !== 'captain')
-          return [...filtered, { captainId, captainName, role: 'captain' }]
-        })
+        setAssignments(prev => [...prev.filter(a => a.role !== 'captain'), { captainId, captainName, role: 'captain' }])
         setShowPicker(false)
       }
-    } catch {
-      // silent
-    } finally {
-      setLoading(false)
-    }
+    } catch {} finally { setLoading(false) }
   }, [tripId])
 
   const handleRemove = useCallback(async (captainId: string) => {
     if (!window.confirm('Remove this crew member from the trip?')) return
     try {
       await fetch(`/api/dashboard/trips/${tripId}/assign-crew`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ captainId }),
       })
       setAssignments(prev => prev.filter(a => a.captainId !== captainId))
-    } catch {
-      // silent
-    }
+    } catch {}
   }, [tripId])
 
   const currentCaptain = assignments.find(a => a.role === 'captain')
   const otherCrew = assignments.filter(a => a.role !== 'captain')
 
   return (
-    <section style={{ marginTop: 'var(--s-8)' }}>
-
-      {/* ── Section kicker — MASTER_DESIGN §6.6 soft ── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingBottom: 12,
-          borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-          marginBottom: 16,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-mono, monospace)',
-            fontSize: 10, fontWeight: 600,
-            letterSpacing: '0.12em', textTransform: 'uppercase',
-            color: 'var(--color-ink-muted, #3d5568)',
-          }}
-        >
-          Crew assignment
-        </span>
-        {isLocked && (
-          <span className="pill pill--ghost">Locked</span>
-        )}
+    <section>
+      {/* Uniform section kicker */}
+      <div className="td-kicker">
+        <span className="td-kicker-label">Crew Assignment</span>
+        {isLocked && <span className="td-pill td-pill-ghost">Locked</span>}
       </div>
 
-      {/* ── Captain tile ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-2)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
 
+        {/* Captain card */}
         {currentCaptain ? (
-          <div
-            className="tile"
-            style={{
-              padding: 0,
-              overflow: 'hidden',
-              borderLeft: '3px solid var(--navy, #0a1628)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--s-3)',
-                padding: 'var(--s-3) var(--s-4)',
-              }}
-            >
-              {/* Avatar — circular bone-warm per MASTER_DESIGN §7.9 */}
-              <div
-                style={{
-                  width: 38, height: 38,
-                  borderRadius: 9999,
-                  background: 'var(--color-bone-warm, #EDE6D8)',
-                  border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-                  color: 'var(--color-ink, #0B1E2D)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '12px', fontWeight: 600,
-                  fontFamily: 'var(--font-mono, monospace)',
-                  flexShrink: 0,
-                }}
-              >
-                {initials(currentCaptain.captainName)}
-              </div>
-
-              {/* Info */}
+          <div className="td-panel" style={{ borderLeft: '3px solid var(--td-gold)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
+              <div className="td-avatar td-avatar-md">{initials(currentCaptain.captainName)}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p
-                  style={{ fontFamily: 'var(--sans, sans-serif)', fontSize: '15px', fontWeight: 600, color: 'var(--ink, #111c2d)', lineHeight: 1.2 }}
-                >
+                <p style={{ fontFamily: 'var(--td-sans)', fontSize: 14, fontWeight: 600, color: 'var(--td-text)', lineHeight: 1.2 }}>
                   {currentCaptain.captainName}
                 </p>
-                <p
-                  className="font-mono"
-                  style={{
-                    fontSize: '11px', fontWeight: 600,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--muted, #6b7280)',
-                    marginTop: 2,
-                  }}
-                >
+                <p style={{ fontFamily: 'var(--td-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--td-gold-dim)', marginTop: 3 }}>
                   Captain · PIC
                 </p>
               </div>
-
-              {/* Actions */}
               {!isLocked && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', flexShrink: 0 }}>
-                  <button
-                    onClick={() => setShowPicker(true)}
-                    style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 500, color: 'var(--ink, #111c2d)',
-                      textDecoration: 'underline', textDecorationColor: 'var(--border, #dde2ea)',
-                      padding: 0,
-                    }}
-                  >
-                    Swap
-                  </button>
-                  <button
-                    onClick={() => handleRemove(currentCaptain.captainId)}
-                    style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: '13px', fontWeight: 500, color: 'var(--danger, #dc2626)',
-                      textDecoration: 'underline', textDecorationColor: 'var(--danger, #dc2626)',
-                      padding: 0,
-                    }}
-                  >
-                    Remove
-                  </button>
+                <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+                  <button onClick={() => setShowPicker(true)} className="td-btn-ghost">Swap</button>
+                  <button onClick={() => handleRemove(currentCaptain.captainId)} className="td-btn-ghost" style={{ color: 'var(--td-err)' }}>Remove</button>
                 </div>
               )}
             </div>
           </div>
         ) : (
-          /* No captain assigned */
           <div
-            className="tile"
-            style={{
-              padding: 'var(--s-5)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 'var(--s-3)',
-              textAlign: 'center',
-              borderStyle: isLocked ? 'solid' : 'dashed',
-            }}
+            className="td-panel"
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '24px 16px', textAlign: 'center', borderStyle: isLocked ? 'solid' : 'dashed' }}
           >
-            <UserRound
-              size={24}
-              strokeWidth={1.5}
-              style={{ color: 'var(--muted, #6b7280)', opacity: 0.5 }}
-            />
-            <p style={{ fontSize: '13px', color: 'var(--muted, #6b7280)' }}>
+            <UserRound size={24} strokeWidth={1.5} style={{ color: 'var(--td-text-faint)' }} />
+            <p style={{ fontSize: 12, color: 'var(--td-text-dim)' }}>
               {isLocked ? 'No captain assigned' : 'No captain assigned yet'}
             </p>
             {!isLocked && (
-              <button
-                onClick={() => setShowPicker(true)}
-                className="btn btn--sm"
-                style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}
-              >
-                <Plus size={13} strokeWidth={2.5} />
-                Assign captain
+              <button onClick={() => setShowPicker(true)} className="td-btn-outline" style={{ fontSize: 12 }}>
+                <Plus size={12} strokeWidth={2.5} /> Assign captain
               </button>
             )}
           </div>
         )}
 
-        {/* Other crew members */}
+        {/* Other crew */}
         {otherCrew.map(member => (
-          <div
-            key={member.captainId}
-            className="tile"
-            style={{
-              padding: 0,
-              overflow: 'hidden',
-              borderLeft: '3px solid var(--border, #dde2ea)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--s-3)',
-                padding: 'var(--s-3) var(--s-4)',
-              }}
-            >
-              <div
-                style={{
-                  width: 30, height: 30,
-                  borderRadius: 9999,
-                  background: 'var(--color-bone-warm, #EDE6D8)',
-                  border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-                  color: 'var(--color-ink, #0B1E2D)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: 600,
-                  fontFamily: 'var(--font-mono, monospace)',
-                  flexShrink: 0,
-                }}
-              >
-                {initials(member.captainName)}
-              </div>
+          <div key={member.captainId} className="td-panel">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px' }}>
+              <div className="td-avatar td-avatar-sm">{initials(member.captainName)}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink, #111c2d)' }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--td-text)', lineHeight: 1.2 }}>
                   {member.captainName}
                 </p>
-                <p
-                  className="font-mono"
-                  style={{
-                    fontSize: '10px', fontWeight: 600,
-                    textTransform: 'uppercase', letterSpacing: '0.08em',
-                    color: 'var(--muted, #6b7280)', marginTop: 1,
-                  }}
-                >
+                <p style={{ fontFamily: 'var(--td-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--td-text-dim)', marginTop: 2 }}>
                   {member.role.replace(/_/g, ' ')}
                 </p>
               </div>
               {!isLocked && (
-                <button
-                  onClick={() => handleRemove(member.captainId)}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--muted, #6b7280)', flexShrink: 0, padding: 4,
-                  }}
-                  aria-label="Remove crew member"
-                >
-                  <X size={14} strokeWidth={2} />
+                <button onClick={() => handleRemove(member.captainId)} className="td-btn-ghost" style={{ color: 'var(--td-err)' }}>
+                  <X size={13} strokeWidth={2} />
                 </button>
               )}
             </div>
@@ -312,122 +138,59 @@ export function TripCrewPanel({
 
         {/* Captain picker */}
         {showPicker && (
-          <div
-            className="tile"
-            style={{ overflow: 'hidden', padding: 0 }}
-          >
-            <div
-              style={{
-                padding: 'var(--s-3) var(--s-4)',
-                background: 'var(--ink, #111c2d)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <span
-                className="font-mono"
-                style={{
-                  fontSize: '11px', fontWeight: 700,
-                  letterSpacing: '0.12em', textTransform: 'uppercase',
-                  color: 'var(--off, #f5f7fa)',
-                }}
-              >
-                Select from roster
-              </span>
-              <button
-                onClick={() => setShowPicker(false)}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--off, #f5f7fa)', opacity: 0.6, display: 'flex', padding: 0,
-                }}
-              >
-                <X size={16} strokeWidth={2} />
+          <div className="td-panel">
+            <div className="td-panel-header">
+              <span className="td-panel-label">Select from roster</span>
+              <button onClick={() => setShowPicker(false)} className="td-btn-ghost">
+                <X size={14} strokeWidth={2} />
               </button>
             </div>
             <div>
               {captains.length === 0 && (
-                <p style={{ padding: 'var(--s-4)', fontSize: '13px', color: 'var(--muted, #6b7280)' }}>
-                  Loading roster...
-                </p>
+                <p style={{ padding: '12px 16px', fontSize: 12, color: 'var(--td-text-dim)' }}>Loading roster...</p>
               )}
-              {captains.map((captain, idx) => {
-                const isAssigned = assignments.some(a => a.captainId === captain.id)
-                return (
-                  <button
-                    key={captain.id}
-                    type="button"
-                    disabled={loading}
-                    onClick={() => handleAssign(captain.id, captain.fullName)}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--s-3)',
-                      padding: 'var(--s-3) var(--s-4)',
-                      borderBottom: idx === captains.length - 1 ? 'none' : '1px solid var(--border, #dde2ea)',
-                      background: isAssigned ? 'var(--off, #f5f7fa)' : 'var(--off, #f5f7fa)',
-                      borderLeft: isAssigned ? '4px solid var(--border, #dde2ea)' : '4px solid transparent',
-                      cursor: 'pointer',
-                      opacity: loading ? 0.5 : 1,
-                      transition: 'background 0.12s',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 30, height: 30,
-                        borderRadius: 9999,
-                        background: 'var(--color-bone-warm, #EDE6D8)',
-                        border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-                        color: 'var(--color-ink, #0B1E2D)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '11px', fontWeight: 600,
-                        fontFamily: 'var(--font-mono, monospace)',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {initials(captain.fullName)}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink, #111c2d)' }}>
-                        {captain.fullName}
-                        {captain.isDefault && (
-                          <span
-                            className="font-mono"
-                            style={{ marginLeft: 6, fontSize: '10px', color: 'var(--gold, #c9a227)' }}
-                          >
-                            Default
-                          </span>
-                        )}
-                      </p>
-                      {captain.licenseType && (
-                        <p className="font-mono" style={{ fontSize: '10px', color: 'var(--muted, #6b7280)', marginTop: 1 }}>
-                          {captain.licenseType}
-                        </p>
+              {captains.map((captain, idx) => (
+                <button
+                  key={captain.id}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleAssign(captain.id, captain.fullName)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 16px',
+                    borderBottom: idx === captains.length - 1 ? 'none' : '1px solid var(--td-divider)',
+                    background: 'none', cursor: 'pointer', textAlign: 'left',
+                    opacity: loading ? 0.5 : 1, transition: 'background 120ms',
+                    borderLeft: assignments.some(a => a.captainId === captain.id) ? '2px solid var(--td-gold)' : '2px solid transparent',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--td-surface-hi)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                >
+                  <div className="td-avatar td-avatar-sm">{initials(captain.fullName)}</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--td-text)' }}>
+                      {captain.fullName}
+                      {captain.isDefault && (
+                        <span style={{ marginLeft: 6, fontFamily: 'var(--td-mono)', fontSize: 9, color: 'var(--td-gold)' }}>Default</span>
                       )}
-                    </div>
-                    <ChevronRight size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
-                  </button>
-                )
-              })}
+                    </p>
+                    {captain.licenseType && (
+                      <p style={{ fontFamily: 'var(--td-mono)', fontSize: 10, color: 'var(--td-text-dim)', marginTop: 1 }}>
+                        {captain.licenseType}
+                      </p>
+                    )}
+                  </div>
+                  <ChevronRight size={13} strokeWidth={2} style={{ color: 'var(--td-text-faint)' }} />
+                </button>
+              ))}
             </div>
           </div>
         )}
 
         {/* Roster link */}
         {!isLocked && (
-          <a
-            href="/dashboard/captains"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
-              fontSize: '12px', color: 'var(--muted, #6b7280)',
-              textDecoration: 'none', marginTop: 'var(--s-1)',
-              justifyContent: 'center',
-            }}
-          >
-            Manage crew roster
-            <ArrowRight size={12} strokeWidth={2.5} />
+          <a href="/dashboard/captains" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--td-text-faint)', textDecoration: 'none', marginTop: 4, justifyContent: 'center' }}>
+            Manage crew roster <ArrowRight size={11} strokeWidth={2.5} />
           </a>
         )}
       </div>

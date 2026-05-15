@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Check, AlertTriangle } from 'lucide-react'
+import { Check, AlertTriangle, Play, Square } from 'lucide-react'
 import { useTripStatus } from '@/hooks/useTripStatus'
 import { useTripGuests } from '@/hooks/useTripGuests'
 import { RealtimeIndicator } from './RealtimeIndicator'
@@ -17,28 +17,19 @@ interface TripStatusBarProps {
 }
 
 export function TripStatusBar({
-  tripId,
-  tripSlug,
-  initialStatus,
-  initialStartedAt,
-  initialGuests,
-  requiredSafetyCards,
+  tripId, tripSlug, initialStatus, initialStartedAt,
+  initialGuests, requiredSafetyCards,
 }: TripStatusBarProps) {
-  const { status, startedAt, connectionStatus } = useTripStatus(
-    tripId, initialStatus, initialStartedAt,
-  )
+  const { status, startedAt, connectionStatus } = useTripStatus(tripId, initialStatus, initialStartedAt)
   const { guests } = useTripGuests(tripId, initialGuests)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // ── Confirmation panel state ─────────────────────────────
   const [showStartConfirm, setShowStartConfirm] = useState(false)
   const [briefingConfirmed, setBriefingConfirmed] = useState(false)
   const [captainBriefedAll, setCaptainBriefedAll] = useState(false)
   const [showEndConfirm, setShowEndConfirm] = useState(false)
 
-  // ── USCG compliance check ────────────────────────────────
   const isReadyToDepart = useMemo(() => {
     if (guests.length === 0) return false
     return guests.every(g => {
@@ -58,219 +49,151 @@ export function TripStatusBar({
     }).length
   , [guests, requiredSafetyCards])
 
-  // ── Start trip ───────────────────────────────────────────
   async function handleStartTrip() {
-    setLoading(true)
-    setError(null)
+    setLoading(true); setError(null)
     try {
       const tokenRes = await fetch(`/api/dashboard/trips/${tripId}/snapshot`, { method: 'POST' })
       if (!tokenRes.ok) throw new Error('Failed to generate captain token')
-      const tokenJson = await tokenRes.json()
-      const snapshotToken = tokenJson.data?.token
-      if (!snapshotToken) throw new Error('No token returned')
-
+      const { data } = await tokenRes.json()
+      if (!data?.token) throw new Error('No token returned')
       const startRes = await fetch(`/api/trips/${tripSlug}/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          snapshotToken,
+          snapshotToken: data.token,
           confirmedGuestCount: guests.length,
           checklistConfirmed: true,
           ...(briefingConfirmed && captainBriefedAll ? {
             briefingAttestation: {
               type: 'full_verbal' as const,
-              topicsCovered: ['emergency_exits', 'life_jacket_location', 'life_jacket_donning',
-                              'instruction_placards', 'hazardous_conditions'],
+              topicsCovered: ['emergency_exits','life_jacket_location','life_jacket_donning','instruction_placards','hazardous_conditions'],
               signature: 'Operator Dashboard Confirmation',
               confirmedAt: new Date().toISOString(),
             },
           } : {}),
         }),
       })
-
       if (!startRes.ok) {
         const body = await startRes.json().catch(() => ({ error: 'Unknown error' }))
         throw new Error(body.error || 'Failed to start trip')
       }
-
       setShowStartConfirm(false)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to start trip')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
-  // ── End trip — calls operator-auth endpoint (no token required) ────────────
   async function handleEndTrip() {
-    setLoading(true)
-    setError(null)
+    setLoading(true); setError(null)
     try {
-      const endRes = await fetch(`/api/dashboard/trips/${tripId}/end`, {
-        method: 'POST',
-      })
-
-      if (!endRes.ok) {
-        const body = await endRes.json().catch(() => ({ error: 'Unknown error' }))
+      const res = await fetch(`/api/dashboard/trips/${tripId}/end`, { method: 'POST' })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: 'Unknown error' }))
         throw new Error(body.error || 'Failed to end trip')
       }
-
       setShowEndConfirm(false)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to end trip')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   return (
-    <section style={{ marginTop: 'var(--s-6)' }}>
-      {/* ── Section kicker — MASTER_DESIGN §6.6 soft ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))', marginBottom: 16 }}>
-        <span
-          style={{
-            fontFamily: 'var(--font-mono, monospace)',
-            fontSize: 10, fontWeight: 600,
-            letterSpacing: '0.12em', textTransform: 'uppercase',
-            color: 'var(--color-ink-muted, #3d5568)',
-          }}
-        >
-          Trip control
-        </span>
-        <RealtimeIndicator status={connectionStatus} />
+    <section>
+      {/* Section kicker */}
+      <div className="td-kicker">
+        <span className="td-kicker-label">Trip Control</span>
+        <div className="td-kicker-meta">
+          <RealtimeIndicator status={connectionStatus} />
+        </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-        {/* ── Compliance banner (upcoming) ───────────────── */}
+        {/* Compliance banner */}
         {status === 'upcoming' && (
           isReadyToDepart ? (
-            <div className="alert alert--ok">
-              <Check size={16} strokeWidth={2.5} />
+            <div className="td-alert td-alert-ok">
+              <Check size={15} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }} />
               <div>
                 <strong>Ready for departure</strong>
-                <div style={{ fontSize: 'var(--t-body-sm)', color: 'var(--muted, #6b7280)', marginTop: 2 }}>
-                  {guests.length} guest{guests.length !== 1 ? 's' : ''} · All waivers signed · Safety briefing complete
-                </div>
+                <span style={{ fontFamily: 'var(--td-mono)', fontSize: 11 }}>
+                  {guests.length} guest{guests.length !== 1 ? 's' : ''} · All waivers signed · Safety complete
+                </span>
               </div>
             </div>
           ) : (
-            <div className="alert alert--warn">
-              <AlertTriangle size={16} strokeWidth={2} />
+            <div className="td-alert td-alert-warn">
+              <AlertTriangle size={15} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} />
               <div>
-                <strong>Waiting on guests</strong>
-                <div style={{ fontSize: 'var(--t-body-sm)', color: 'var(--muted, #6b7280)', marginTop: 2 }}>
-                  {nonCompliantCount} guest{nonCompliantCount !== 1 ? 's' : ''} still need to sign the waiver or complete the safety briefing
-                </div>
+                <strong>Waiting on {nonCompliantCount} guest{nonCompliantCount !== 1 ? 's' : ''}</strong>
+                <span style={{ fontFamily: 'var(--td-mono)', fontSize: 11 }}>Waiver or safety briefing pending</span>
               </div>
             </div>
           )
         )}
 
-        {/* ── Active trip indicator ──────────────────────── */}
+        {/* Active indicator */}
         {status === 'active' && startedAt && (
-          <div className="alert alert--ok">
+          <div className="td-alert td-alert-ok">
             <div>
               <strong>Trip active</strong>
-              <span style={{ marginLeft: 'var(--s-2)', fontWeight: 400 }}>
-                since {new Date(startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <span style={{ fontFamily: 'var(--td-mono)', fontSize: 11 }}>
+                Since {new Date(startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>
         )}
 
-        {/* ── Error ─────────────────────────────────────── */}
+        {/* Error */}
         {error && (
-          <div className="alert alert--err">
-            <AlertTriangle size={16} strokeWidth={2} />
+          <div className="td-alert td-alert-err">
+            <AlertTriangle size={15} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} />
             <div><strong>{error}</strong></div>
           </div>
         )}
 
-        {/* ── Start confirmation panel ──────────────────── */}
+        {/* Pre-departure confirm panel */}
         {showStartConfirm && status === 'upcoming' && (
-          <div
-            className="tile"
-            style={{ overflow: 'hidden', padding: 0 }}
-          >
-            {/* Panel header */}
-            <div
-              style={{
-                background: 'var(--ink, #111c2d)',
-                padding: 'var(--s-3) var(--s-5)',
-              }}
-            >
-              <span
-                className="font-mono"
-                style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--off, #f5f7fa)' }}
-              >
-                Pre-departure confirmation
-              </span>
+          <div className="td-panel">
+            <div className="td-panel-header">
+              <span className="td-panel-label">Pre-departure confirmation</span>
             </div>
-
-            <div style={{ padding: 'var(--s-5)', display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
-              {/* Summary rows */}
-              <div className="meta-stack">
-                <div className="meta-row">
-                  <span className="label">Passengers</span>
-                  <span className="value" style={{ fontSize: 'var(--t-body-md)' }}>{guests.length}</span>
+            <div className="td-panel-body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Summary */}
+              <div className="td-meta-stack">
+                <div className="td-meta-row">
+                  <span className="td-meta-label">Passengers</span>
+                  <span className="td-meta-value">{guests.length}</span>
                 </div>
-                <div className="meta-row">
-                  <span className="label">Waivers signed</span>
-                  <span className="value" style={{ fontSize: 'var(--t-body-md)', color: 'var(--verified, #059669)' }}>
+                <div className="td-meta-row">
+                  <span className="td-meta-label">Waivers signed</span>
+                  <span className="td-meta-value" style={{ color: 'var(--td-ok)' }}>
                     {guests.filter(g => g.waiverSigned || g.waiverTextHash === 'firma_template').length} / {guests.length}
                   </span>
                 </div>
               </div>
 
-              {/* Safety briefing attestation */}
-              <div
-                style={{
-                  padding: 'var(--s-4)',
-                  background: 'var(--off, #f5f7fa)',
-                  borderRadius: 'var(--r-2)',
-                  display: 'flex', flexDirection: 'column', gap: 'var(--s-3)',
-                }}
-              >
-                <span
-                  className="font-mono"
-                  style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted, #6b7280)' }}
-                >
+              {/* 46 CFR attestation */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 4, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10, border: '1px solid var(--td-divider)' }}>
+                <span style={{ fontFamily: 'var(--td-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '0.10em', textTransform: 'uppercase', color: 'var(--td-gold-dim)' }}>
                   46 CFR 185.506 Safety briefing
                 </span>
-
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--s-3)', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={captainBriefedAll}
-                    onChange={() => setCaptainBriefedAll(!captainBriefedAll)}
-                    style={{ marginTop: 3, width: 18, height: 18, accentColor: 'var(--gold, #c9a227)', flexShrink: 0 }}
-                  />
-                  <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--ink, #111c2d)', lineHeight: 1.5 }}>
-                    The captain has verbally briefed all passengers on life jacket locations,
-                    emergency exits, and safety procedures
-                  </span>
+                <label className="td-check-label">
+                  <input type="checkbox" checked={captainBriefedAll} onChange={() => setCaptainBriefedAll(v => !v)} />
+                  <span className="td-check-text">Captain has verbally briefed all passengers on life jacket locations, emergency exits, and safety procedures</span>
                 </label>
-
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--s-3)', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={briefingConfirmed}
-                    onChange={() => setBriefingConfirmed(!briefingConfirmed)}
-                    style={{ marginTop: 3, width: 18, height: 18, accentColor: 'var(--gold, #c9a227)', flexShrink: 0 }}
-                  />
-                  <span style={{ fontSize: 'var(--t-body-sm)', color: 'var(--ink, #111c2d)', lineHeight: 1.5 }}>
-                    Insurance will be activated and passengers will be notified
-                  </span>
+                <label className="td-check-label">
+                  <input type="checkbox" checked={briefingConfirmed} onChange={() => setBriefingConfirmed(v => !v)} />
+                  <span className="td-check-text">Insurance will activate and passengers will be notified</span>
                 </label>
               </div>
 
-              {/* Action buttons */}
-              <div style={{ display: 'flex', gap: 'var(--s-3)' }}>
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 8 }}>
                 <button
                   onClick={() => { setShowStartConfirm(false); setBriefingConfirmed(false); setCaptainBriefedAll(false) }}
                   disabled={loading}
-                  className="btn"
+                  className="td-btn-outline"
                   style={{ flex: 1 }}
                 >
                   Cancel
@@ -278,15 +201,10 @@ export function TripStatusBar({
                 <button
                   onClick={handleStartTrip}
                   disabled={loading || !briefingConfirmed || !captainBriefedAll}
-                  className="btn btn-navy"
-                  style={{
-                    flex: 1,
-                    background: (briefingConfirmed && captainBriefedAll) ? 'var(--verified, #059669)' : 'var(--border, #dde2ea)',
-                    borderColor: (briefingConfirmed && captainBriefedAll) ? 'var(--verified, #059669)' : 'var(--border, #dde2ea)',
-                    color: (briefingConfirmed && captainBriefedAll) ? 'var(--off, #f5f7fa)' : 'var(--muted, #6b7280)',
-                    cursor: (briefingConfirmed && captainBriefedAll) ? 'pointer' : 'not-allowed',
-                  }}
+                  className="td-btn-gold"
+                  style={{ flex: 2 }}
                 >
+                  <Play size={13} strokeWidth={2.5} />
                   {loading ? 'Starting...' : 'Confirm and start'}
                 </button>
               </div>
@@ -294,127 +212,71 @@ export function TripStatusBar({
           </div>
         )}
 
-        {/* ── Start Trip button ──────────────────────────── */}
+        {/* Start trip button */}
         {status === 'upcoming' && !showStartConfirm && (
           <button
             onClick={() => setShowStartConfirm(true)}
             disabled={!isReadyToDepart || loading}
-            className="btn"
-            style={{
-              width: '100%', height: 52, justifyContent: 'center',
-              background: isReadyToDepart ? 'var(--navy, #0a1628)' : 'var(--off, #f5f7fa)',
-              borderColor: isReadyToDepart ? 'var(--navy, #0a1628)' : 'var(--border, #dde2ea)',
-              color: isReadyToDepart ? '#e8e8e0' : 'var(--muted, #6b7280)',
-              fontSize: 'var(--t-body-md)', fontWeight: 700,
-              cursor: isReadyToDepart ? 'pointer' : 'not-allowed',
-            }}
+            className="td-btn-gold"
           >
+            <Play size={14} strokeWidth={2.5} />
             {loading ? 'Starting...' : isReadyToDepart ? 'Start trip' : 'Waiting on compliance...'}
           </button>
         )}
 
-        {/* ── End Trip confirmation — left-border alert, no red header ── */}
+        {/* End trip confirm panel */}
         {status === 'active' && showEndConfirm && (
-          <div
-            style={{
-              border: '1px solid var(--color-status-err-soft, #F2D5CC)',
-              borderLeft: '4px solid var(--color-status-err, #A8361E)',
-              borderRadius: 2,
-              overflow: 'hidden',
-              background: 'var(--color-status-err-soft, #F2D5CC)',
-            }}
-          >
-            {/* Compact header */}
-            <div
-              style={{
-                padding: '10px 16px 8px',
-                borderBottom: '1px solid rgba(168,54,30,0.15)',
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: 'var(--font-mono, monospace)',
-                  fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-                  color: 'var(--color-status-err, #A8361E)',
-                }}
-              >
-                Confirm end trip
-              </span>
+          <div className="td-panel" style={{ borderLeftWidth: 3, borderLeftColor: 'var(--td-err)' }}>
+            <div className="td-panel-header">
+              <span className="td-panel-label" style={{ color: 'var(--td-err)' }}>Confirm end trip</span>
             </div>
-
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 'var(--s-4)', background: 'var(--color-paper, #FAF7F0)' }}>
-              {/* Summary */}
-              <div className="meta-stack">
-                <div className="meta-row">
-                  <span className="label">Passengers aboard</span>
-                  <span className="value" style={{ fontSize: 'var(--t-body-md)' }}>{guests.length}</span>
+            <div className="td-panel-body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="td-meta-stack">
+                <div className="td-meta-row">
+                  <span className="td-meta-label">Passengers aboard</span>
+                  <span className="td-meta-value">{guests.length}</span>
                 </div>
                 {startedAt && (
-                  <div className="meta-row">
-                    <span className="label">Started at</span>
-                    <span className="value" style={{ fontSize: 'var(--t-body-md)' }}>
+                  <div className="td-meta-row">
+                    <span className="td-meta-label">Started at</span>
+                    <span className="td-meta-value">
                       {new Date(startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 )}
               </div>
-
-              {/* Warning note */}
-              <p
-                style={{
-                  fontSize: 13, lineHeight: 1.5,
-                  color: 'var(--color-status-err, #A8361E)',
-                }}
-              >
-                This will mark the trip as <strong>completed</strong> and cannot be undone. Guests will receive a review request.
+              <p style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--td-text-dim)', margin: 0 }}>
+                This marks the trip as <strong style={{ color: 'var(--td-err)' }}>completed</strong> and cannot be undone. Guests will receive a review request.
               </p>
-
-              {/* Action buttons */}
               <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => setShowEndConfirm(false)}
-                  disabled={loading}
-                  className="btn"
-                  style={{ flex: 1 }}
-                >
+                <button onClick={() => setShowEndConfirm(false)} disabled={loading} className="td-btn-outline" style={{ flex: 1 }}>
                   Cancel
                 </button>
-                <button
-                  onClick={handleEndTrip}
-                  disabled={loading}
-                  className="btn"
-                  style={{
-                    flex: 1,
-                    background: 'var(--color-status-err, #A8361E)',
-                    borderColor: 'var(--color-status-err, #A8361E)',
-                    color: '#fff',
-                    fontWeight: 700,
-                    opacity: loading ? 0.6 : 1,
-                  }}
-                >
-                  {loading ? 'Ending...' : 'End Trip'}
+                <button onClick={handleEndTrip} disabled={loading} className="td-btn-err" style={{ flex: 1 }}>
+                  {loading ? 'Ending...' : 'End trip'}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── End Trip button (opens confirmation) ───────── */}
+        {/* End trip button */}
         {status === 'active' && !showEndConfirm && (
           <button
             onClick={() => setShowEndConfirm(true)}
             disabled={loading}
-            className="btn btn-danger"
-            style={{ width: '100%', height: 52, justifyContent: 'center', fontSize: 'var(--t-body-md)', fontWeight: 700 }}
+            className="td-btn-err"
+            style={{ width: '100%', height: 46, justifyContent: 'center' }}
           >
+            <Square size={13} strokeWidth={2.5} />
             End trip
           </button>
         )}
 
-        {/* ── Completed state ───────────────────────────── */}
+        {/* Completed */}
         {status === 'completed' && (
-          <div className="alert alert--ok">
-            <Check size={16} strokeWidth={2.5} />
+          <div className="td-alert td-alert-ok">
+            <Check size={15} strokeWidth={2.5} style={{ flexShrink: 0 }} />
             <div><strong>Trip completed</strong></div>
           </div>
         )}

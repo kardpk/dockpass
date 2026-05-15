@@ -1,136 +1,80 @@
 import Link from 'next/link'
-import { ChevronLeft, MapPin } from 'lucide-react'
-import { formatTripDate, formatDuration } from '@/lib/utils/format'
-import { TripStatusBadge } from '@/components/ui/TripStatusBadge'
+import { ChevronLeft, MapPin, Calendar, Clock } from 'lucide-react'
 import type { OperatorTripDetail } from '@/types'
 
-/**
- * TripDetailHeader — V3 Design Language
- *
- * Source Serif 4 boat name, JetBrains Mono trip metadata,
- * V3 badge for status, gold trip code.
- */
+function formatDate(d: string) {
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric',
+  })
+}
+
+function formatDur(h: number) {
+  if (h < 1) return `${Math.round(h * 60)}m`
+  if (Number.isInteger(h)) return `${h}h`
+  return `${Math.floor(h)}h ${Math.round((h % 1) * 60)}m`
+}
+
+function StatusPill({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    upcoming:  'td-pill td-pill-gold',
+    active:    'td-pill td-pill-ok',
+    completed: 'td-pill td-pill-ghost',
+    cancelled: 'td-pill td-pill-err',
+  }
+  return (
+    <span className={map[status] ?? 'td-pill td-pill-ghost'}>
+      {status}
+    </span>
+  )
+}
+
 export function TripDetailHeader({ trip }: { trip: OperatorTripDetail }) {
   return (
-    <div style={{ marginBottom: 24 }}>
-      {/* ── Back nav + status badge ─────────────────────────── */}
-      <div
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 0',
-          borderBottom: '1px solid var(--border, #dde2ea)',
-        }}
-      >
-        <Link
-          href="/dashboard/trips"
-          style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-            color: 'var(--ink, #111c2d)', textDecoration: 'none',
-            fontSize: 14, fontWeight: 500,
-            fontFamily: 'var(--sans, sans-serif)',
-          }}
-        >
-          <ChevronLeft size={16} strokeWidth={2.5} />
+    <div className="td-header">
+      {/* Nav row */}
+      <div className="td-header-nav">
+        <Link href="/dashboard/trips" className="td-header-back">
+          <ChevronLeft size={15} strokeWidth={2.5} />
           All trips
         </Link>
-        <TripStatusBadge status={trip.status} />
+        <StatusPill status={trip.status} />
       </div>
 
-      {/* ── Boat name + trip info ────────────────────────────── */}
-      <div style={{ paddingTop: 20 }}>
-        <h1
-          style={{
-            fontFamily: 'var(--serif, Georgia, serif)',
-            fontSize: 'clamp(24px, 4vw, 30px)',
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: 'var(--ink, #111c2d)',
-            lineHeight: 1.12,
-          }}
-        >
+      {/* Boat name + trip code on same row */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+        <h1 className="td-header-boat" style={{ flex: 1 }}>
           {trip.boat.boatName}
         </h1>
-
-        {/* Trip meta row — date · time · duration */}
-        <div
-          style={{
-            fontFamily: 'var(--mono, monospace)',
-            fontSize: 12,
-            fontWeight: 600,
-            color: 'var(--body, #374151)',
-            letterSpacing: '0.06em',
-            marginTop: 8,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-          }}
-        >
-          {formatTripDate(trip.tripDate)} · {trip.departureTime.slice(0, 5)} · {formatDuration(trip.durationHours)}
-        </div>
-
-        {/* Location row */}
-        <div
-          style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-            marginTop: 4,
-            fontSize: 13,
-            color: 'var(--muted, #6b7280)',
-            fontFamily: 'var(--sans, sans-serif)',
-          }}
-        >
-          <MapPin size={12} strokeWidth={2} />
-          {trip.boat.marinaName}
-          {trip.boat.slipNumber ? ` · Slip ${trip.boat.slipNumber}` : ''}
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'var(--td-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--td-text-faint)', marginBottom: 2 }}>
+            Code
+          </div>
+          <div className="td-header-code">{trip.tripCode}</div>
         </div>
       </div>
 
-      {/* ── Trip code ────────────────────────────────────────── */}
-      <div
-        style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          marginTop: 16,
-          paddingTop: 16,
-          borderTop: '1px dashed var(--border, #dde2ea)',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--mono, monospace)',
-            fontSize: 11, fontWeight: 600,
-            letterSpacing: '0.14em', textTransform: 'uppercase',
-            color: 'var(--muted, #6b7280)',
-          }}
-        >
-          Code
-        </span>
-        <span
-          style={{
-            fontFamily: 'var(--mono, monospace)',
-            fontSize: 24, fontWeight: 900,
-            letterSpacing: '0.15em',
-            color: 'var(--gold, #c9a227)',
-          }}
-        >
-          {trip.tripCode}
-        </span>
+      {/* Date / time / duration */}
+      <div className="td-header-meta" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+        <Calendar size={11} strokeWidth={2} style={{ color: 'var(--td-text-faint)' }} />
+        {formatDate(trip.tripDate)}
+        <span style={{ color: 'var(--td-text-faint)' }}>·</span>
+        <Clock size={11} strokeWidth={2} style={{ color: 'var(--td-text-faint)' }} />
+        {trip.departureTime.slice(0, 5)}
+        <span style={{ color: 'var(--td-text-faint)' }}>·</span>
+        {formatDur(trip.durationHours)}
       </div>
 
-      {/* ── Insurance notice (if active) ─────────────────────── */}
+      {/* Location */}
+      <div className="td-header-location">
+        <MapPin size={11} strokeWidth={2} />
+        {trip.boat.marinaName}
+        {trip.boat.slipNumber && <span style={{ color: 'var(--td-text-faint)' }}>· Slip {trip.boat.slipNumber}</span>}
+      </div>
+
+      {/* Insurance notice */}
       {trip.buoyPolicyId && trip.status === 'active' && (
-        <div
-          style={{
-            marginTop: 12,
-            padding: '10px 14px',
-            background: 'var(--v-soft, #ecfdf5)',
-            border: '1px solid rgba(5,150,105,0.25)',
-            borderLeft: '3px solid var(--verified, #059669)',
-            borderRadius: '0 4px 4px 0',
-            fontSize: 13,
-            color: 'var(--verified, #059669)',
-            fontFamily: 'var(--sans, sans-serif)',
-          }}
-        >
-          Insurance active · Policy {trip.buoyPolicyId}
+        <div className="td-alert td-alert-ok" style={{ marginTop: 12 }}>
+          <span style={{ fontSize: 12 }}>Insurance active · Policy {trip.buoyPolicyId}</span>
         </div>
       )}
     </div>

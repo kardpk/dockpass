@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Copy, Check, Pencil, X, Save } from 'lucide-react'
+import { Copy, Check, Pencil, X, Save } from 'lucide-react'
 
 interface TripCommunicationsPanelProps {
   tripId: string
@@ -10,18 +10,8 @@ interface TripCommunicationsPanelProps {
   specialNotes?: string | null
 }
 
-/**
- * TripCommunicationsPanel — MASTER_DESIGN §14.2
- *
- * Shows the operator the exact message guests receive,
- * and the captain notes field. Both are editable inline.
- * Section kicker: MessageSquare + COMMUNICATIONS
- */
 export function TripCommunicationsPanel({
-  tripId,
-  shareMessage,
-  tripLink,
-  specialNotes,
+  tripId, shareMessage, tripLink, specialNotes,
 }: TripCommunicationsPanelProps) {
   const [copiedMsg, setCopiedMsg] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
@@ -39,265 +29,91 @@ export function TripCommunicationsPanel({
 
   async function copyMessage() {
     await navigator.clipboard.writeText(savedMessage)
-    setCopiedMsg(true)
-    setTimeout(() => setCopiedMsg(false), 2000)
+    setCopiedMsg(true); setTimeout(() => setCopiedMsg(false), 2000)
   }
-
   async function copyLink() {
     await navigator.clipboard.writeText(tripLink)
-    setCopiedLink(true)
-    setTimeout(() => setCopiedLink(false), 2000)
+    setCopiedLink(true); setTimeout(() => setCopiedLink(false), 2000)
   }
-
   async function saveNotes() {
     setSavingNotes(true)
     try {
       await fetch(`/api/dashboard/trips/${tripId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ specialNotes: notesText }),
       })
-      setSavedNotes(notesText)
-      setEditingNotes(false)
-      setNotesSaved(true)
-      setTimeout(() => setNotesSaved(false), 2000)
-    } catch {
-      // silent — user can retry
-    } finally {
-      setSavingNotes(false)
-    }
+      setSavedNotes(notesText); setEditingNotes(false)
+      setNotesSaved(true); setTimeout(() => setNotesSaved(false), 2000)
+    } catch {} finally { setSavingNotes(false) }
   }
 
   return (
-    <section style={{ marginTop: 'var(--s-8)' }}>
-      {/* ── Section kicker — MASTER_DESIGN §6.6 soft ── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          paddingBottom: 12,
-          borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-          marginBottom: 16,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-mono, monospace)',
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--color-ink-muted, #3d5568)',
-          }}
-        >
-          Communications
-        </span>
+    <section>
+      {/* Uniform section kicker */}
+      <div className="td-kicker">
+        <span className="td-kicker-label">Communications</span>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-        {/* ── Guest invitation message ── */}
-        <div className="tile" style={{ overflow: 'hidden', padding: 0 }}>
-          {/* Sub-header — transparent, soft border only */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '10px 20px',
-              background: 'transparent',
-              borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-            }}
-          >
-            <span
-              className="font-mono"
-              style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'var(--muted, #6b7280)',
-              }}
-            >
-              Guest invitation message
-            </span>
-            {!editingMessage ? (
-              <button
-                onClick={() => { setEditingMessage(true); setMessageText(savedMessage) }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--s-1)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--muted, #6b7280)',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  padding: 0,
-                }}
-              >
-                <Pencil size={12} strokeWidth={2} />
-                Edit
+        {/* Guest invitation message */}
+        <div className="td-panel">
+          <div className="td-panel-header">
+            <span className="td-panel-label">Guest invitation message</span>
+            {editingMessage ? (
+              <button onClick={() => { setEditingMessage(false); setMessageText(savedMessage) }} className="td-btn-ghost">
+                <X size={12} strokeWidth={2} /> Cancel
               </button>
             ) : (
-              <button
-                onClick={() => { setEditingMessage(false); setMessageText(savedMessage) }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--s-1)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--muted, #6b7280)',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  padding: 0,
-                }}
-              >
-                <X size={12} strokeWidth={2} />
-                Cancel
+              <button onClick={() => { setEditingMessage(true); setMessageText(savedMessage) }} className="td-btn-ghost">
+                <Pencil size={12} strokeWidth={2} /> Edit
               </button>
             )}
           </div>
 
-          {/* Message body */}
-          <div style={{ padding: 'var(--s-4) var(--s-5)' }}>
+          <div className="td-panel-body">
             {editingMessage ? (
               <textarea
                 value={messageText}
                 onChange={e => setMessageText(e.target.value)}
                 rows={8}
-                className="field-input"
-                style={{
-                  width: '100%',
-                  resize: 'vertical',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
-                  lineHeight: 1.6,
-                  color: 'var(--ink, #111c2d)',
-                }}
+                className="td-textarea"
               />
             ) : (
-              <pre
-                className="font-mono"
-                style={{
-                  fontSize: '12px',
-                  lineHeight: 1.7,
-                  color: 'var(--ink, #111c2d)',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  margin: 0,
-                }}
-              >
+              <pre style={{ fontFamily: 'var(--td-mono)', fontSize: 12, lineHeight: 1.7, color: 'var(--td-text)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0 }}>
                 {savedMessage}
               </pre>
             )}
           </div>
 
-          {/* Actions */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: editingMessage ? '1fr 1fr' : '1fr 1fr',
-              borderTop: '1px solid var(--border, #dde2ea)',
-            }}
-          >
+          <div className="td-btn-split td-panel-footer">
             {editingMessage ? (
               <>
-                <button
-                  onClick={copyMessage}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 'var(--s-2)',
-                    height: 44,
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    background: copiedMsg ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
-                    color: copiedMsg ? 'var(--verified, #059669)' : 'var(--muted, #6b7280)',
-                    border: 'none',
-                    borderRight: '1px solid var(--border, #dde2ea)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {copiedMsg ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+                <button onClick={copyMessage} className={`td-btn-split-item ${copiedMsg ? 'copied' : ''}`}>
+                  {copiedMsg ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
                   {copiedMsg ? 'Copied' : 'Copy current'}
                 </button>
                 <button
                   onClick={async () => {
-                    setSavingMessage(true)
-                    setSavedMessage(messageText)
-                    setEditingMessage(false)
-                    setMessageSaved(true)
-                    setSavingMessage(false)
-                    setTimeout(() => setMessageSaved(false), 2000)
+                    setSavingMessage(true); setSavedMessage(messageText)
+                    setEditingMessage(false); setMessageSaved(true)
+                    setSavingMessage(false); setTimeout(() => setMessageSaved(false), 2000)
                   }}
                   disabled={savingMessage}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 'var(--s-2)',
-                    height: 44,
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    background: messageSaved ? 'var(--v-soft, #ecfdf5)' : 'var(--ink, #111c2d)',
-                    color: messageSaved ? 'var(--verified, #059669)' : 'var(--off, #f5f7fa)',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
+                  className="td-btn-split-item"
+                  style={{ color: messageSaved ? 'var(--td-ok)' : 'var(--td-gold)', fontWeight: 600 }}
                 >
-                  {messageSaved
-                    ? <><Check size={13} strokeWidth={2.5} /> Saved</>
-                    : <><Save size={13} strokeWidth={2} /> Save message</>
-                  }
+                  {messageSaved ? <><Check size={12} strokeWidth={2.5} /> Saved</> : <><Save size={12} strokeWidth={2} /> Save</>}
                 </button>
               </>
             ) : (
               <>
-                <button
-                  onClick={copyMessage}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 'var(--s-2)',
-                    height: 44,
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    background: copiedMsg ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
-                    color: copiedMsg ? 'var(--verified, #059669)' : 'var(--ink, #111c2d)',
-                    border: 'none',
-                    borderRight: '1px solid var(--border, #dde2ea)',
-                    cursor: 'pointer',
-                    transition: 'background var(--dur-fast) var(--ease)',
-                  }}
-                >
-                  {copiedMsg ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+                <button onClick={copyMessage} className={`td-btn-split-item ${copiedMsg ? 'copied' : ''}`}>
+                  {copiedMsg ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
                   {copiedMsg ? 'Copied' : 'Copy message'}
                 </button>
-                <button
-                  onClick={copyLink}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 'var(--s-2)',
-                    height: 44,
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    background: copiedLink ? 'var(--v-soft, #ecfdf5)' : 'var(--off, #f5f7fa)',
-                    color: copiedLink ? 'var(--verified, #059669)' : 'var(--muted, #6b7280)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'background var(--dur-fast) var(--ease)',
-                  }}
-                >
-                  {copiedLink ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} strokeWidth={2} />}
+                <button onClick={copyLink} className={`td-btn-split-item ${copiedLink ? 'copied' : ''}`}>
+                  {copiedLink ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} strokeWidth={2} />}
                   {copiedLink ? 'Link copied' : 'Copy link'}
                 </button>
               </>
@@ -305,130 +121,52 @@ export function TripCommunicationsPanel({
           </div>
         </div>
 
-        {/* ── Captain / operator notes ── */}
-        <div className="tile" style={{ overflow: 'hidden', padding: 0 }}>
-          {/* Sub-header — transparent, soft border only */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '10px 20px',
-              background: 'transparent',
-              borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
-            }}
-          >
-            <span
-              className="font-mono"
-              style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'var(--muted, #6b7280)',
-              }}
-            >
-              Captain notes
-            </span>
-            {notesSaved && (
-              <span
-                className="font-mono"
-                style={{ fontSize: '11px', color: 'var(--verified, #059669)' }}
-              >
-                <Check size={10} strokeWidth={2.5} style={{ display: 'inline', marginRight: 4 }} />
-                Saved
-              </span>
-            )}
-            {!editingNotes && !notesSaved ? (
-              <button
-                onClick={() => { setEditingNotes(true); setNotesText(savedNotes) }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--muted, #6b7280)', fontSize: '12px', fontWeight: 500, padding: 0,
-                }}
-              >
-                <Pencil size={12} strokeWidth={2} />
-                Edit
-              </button>
-            ) : editingNotes ? (
-              <button
-                onClick={() => { setEditingNotes(false); setNotesText(savedNotes) }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 'var(--s-1)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--muted, #6b7280)', fontSize: '12px', fontWeight: 500, padding: 0,
-                }}
-              >
-                <X size={12} strokeWidth={2} />
-                Cancel
-              </button>
-            ) : null}
+        {/* Captain notes */}
+        <div className="td-panel">
+          <div className="td-panel-header">
+            <span className="td-panel-label">Captain notes</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {notesSaved && (
+                <span style={{ fontFamily: 'var(--td-mono)', fontSize: 10, color: 'var(--td-ok)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <Check size={9} strokeWidth={2.5} /> Saved
+                </span>
+              )}
+              {editingNotes ? (
+                <button onClick={() => { setEditingNotes(false); setNotesText(savedNotes) }} className="td-btn-ghost">
+                  <X size={12} strokeWidth={2} /> Cancel
+                </button>
+              ) : !notesSaved ? (
+                <button onClick={() => { setEditingNotes(true); setNotesText(savedNotes) }} className="td-btn-ghost">
+                  <Pencil size={12} strokeWidth={2} /> Edit
+                </button>
+              ) : null}
+            </div>
           </div>
 
-          <div style={{ padding: 'var(--s-4) var(--s-5)' }}>
+          <div className="td-panel-body">
             {editingNotes ? (
               <textarea
                 value={notesText}
                 onChange={e => setNotesText(e.target.value)}
                 rows={4}
-                placeholder="Internal notes for the captain not visible to guests."
-                className="field-input"
-                style={{
-                  width: '100%',
-                  resize: 'vertical',
-                  fontSize: '13px',
-                  lineHeight: 1.6,
-                }}
+                placeholder="Internal notes for the captain, not visible to guests."
+                className="td-textarea"
               />
             ) : savedNotes ? (
-              <p
-                style={{
-                  fontSize: '13px',
-                  lineHeight: 1.6,
-                  color: 'var(--ink, #111c2d)',
-                  margin: 0,
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
+              <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--td-text)', margin: 0, whiteSpace: 'pre-wrap' }}>
                 {savedNotes}
               </p>
             ) : (
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: 'var(--muted, #6b7280)',
-                  fontStyle: 'italic',
-                  margin: 0,
-                }}
-              >
-                No captain notes. Tap Edit to add internal notes for the captain.
+              <p style={{ fontSize: 12, color: 'var(--td-text-faint)', fontStyle: 'italic', margin: 0 }}>
+                No captain notes. Tap Edit to add internal notes.
               </p>
             )}
           </div>
 
           {editingNotes && (
-            <div style={{ borderTop: '1px solid var(--border, #dde2ea)' }}>
-              <button
-                onClick={saveNotes}
-                disabled={savingNotes}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 'var(--s-2)',
-                  width: '100%',
-                  height: 44,
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  background: 'var(--ink, #111c2d)',
-                  color: 'var(--off, #f5f7fa)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  opacity: savingNotes ? 0.6 : 1,
-                }}
-              >
-                <Save size={13} strokeWidth={2} />
+            <div className="td-panel-footer" style={{ padding: 12 }}>
+              <button onClick={saveNotes} disabled={savingNotes} className="td-btn-gold" style={{ height: 40, fontSize: 12 }}>
+                <Save size={12} strokeWidth={2} />
                 {savingNotes ? 'Saving...' : 'Save notes'}
               </button>
             </div>

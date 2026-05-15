@@ -15,6 +15,7 @@ import { WeatherAlertCard } from '@/components/dashboard/WeatherAlertCard'
 import { TripCrewPanel } from '@/components/dashboard/TripCrewPanel'
 import type { Metadata } from 'next'
 import type { QualificationStatus } from '@/types'
+import './trip-detail.css'
 
 export const metadata: Metadata = { title: 'Trip detail — BoatCheckin' }
 
@@ -232,7 +233,7 @@ export default async function TripDetailPage({
   const tripLink = `${appUrl}/trip/${trip.slug}`
 
   return (
-    <div className="max-w-[560px] mx-auto px-5 pb-[100px]">
+    <div className="td-page">
       {/* ── Header ─────────────────────────────────────── */}
       <TripDetailHeader trip={trip} />
 
@@ -258,13 +259,11 @@ export default async function TripDetailPage({
       />
 
       {/* ── Crew assignment ────────────────────────────── */}
-      <div style={{ marginTop: 'var(--s-4)' }}>
-        <TripCrewPanel
-          tripId={trip.id}
-          tripStatus={trip.status}
-          initialAssignments={assignments}
-        />
-      </div>
+      <TripCrewPanel
+        tripId={trip.id}
+        tripStatus={trip.status}
+        initialAssignments={assignments}
+      />
 
       {/* ── Trip control (start/end + compliance) ──────────── */}
       <TripStatusBar
