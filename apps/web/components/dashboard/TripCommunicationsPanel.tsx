@@ -70,30 +70,25 @@ export function TripCommunicationsPanel({
 
   return (
     <section style={{ marginTop: 'var(--s-8)' }}>
-      {/* ── Section kicker ── */}
+      {/* ── Section kicker — MASTER_DESIGN §6.6 soft ── */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 'var(--s-2)',
-          paddingBottom: 'var(--s-3)',
-          borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
-          marginBottom: 'var(--s-4)',
+          gap: 6,
+          paddingBottom: 12,
+          borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+          marginBottom: 16,
         }}
       >
-        <Mail
-          size={14}
-          strokeWidth={2}
-          style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }}
-        />
         <span
-          className="font-mono"
           style={{
-            fontSize: '13px',
-            fontWeight: 700,
-            letterSpacing: '0.14em',
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'var(--ink, #111c2d)',
+            color: 'var(--color-ink-muted, #3d5568)',
           }}
         >
           Communications
@@ -104,15 +99,15 @@ export function TripCommunicationsPanel({
 
         {/* ── Guest invitation message ── */}
         <div className="tile" style={{ overflow: 'hidden', padding: 0 }}>
-          {/* Sub-header */}
+          {/* Sub-header — transparent, soft border only */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: 'var(--s-3) var(--s-5)',
-              background: 'var(--off, #f5f7fa)',
-              borderBottom: '1px solid var(--border, #dde2ea)',
+              padding: '10px 20px',
+              background: 'transparent',
+              borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
             }}
           >
             <span
@@ -312,14 +307,15 @@ export function TripCommunicationsPanel({
 
         {/* ── Captain / operator notes ── */}
         <div className="tile" style={{ overflow: 'hidden', padding: 0 }}>
+          {/* Sub-header — transparent, soft border only */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: 'var(--s-3) var(--s-5)',
-              background: 'var(--off, #f5f7fa)',
-              borderBottom: '1px solid var(--border, #dde2ea)',
+              padding: '10px 20px',
+              background: 'transparent',
+              borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
             }}
           >
             <span

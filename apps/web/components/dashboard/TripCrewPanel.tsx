@@ -97,30 +97,27 @@ export function TripCrewPanel({
   return (
     <section style={{ marginTop: 'var(--s-8)' }}>
 
-      {/* ── Section kicker ── */}
+      {/* ── Section kicker — MASTER_DESIGN §6.6 soft ── */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingBottom: 'var(--s-3)',
-          borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
-          marginBottom: 'var(--s-4)',
+          paddingBottom: 12,
+          borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+          marginBottom: 16,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
-          <UserRound size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
-          <span
-            style={{
-              fontFamily: 'var(--mono, monospace)',
-              fontSize: 11, fontWeight: 600,
-              letterSpacing: '0.14em', textTransform: 'uppercase',
-              color: 'var(--muted, #6b7280)',
-            }}
-          >
-            Crew assignment
-          </span>
-        </div>
+        <span
+          style={{
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: 10, fontWeight: 600,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            color: 'var(--color-ink-muted, #3d5568)',
+          }}
+        >
+          Crew assignment
+        </span>
         {isLocked && (
           <span className="pill pill--ghost">Locked</span>
         )}
@@ -146,17 +143,17 @@ export function TripCrewPanel({
                 padding: 'var(--s-3) var(--s-4)',
               }}
             >
-              {/* Avatar */}
+              {/* Avatar — circular bone-warm per MASTER_DESIGN §7.9 */}
               <div
                 style={{
-                  width: 40, height: 40,
-                  borderRadius: 4,
-                  background: 'var(--navy-2, #0f1e35)',
-                  border: '1px solid var(--gold-border, rgba(201,162,39,0.18))',
-                  color: '#e8e8e0',
+                  width: 38, height: 38,
+                  borderRadius: 9999,
+                  background: 'var(--color-bone-warm, #EDE6D8)',
+                  border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+                  color: 'var(--color-ink, #0B1E2D)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '13px', fontWeight: 700,
-                  fontFamily: 'var(--mono, monospace)',
+                  fontSize: '12px', fontWeight: 600,
+                  fontFamily: 'var(--font-mono, monospace)',
                   flexShrink: 0,
                 }}
               >
@@ -268,14 +265,14 @@ export function TripCrewPanel({
             >
               <div
                 style={{
-                  width: 32, height: 32,
-                  borderRadius: 'var(--r-1)',
-                  background: 'var(--off, #f5f7fa)',
-                  border: '1px solid var(--border, #dde2ea)',
-                  color: 'var(--ink, #111c2d)',
+                  width: 30, height: 30,
+                  borderRadius: 9999,
+                  background: 'var(--color-bone-warm, #EDE6D8)',
+                  border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+                  color: 'var(--color-ink, #0B1E2D)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: 700,
-                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px', fontWeight: 600,
+                  fontFamily: 'var(--font-mono, monospace)',
                   flexShrink: 0,
                 }}
               >
@@ -379,13 +376,14 @@ export function TripCrewPanel({
                   >
                     <div
                       style={{
-                        width: 32, height: 32,
-                        borderRadius: 'var(--r-1)',
-                        background: 'var(--ink, #111c2d)',
-                        color: 'var(--off, #f5f7fa)',
+                        width: 30, height: 30,
+                        borderRadius: 9999,
+                        background: 'var(--color-bone-warm, #EDE6D8)',
+                        border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+                        color: 'var(--color-ink, #0B1E2D)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '11px', fontWeight: 700,
-                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px', fontWeight: 600,
+                        fontFamily: 'var(--font-mono, monospace)',
                         flexShrink: 0,
                       }}
                     >

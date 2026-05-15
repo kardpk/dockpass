@@ -125,18 +125,18 @@ export function TripStatusBar({
 
   return (
     <section style={{ marginTop: 'var(--s-6)' }}>
-      {/* ── Section kicker ────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--s-4)' }}>
-        <div
-          className="font-mono"
+      {/* ── Section kicker — MASTER_DESIGN §6.6 soft ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))', marginBottom: 16 }}>
+        <span
           style={{
-            fontSize: '13px', fontWeight: 700,
-            letterSpacing: '0.14em', textTransform: 'uppercase',
-            color: 'var(--ink, #111c2d)',
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: 10, fontWeight: 600,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            color: 'var(--color-ink-muted, #3d5568)',
           }}
         >
           Trip control
-        </div>
+        </span>
         <RealtimeIndicator status={connectionStatus} />
       </div>
 
@@ -313,28 +313,36 @@ export function TripStatusBar({
           </button>
         )}
 
-        {/* ── End Trip confirmation panel ───────────────── */}
+        {/* ── End Trip confirmation — left-border alert, no red header ── */}
         {status === 'active' && showEndConfirm && (
           <div
-            className="tile"
-            style={{ overflow: 'hidden', padding: 0 }}
+            style={{
+              border: '1px solid var(--color-status-err-soft, #F2D5CC)',
+              borderLeft: '4px solid var(--color-status-err, #A8361E)',
+              borderRadius: 2,
+              overflow: 'hidden',
+              background: 'var(--color-status-err-soft, #F2D5CC)',
+            }}
           >
-            {/* Panel header */}
+            {/* Compact header */}
             <div
               style={{
-                background: 'var(--danger, #dc2626)',
-                padding: 'var(--s-3) var(--s-5)',
+                padding: '10px 16px 8px',
+                borderBottom: '1px solid rgba(168,54,30,0.15)',
               }}
             >
               <span
-                className="font-mono"
-                style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#fff' }}
+                style={{
+                  fontFamily: 'var(--font-mono, monospace)',
+                  fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+                  color: 'var(--color-status-err, #A8361E)',
+                }}
               >
-                Confirm End Trip
+                Confirm end trip
               </span>
             </div>
 
-            <div style={{ padding: 'var(--s-5)', display: 'flex', flexDirection: 'column', gap: 'var(--s-4)' }}>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 'var(--s-4)', background: 'var(--color-paper, #FAF7F0)' }}>
               {/* Summary */}
               <div className="meta-stack">
                 <div className="meta-row">
@@ -351,23 +359,18 @@ export function TripStatusBar({
                 )}
               </div>
 
-              {/* Warning */}
-              <div
+              {/* Warning note */}
+              <p
                 style={{
-                  padding: 'var(--s-3) var(--s-4)',
-                  background: 'rgba(180,60,60,0.06)',
-                  border: '1px solid rgba(180,60,60,0.2)',
-                  borderRadius: 'var(--r-1)',
-                  fontSize: 'var(--t-body-sm)',
-                  color: 'var(--danger, #dc2626)',
-                  lineHeight: 1.5,
+                  fontSize: 13, lineHeight: 1.5,
+                  color: 'var(--color-status-err, #A8361E)',
                 }}
               >
                 This will mark the trip as <strong>completed</strong> and cannot be undone. Guests will receive a review request.
-              </div>
+              </p>
 
               {/* Action buttons */}
-              <div style={{ display: 'flex', gap: 'var(--s-3)' }}>
+              <div style={{ display: 'flex', gap: 8 }}>
                 <button
                   onClick={() => setShowEndConfirm(false)}
                   disabled={loading}
@@ -382,8 +385,8 @@ export function TripStatusBar({
                   className="btn"
                   style={{
                     flex: 1,
-                    background: 'var(--danger, #dc2626)',
-                    borderColor: 'var(--danger, #dc2626)',
+                    background: 'var(--color-status-err, #A8361E)',
+                    borderColor: 'var(--color-status-err, #A8361E)',
                     color: '#fff',
                     fontWeight: 700,
                     opacity: loading ? 0.6 : 1,

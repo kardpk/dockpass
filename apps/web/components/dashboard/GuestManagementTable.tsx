@@ -7,13 +7,26 @@ import {
 } from 'lucide-react'
 import { useTripGuests } from '@/hooks/useTripGuests'
 import { RealtimeIndicator } from './RealtimeIndicator'
-import type { DashboardGuest } from '@/types'
+import type { DashboardGuest, QualificationStatus } from '@/types'
+
+type QualificationRecord = {
+  id: string
+  qualificationStatus: QualificationStatus
+  hasBoatOwnership: boolean
+  experienceYears: number
+  safetyBoaterRequired: boolean
+  safetyBoaterCardUrl: string | null
+  attestedAt: string
+  reviewNotes: string | null
+}
 
 interface GuestManagementTableProps {
   tripId: string
   initialGuests: DashboardGuest[]
   maxGuests: number
   requiresApproval: boolean
+  requiresQualification?: boolean
+  qualificationMap?: Record<string, QualificationRecord>
 }
 
 function initials(name: string) {
@@ -90,32 +103,34 @@ export function GuestManagementTable({
   return (
     <section style={{ marginTop: 'var(--s-6)' }}>
 
-      {/* ── Section kicker ── */}
+      {/* ── Section kicker — MASTER_DESIGN §6.6 soft line, not ink ── */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingBottom: 'var(--s-3)',
-          borderBottom: 'var(--border-w) solid var(--border, #dde2ea)',
-          marginBottom: 'var(--s-4)',
+          paddingBottom: 12,
+          borderBottom: '1px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+          marginBottom: 16,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-2)' }}>
-          <Users size={14} strokeWidth={2} style={{ color: 'var(--muted, #6b7280)', flexShrink: 0 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span
             style={{
-              fontFamily: 'var(--mono, monospace)',
-              fontSize: 11, fontWeight: 600,
-              letterSpacing: '0.14em', textTransform: 'uppercase',
-              color: 'var(--muted, #6b7280)',
+              fontFamily: 'var(--font-mono, monospace)',
+              fontSize: 10, fontWeight: 600,
+              letterSpacing: '0.12em', textTransform: 'uppercase',
+              color: 'var(--color-ink-muted, #3d5568)',
             }}
           >
             Guests
           </span>
           <span
-            className="font-mono"
-            style={{ fontSize: '13px', fontWeight: 600, color: 'var(--muted, #6b7280)' }}
+            style={{
+              fontFamily: 'var(--font-mono, monospace)',
+              fontSize: 10, fontWeight: 500,
+              color: 'var(--color-ink-muted, #3d5568)',
+            }}
           >
             {total} / {maxGuests}
           </span>
@@ -268,18 +283,18 @@ export function GuestManagementTable({
                 <div style={{ padding: 'var(--s-3) var(--s-4)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)' }}>
 
-                    {/* Guest avatar */}
+                    {/* Guest avatar — MASTER_DESIGN §7.9 circular bone-warm */}
                     <div
                       style={{
-                        width: 36, height: 36,
-                        borderRadius: 4,
-                        background: 'var(--navy-2, #0f1e35)',
-                        border: '1px solid var(--gold-border, rgba(201,162,39,0.18))',
-                        color: '#e8e8e0',
+                        width: 34, height: 34,
+                        borderRadius: 9999,
+                        background: 'var(--color-bone-warm, #EDE6D8)',
+                        border: '1.5px solid var(--color-line-soft, rgba(11,30,45,0.12))',
+                        color: 'var(--color-ink, #0B1E2D)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '12px', fontWeight: 700,
+                        fontSize: '11px', fontWeight: 600,
                         flexShrink: 0,
-                        fontFamily: 'var(--mono, monospace)',
+                        fontFamily: 'var(--font-mono, monospace)',
                       }}
                     >
                       {initials(guest.fullName)}
@@ -328,7 +343,7 @@ export function GuestManagementTable({
                         {guest.isNonSwimmer && (
                           <span className="pill pill--err">Non-swimmer</span>
                         )}
-                        {guest.isSeasicknessProne && (
+                        {guest.isSeaSicknessProne && (
                           <span className="pill pill--warn">Seasickness</span>
                         )}
                         {guest.dietaryRequirements && (
